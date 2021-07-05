@@ -31,7 +31,7 @@ def actor_name(node_name):
     return ":".join(flatten_node_name(node_name))
 
 
-class EsrfPythonActor(PythonActor):
+class EwoksPythonActor(PythonActor):
     def __init__(self, node_name, node_attrs, **kw):
         self.node_name = node_name
         self.node_attrs = node_attrs
@@ -196,9 +196,9 @@ class InputMergeActor(AbstractActor):
             actor.trigger(newInData)
 
 
-class EsrfWorkflow(Workflow):
-    def __init__(self, esrfgraph, varinfo=None):
-        name = repr(esrfgraph)
+class EwoksWorkflow(Workflow):
+    def __init__(self, ewoksgraph, varinfo=None):
+        name = repr(ewoksgraph)
         super().__init__(name)
 
         # When triggering a task, the output dict of the previous task
@@ -208,10 +208,10 @@ class EsrfWorkflow(Workflow):
         self.startargs = {
             ppfrunscript.INFOKEY: {"varinfo": varinfo, "enable_logging": True}
         }
-        self.graph_to_actors(esrfgraph, varinfo)
+        self.graph_to_actors(ewoksgraph, varinfo)
 
     def _clean_workflow(self):
-        # task_name -> EsrfPythonActor
+        # task_name -> EwoksPythonActor
         self._taskactors = dict()
         self.listActorRef = list()  # values of taskactors
 
@@ -221,7 +221,7 @@ class EsrfWorkflow(Workflow):
         # source_name -> target_name -> NameMapperActor
         self._sourceactors = dict()
 
-        # target_name -> EsrfPythonActor or InputMergeActor
+        # target_name -> EwoksPythonActor or InputMergeActor
         self._targetactors = dict()
 
         self._threadcounter = ThreadCounter()
@@ -266,7 +266,7 @@ class EsrfWorkflow(Workflow):
         logger.info(msg)
 
     def _create_task_actors(self, taskgraph):
-        # task_name -> EsrfPythonActor
+        # task_name -> EwoksPythonActor
         taskactors = self._taskactors
         error_actor = self._error_actor
         imported = set()
@@ -278,7 +278,7 @@ class EsrfWorkflow(Workflow):
                 if importfunc:
                     importfunc(name)
 
-            actor = EsrfPythonActor(
+            actor = EwoksPythonActor(
                 node_name,
                 node_attrs,
                 script=ppfrunscript.__name__ + ".dummy",
@@ -295,7 +295,7 @@ class EsrfWorkflow(Workflow):
         """
         # source_name -> condition_name -> DecodeRouterActor
         routeractors = self._routeractors
-        # task_name -> EsrfPythonActor
+        # task_name -> EwoksPythonActor
         taskactors = self._taskactors
         for source_name in taskgraph.graph.nodes:
             # We will get 1 router for each output variable
@@ -351,7 +351,7 @@ class EsrfWorkflow(Workflow):
     def _create_source_actor(
         self, taskgraph, source_name, target_name
     ) -> NameMapperActor:
-        # task_name -> EsrfPythonActor
+        # task_name -> EwoksPythonActor
         taskactors = self._taskactors
         # source_name -> condition_name -> DecodeRouterActor
         routeractors = self._routeractors
@@ -373,7 +373,7 @@ class EsrfWorkflow(Workflow):
         connectkw = dict()
         nrouters = len(routers)
         if nrouters == 0:
-            # ESRFTaskActor
+            # EwoksTaskActor
             source_actor = taskactors[source_name]
         elif nrouters == 1:
             # DecodeRouterActor
@@ -398,14 +398,14 @@ class EsrfWorkflow(Workflow):
     def _create_source_on_error_actor(
         self, taskgraph, source_name, target_name
     ) -> NameMapperActor:
-        # task_name -> EsrfPythonActor
+        # task_name -> EwoksPythonActor
         taskactors = self._taskactors
 
         link_attrs = taskgraph.graph[source_name][target_name]
         if not link_attrs.get("on_error", False):
             raise ValueError("The link does not have on_error=True")
 
-        # ESRFTaskActor
+        # EwoksTaskActor
         source_actor = taskactors[source_name]
         # NameMapperActor
         final_source = self._create_name_mapper(taskgraph, source_name, target_name)
@@ -442,9 +442,9 @@ class EsrfWorkflow(Workflow):
         with predecessors. The actors will serve as the destination of
         each link.
         """
-        # target_name -> EsrfPythonActor or InputMergeActor
+        # target_name -> EwoksPythonActor or InputMergeActor
         targetactors = self._targetactors
-        # task_name -> EsrfPythonActor
+        # task_name -> EwoksPythonActor
         taskactors = self._taskactors
         for target_name in taskgraph.graph.nodes:
             predecessors = list(taskgraph.predecessors(target_name))
@@ -462,7 +462,7 @@ class EsrfWorkflow(Workflow):
     def _connect_sources_to_targets(self, taskgraph):
         # source_name -> target_name -> NameMapperActor
         sourceactors = self._sourceactors
-        # target_name -> EsrfPythonActor or InputMergeActor
+        # target_name -> EwoksPythonActor or InputMergeActor
         targetactors = self._targetactors
         for source_name, sources in sourceactors.items():
             for target_name, source_actor in sources.items():
@@ -470,9 +470,9 @@ class EsrfWorkflow(Workflow):
                 self._connect_actors(source_actor, target_actor)
 
     def _connect_start_actor(self, taskgraph):
-        # task_name -> EsrfPythonActor
+        # task_name -> EwoksPythonActor
         taskactors = self._taskactors
-        # target_name -> EsrfPythonActor or InputMergeActor
+        # target_name -> EwoksPythonActor or InputMergeActor
         targetactors = self._targetactors
         start_actor = self._start_actor
         for target_name in taskgraph.start_nodes():
@@ -482,7 +482,7 @@ class EsrfWorkflow(Workflow):
             self._connect_actors(start_actor, target_actor)
 
     def _connect_stop_actor(self, taskgraph):
-        # task_name -> EsrfPythonActor
+        # task_name -> EwoksPythonActor
         taskactors = self._taskactors
         stop_actor = self._stop_actor
         for source_name in taskgraph.result_nodes():
@@ -509,6 +509,6 @@ class EsrfWorkflow(Workflow):
 
 
 def job(graph, representation=None, varinfo=None, raise_on_error=True, timeout=None):
-    esrfgraph = load_graph(source=graph, representation=representation)
-    ppfgraph = EsrfWorkflow(esrfgraph, varinfo=varinfo)
+    ewoksgraph = load_graph(source=graph, representation=representation)
+    ppfgraph = EwoksWorkflow(ewoksgraph, varinfo=varinfo)
     return ppfgraph.run(raise_on_error=raise_on_error, timeout=timeout)
