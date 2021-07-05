@@ -51,9 +51,8 @@ def workflow():
     return graph, expected_results
 
 
-# @pytest.mark.parametrize("dotask4", [True])
+@pytest.mark.skip("TODO")
 def test_ppf_end(ppf_logging):
-    return
     graph, expected = workflow()
     result = job(graph)
     for k, v in expected.items():
