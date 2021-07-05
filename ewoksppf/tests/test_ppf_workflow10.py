@@ -1,0 +1,68 @@
+import itertools
+import pytest
+from ewoksppf import job
+from ewokscore.tests.utils import assert_taskgraph_result_output
+
+
+def workflow10(inputs):
+    nodes = [
+        {
+            "id": "addWithoutSleep",
+            "inputs": inputs,
+            "inputs_complete": True,
+            "ppfmethod": "ewoksppf.tests.test_ppf_actors.pythonActorAddWithoutSleep.run",
+        },
+        {
+            "id": "check",
+            "ppfmethod": "ewoksppf.tests.test_ppf_actors.pythonActorCheck.run",
+        },
+    ]
+
+    links = [
+        {
+            "source": "addWithoutSleep",
+            "target": "check",
+            "all_arguments": True,
+        },
+        {
+            "source": "check",
+            "target": "addWithoutSleep",
+            "conditions": {"doContinue": "true"},
+            "all_arguments": True,
+        },
+    ]
+
+    graph = {
+        "directed": True,
+        "graph": {"name": "workflow10"},
+        "links": links,
+        "multigraph": False,
+        "nodes": nodes,
+    }
+
+    limit = inputs["limit"]
+    expected_result = {
+        "ppfdict": {"doContinue": "false", "limit": limit, "value": limit}
+    }
+
+    return graph, expected_result
+
+
+@pytest.mark.parametrize(
+    "limit,persistent",
+    itertools.product([10], [True, False]),
+)
+def test_workflow10(limit, persistent, ppf_logging, tmpdir):
+    if persistent:
+        varinfo = {"root_uri": str(tmpdir)}
+    else:
+        varinfo = {}
+    inputs = {"value": 1, "limit": limit}
+    graph, expected = workflow10(inputs)
+    result = job(graph, varinfo=varinfo)
+    if persistent:
+        assert_taskgraph_result_output(result, expected, varinfo)
+    else:
+        assert len(tmpdir.listdir()) == 0
+        for k in expected:
+            assert result[k] == expected[k]
