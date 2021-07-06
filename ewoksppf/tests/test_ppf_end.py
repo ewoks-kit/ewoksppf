@@ -1,5 +1,5 @@
 import pytest
-from ewoksppf import job
+from ewoksppf import execute_graph
 from ewokscore import Task
 from ewokscore.utils import qualname
 
@@ -54,6 +54,6 @@ def workflow():
 @pytest.mark.skip("TODO")
 def test_ppf_end(ppf_logging):
     graph, expected = workflow()
-    result = job(graph)
+    result = execute_graph(graph)
     for k, v in expected.items():
         assert result[k] == v, k

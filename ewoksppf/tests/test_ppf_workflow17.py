@@ -1,5 +1,5 @@
 import pytest
-from ewoksppf import job
+from ewoksppf import execute_graph
 
 
 def workflow17(doloop=True):
@@ -45,6 +45,6 @@ def workflow17(doloop=True):
 def test_workflow17(doloop, ppf_logging):
     """Test 2 unconditional upstream tasks, one coming from a feedback loop"""
     graph, expected = workflow17(doloop=doloop)
-    result = job(graph)
+    result = execute_graph(graph)
     for k, v in expected.items():
         assert result[k] == v, k

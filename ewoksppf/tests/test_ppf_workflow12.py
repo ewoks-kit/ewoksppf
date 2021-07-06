@@ -1,5 +1,5 @@
 import pytest
-from ewoksppf import job
+from ewoksppf import execute_graph
 from ewokscore.tests.utils import assert_taskgraph_result
 
 
@@ -103,5 +103,5 @@ def test_workflow12(startvalue, ppf_logging, tmpdir):
     withsubmodel_startvalue = 1
     varinfo = {"root_uri": str(tmpdir)}
     graph, expected = workflow12(startvalue, withsubmodel_startvalue)
-    job(graph, varinfo=varinfo)
+    execute_graph(graph, varinfo=varinfo)
     assert_taskgraph_result(graph, expected, varinfo)
