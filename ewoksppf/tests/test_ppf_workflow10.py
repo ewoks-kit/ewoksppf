@@ -1,6 +1,6 @@
 import itertools
 import pytest
-from ewoksppf import job
+from ewoksppf import execute_graph
 from ewokscore.tests.utils import assert_taskgraph_result_output
 
 
@@ -59,7 +59,7 @@ def test_workflow10(limit, persistent, ppf_logging, tmpdir):
         varinfo = {}
     inputs = {"value": 1, "limit": limit}
     graph, expected = workflow10(inputs)
-    result = job(graph, varinfo=varinfo)
+    result = execute_graph(graph, varinfo=varinfo)
     if persistent:
         assert_taskgraph_result_output(result, expected, varinfo)
     else:

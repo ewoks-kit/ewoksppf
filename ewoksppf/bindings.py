@@ -508,7 +508,9 @@ class EwoksWorkflow(Workflow):
             raise RuntimeError(err_msg)
 
 
-def job(graph, representation=None, varinfo=None, raise_on_error=True, timeout=None):
+def execute_graph(
+    graph, representation=None, varinfo=None, raise_on_error=True, timeout=None
+):
     ewoksgraph = load_graph(source=graph, representation=representation)
     ppfgraph = EwoksWorkflow(ewoksgraph, varinfo=varinfo)
     return ppfgraph.run(raise_on_error=raise_on_error, timeout=timeout)

@@ -1,4 +1,4 @@
-from ewoksppf import job
+from ewoksppf import execute_graph
 from ewokscore.tests.utils import assert_taskgraph_result
 
 
@@ -152,5 +152,5 @@ def workflow11():
 def test_workflow11(ppf_logging, tmpdir):
     varinfo = {"root_uri": str(tmpdir)}
     graph, expected = workflow11()
-    job(graph, varinfo=varinfo)
+    execute_graph(graph, varinfo=varinfo)
     assert_taskgraph_result(graph, expected, varinfo)

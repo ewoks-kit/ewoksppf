@@ -1,4 +1,4 @@
-from ewoksppf import job
+from ewoksppf import execute_graph
 from ewokscore.tests.utils import assert_taskgraph_result
 
 
@@ -30,7 +30,7 @@ def workflow2():
 def test_workflow2(ppf_logging, tmpdir):
     varinfo = {"root_uri": str(tmpdir)}
     graph, expected = workflow2()
-    result = job(graph, varinfo=varinfo, raise_on_error=False)
+    result = execute_graph(graph, varinfo=varinfo, raise_on_error=False)
     assert_taskgraph_result(graph, expected, varinfo)
     err_msg = "Runtime error in pythonErrorHandlerTest.py!"
     assert result["WorkflowException"]["errorMessage"] == err_msg
