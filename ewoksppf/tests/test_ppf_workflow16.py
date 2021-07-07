@@ -156,4 +156,4 @@ def test_workflow16(ppf_logging, tmpdir):
     varinfo = {"root_uri": str(tmpdir)}
     graph, expected = workflow16()
     execute_graph(graph, varinfo=varinfo)
-    assert_taskgraph_result(graph, expected, varinfo)
+    assert_taskgraph_result(graph, expected, varinfo=varinfo)

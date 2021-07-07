@@ -104,4 +104,4 @@ def test_workflow12(startvalue, ppf_logging, tmpdir):
     varinfo = {"root_uri": str(tmpdir)}
     graph, expected = workflow12(startvalue, withsubmodel_startvalue)
     execute_graph(graph, varinfo=varinfo)
-    assert_taskgraph_result(graph, expected, varinfo)
+    assert_taskgraph_result(graph, expected, varinfo=varinfo)

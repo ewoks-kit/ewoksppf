@@ -47,4 +47,4 @@ def test_workflow18(dotask4, ppf_logging, tmpdir):
     varinfo = {"root_uri": str(tmpdir)}
     graph, expected = workflow18(dotask4=dotask4)
     execute_graph(graph, varinfo=varinfo)
-    assert_taskgraph_result(graph, expected, varinfo)
+    assert_taskgraph_result(graph, expected, varinfo=varinfo)
