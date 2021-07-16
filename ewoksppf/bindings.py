@@ -454,7 +454,8 @@ class EwoksWorkflow(Workflow):
             else:
                 # InputMergeActor
                 targetactor = InputMergeActor(
-                    name=f"Input merger of {target_name}", **self._actor_arguments
+                    name=f"Input merger of {flatten_node_name(target_name)}",
+                    **self._actor_arguments,
                 )
                 self._connect_actors(targetactor, taskactors[target_name])
             targetactors[target_name] = targetactor
