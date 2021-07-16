@@ -197,7 +197,7 @@ class InputMergeActor(AbstractActor):
 
 
 class EwoksWorkflow(Workflow):
-    def __init__(self, ewoksgraph, varinfo=None):
+    def __init__(self, ewoksgraph, varinfo=None, enable_logging=False):
         name = repr(ewoksgraph)
         super().__init__(name)
 
@@ -206,7 +206,7 @@ class EwoksWorkflow(Workflow):
         if varinfo is None:
             varinfo = dict()
         self.startargs = {
-            ppfrunscript.INFOKEY: {"varinfo": varinfo, "enable_logging": True}
+            ppfrunscript.INFOKEY: {"varinfo": varinfo, "enable_logging": enable_logging}
         }
         self.graph_to_actors(ewoksgraph, varinfo)
 
@@ -263,7 +263,7 @@ class EwoksWorkflow(Workflow):
             type(target_actor).__name__,
             target_actor.name,
         )
-        logger.info(msg)
+        logger.debug(msg)
 
     def _create_task_actors(self, taskgraph):
         # task_name -> EwoksPythonActor
@@ -510,8 +510,15 @@ class EwoksWorkflow(Workflow):
 
 
 def execute_graph(
-    graph, representation=None, varinfo=None, raise_on_error=True, timeout=None
+    graph,
+    representation=None,
+    varinfo=None,
+    raise_on_error=True,
+    timeout=None,
+    log_task_execution=False,
 ):
     ewoksgraph = load_graph(source=graph, representation=representation)
-    ppfgraph = EwoksWorkflow(ewoksgraph, varinfo=varinfo)
+    ppfgraph = EwoksWorkflow(
+        ewoksgraph, varinfo=varinfo, enable_logging=log_task_execution
+    )
     return ppfgraph.run(raise_on_error=raise_on_error, timeout=timeout)
