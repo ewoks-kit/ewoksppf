@@ -1,0 +1,72 @@
+from ewoksppf import execute_graph
+
+
+def workflow19():
+
+    sum3 = "ewoksppf.tests.test_ppf_actors.pythonActorAddABC2D.run"
+    incrementation = (
+        "ewoksppf.tests.test_ppf_actors.pythonActorDiamondTest.run_incrementation"
+    )
+    no_processing = (
+        "ewoksppf.tests.test_ppf_actors.pythonActorDiamondTest.no_processing"
+    )
+    move_d_to_a = "ewoksppf.tests.test_ppf_actors.pythonActorDiamondTest.move_d_to_a"
+    nodes = [
+        {
+            "id": "task1",
+            "ppfmethod": sum3,
+            "inputs": {"a": 1, "b": 2, "c": 4},
+            "inputs_complete": True,
+        },
+        {"id": "task2", "ppfmethod": move_d_to_a},
+        {
+            "id": "task3",
+            "ppfmethod": incrementation,
+            "inputs": {
+                "increment_value": 1,
+            },
+        },
+        {"id": "task4", "ppfmethod": no_processing},
+        {"id": "task5", "ppfmethod": no_processing},
+    ]
+    links = [
+        {"source": "task1", "target": "task2", "all_arguments": True},
+        {
+            "source": "task2",
+            "target": "task3",
+            "all_arguments": True,
+            "conditions": {"d": 7},
+        },
+        {
+            "source": "task2",
+            "target": "task4",
+            "all_arguments": True,
+            "conditions": {"d": 13},
+        },
+        {
+            "source": "task2",
+            "target": "task5",
+            "all_arguments": True,
+            "conditions": {"d": "__other__"},
+        },
+        {"source": "task3", "target": "task1", "all_arguments": True},
+        {"source": "task4", "target": "task1", "all_arguments": True},
+    ]
+    graph = {
+        "graph": {"name": "workflow19"},
+        "links": links,
+        "nodes": nodes,
+    }
+    expected_results = {
+        "ppfdict": {"a": 18, "b": 1, "c": 4, "d": 18, "increment_value": 1}
+    }
+
+    return graph, expected_results
+
+
+def test_workflow19(ppf_logging, tmpdir):
+    """Test 2 unconditional upstream tasks, one coming from a feedback loop"""
+    graph, expected = workflow19()
+    result = execute_graph(graph, log_task_execution=True)
+    for k in expected:
+        assert result[k] == expected[k]

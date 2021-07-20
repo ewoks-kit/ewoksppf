@@ -449,6 +449,7 @@ class EwoksWorkflow(Workflow):
         for target_name in taskgraph.graph.nodes:
             predecessors = list(taskgraph.predecessors(target_name))
             npredecessors = len(predecessors)
+            print("n predecessor:", npredecessors)
             if npredecessors == 0:
                 targetactor = None
             else:
@@ -458,6 +459,7 @@ class EwoksWorkflow(Workflow):
                     **self._actor_arguments,
                 )
                 self._connect_actors(targetactor, taskactors[target_name])
+            print("targetactor", targetactor)
             targetactors[target_name] = targetactor
 
     def _connect_sources_to_targets(self, taskgraph):
