@@ -67,6 +67,6 @@ def workflow19():
 def test_workflow19(ppf_logging, tmpdir):
     """Test 2 unconditional upstream tasks, one coming from a feedback loop"""
     graph, expected = workflow19()
-    result = execute_graph(graph, log_task_execution=True)
+    result = execute_graph(graph)
     for k in expected:
         assert result[k] == expected[k]
