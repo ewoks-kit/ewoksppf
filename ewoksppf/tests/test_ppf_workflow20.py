@@ -1,0 +1,30 @@
+import pytest
+from ewoksppf import execute_graph
+
+
+def workflow20():
+    ppfmethod = "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run"
+    nodes = [
+        {"id": "task1", "ppfmethod": ppfmethod},
+        {"id": "task2", "ppfmethod": ppfmethod},
+    ]
+
+    links = [{"source": "task1", "target": "task2", "all_arguments": True}]
+
+    graph = {
+        "links": links,
+        "nodes": nodes,
+    }
+
+    return graph
+
+
+@pytest.mark.parametrize("persist", [True, False])
+def test_workflow20(persist, ppf_logging, tmpdir):
+    if persist:
+        varinfo = {"root_uri": str(tmpdir)}
+    else:
+        varinfo = None
+    graph = workflow20()
+    result = execute_graph(graph, inputs={"value": 5}, varinfo=varinfo)
+    assert result["ppfdict"]["value"] == 7
