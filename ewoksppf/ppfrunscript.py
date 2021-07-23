@@ -1,5 +1,4 @@
 import logging
-from ewokscore.hashing import UniversalHash
 from ewokscore.inittask import instantiate_task
 
 
@@ -18,9 +17,6 @@ def run(**inputs):
     info = inputs.pop(INFOKEY)
     log = info.get("enable_logging")
     varinfo = info["varinfo"]
-    presistent = bool(varinfo.get("root_uri", None))
-    if presistent:
-        inputs = {name: UniversalHash(uhash) for name, uhash in inputs.items()}
     task = instantiate_task(info["node_attrs"], varinfo=varinfo, inputs=inputs)
 
     try:
@@ -46,7 +42,9 @@ def run(**inputs):
                 task.output_values,
             ),
         )
+
+    presistent = bool(varinfo.get("root_uri", None))
     if presistent:
-        return task.output_uhashes
+        return task.output_transfer_data
     else:
         return task.output_values

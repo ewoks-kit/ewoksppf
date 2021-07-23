@@ -12,6 +12,7 @@ from pypushflow.ThreadCounter import ThreadCounter
 
 from . import ppfrunscript
 from ewokscore import load_graph
+from ewokscore.hashing import UniversalHash
 from ewokscore.variable import Variable
 from ewokscore.inittask import task_executable
 from ewokscore.graph import CONDITIONS_ELSE_VALUE
@@ -490,12 +491,16 @@ class EwoksWorkflow(Workflow):
             source_actor = taskactors[source_name]
             self._connect_actors(source_actor, stop_actor)
 
-    def run(self, raise_on_error=True, timeout=None):
-        self._start_actor.trigger(self.startargs)
+    def run(self, inputs=None, raise_on_error=True, timeout=None):
+        startargs = dict(self.startargs)
+        if inputs:
+            startargs.update(inputs)
+        self._start_actor.trigger(startargs)
         self._stop_actor.join(timeout=timeout)
         result = self._stop_actor.outData
         if result is None:
             return None
+        self.__parse_result(result)
         ex = result.get("WorkflowException")
         if ex is None or not raise_on_error:
             return result
@@ -508,17 +513,29 @@ class EwoksWorkflow(Workflow):
                 err_msg += " ({})".format(ex["errorMessage"])
             raise RuntimeError(err_msg)
 
+    def __parse_result(self, result):
+        varinfo = self.startargs[ppfrunscript.INFOKEY]["varinfo"]
+        for name in result:
+            value = result[name]
+            if isinstance(value, UniversalHash):
+                value = Variable(uhash=value, varinfo=varinfo)
+            if isinstance(value, Variable):
+                value = value.value
+            result[name] = value
+
 
 def execute_graph(
     graph,
     representation=None,
     varinfo=None,
+    inputs=None,
     raise_on_error=True,
     timeout=None,
     log_task_execution=False,
+    **load_options,
 ):
-    ewoksgraph = load_graph(source=graph, representation=representation)
+    ewoksgraph = load_graph(source=graph, representation=representation, **load_options)
     ppfgraph = EwoksWorkflow(
         ewoksgraph, varinfo=varinfo, enable_logging=log_task_execution
     )
-    return ppfgraph.run(raise_on_error=raise_on_error, timeout=timeout)
+    return ppfgraph.run(inputs=inputs, raise_on_error=raise_on_error, timeout=timeout)
