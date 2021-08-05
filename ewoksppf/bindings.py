@@ -56,6 +56,20 @@ class EwoksPythonActor(PythonActor):
         inData[infokey]["node_attrs"] = self.node_attrs
         return super().trigger(inData)
 
+    def uploadInDataToMongo(self, **kw):
+        if self.parent is None:
+            pass
+        if self.parent.mongoId is None:
+            pass
+        actorData = kw.get("actorData", dict())
+        inData = actorData.get("inData")
+        if inData:
+            varinfo = varinfo_from_indata(inData)
+            actorData["inData"] = {
+                k: value_from_transfer(v, varinfo=varinfo) for k, v in inData.items()
+            }
+        super().uploadInDataToMongo(**kw)
+
 
 class DecodeRouterActor(RouterActor):
     """For PPF methods, the conditions do not apply to the
