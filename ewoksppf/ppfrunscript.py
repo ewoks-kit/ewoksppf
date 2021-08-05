@@ -17,7 +17,9 @@ def run(**inputs):
     info = inputs.pop(INFOKEY)
     log = info.get("enable_logging")
     varinfo = info["varinfo"]
-    task = instantiate_task(info["node_attrs"], varinfo=varinfo, inputs=inputs)
+    task = instantiate_task(
+        info["node_attrs"], varinfo=varinfo, inputs=inputs, node_name=info["node_name"]
+    )
 
     try:
         task.execute()
@@ -43,8 +45,4 @@ def run(**inputs):
             ),
         )
 
-    presistent = bool(varinfo.get("root_uri", None))
-    if presistent:
-        return task.output_transfer_data
-    else:
-        return task.output_values
+    return task.output_transfer_data

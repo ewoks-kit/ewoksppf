@@ -42,7 +42,7 @@ def workflow9():
         "nodes": nodes,
     }
 
-    # addtask3 will not be executed explicitely but it represents
+    # addtask3 will not be executed explicitly but it represents
     # the same task instance as addtask2 (same task hash). So it
     # will appear as "done" and have a result.
     expected_results = {
