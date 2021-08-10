@@ -58,9 +58,9 @@ class EwoksPythonActor(PythonActor):
 
     def uploadInDataToMongo(self, **kw):
         if self.parent is None:
-            pass
+            return
         if self.parent.mongoId is None:
-            pass
+            return
         actorData = kw.get("actorData", dict())
         inData = actorData.get("inData")
         if inData:
