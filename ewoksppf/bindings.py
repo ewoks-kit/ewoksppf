@@ -1,5 +1,6 @@
 import sys
 import logging
+
 from pypushflow.Workflow import Workflow
 from pypushflow.StopActor import StopActor
 from pypushflow.StartActor import StartActor
@@ -12,9 +13,9 @@ from pypushflow.ThreadCounter import ThreadCounter
 
 from . import ppfrunscript
 from ewokscore import load_graph
-from ewokscore.hashing import UniversalHash
-from ewokscore.variable import Variable
+from ewokscore.variable import value_from_transfer
 from ewokscore.inittask import task_executable
+from ewokscore.inittask import get_varinfo
 from ewokscore.graph import CONDITIONS_ELSE_VALUE
 from ewokscore.subgraph import flatten_node_name
 
@@ -26,6 +27,12 @@ from ewokscore.subgraph import flatten_node_name
 
 
 logger = logging.getLogger(__name__)
+
+
+def varinfo_from_indata(inData):
+    varinfo = inData[ppfrunscript.INFOKEY].get("varinfo")
+    node_attrs = inData[ppfrunscript.INFOKEY].get("node_attrs", dict())
+    return get_varinfo(node_attrs, varinfo=varinfo)
 
 
 def actor_name(node_name):
@@ -49,6 +56,20 @@ class EwoksPythonActor(PythonActor):
         inData[infokey]["node_attrs"] = self.node_attrs
         return super().trigger(inData)
 
+    def uploadInDataToMongo(self, **kw):
+        if self.parent is None:
+            return
+        if self.parent.mongoId is None:
+            return
+        actorData = kw.get("actorData", dict())
+        inData = actorData.get("inData")
+        if inData:
+            varinfo = varinfo_from_indata(inData)
+            actorData["inData"] = {
+                k: value_from_transfer(v, varinfo=varinfo) for k, v in inData.items()
+            }
+        super().uploadInDataToMongo(**kw)
+
 
 class DecodeRouterActor(RouterActor):
     """For PPF methods, the conditions do not apply to the
@@ -60,18 +81,16 @@ class DecodeRouterActor(RouterActor):
         self.is_ppfmethod = is_ppfmethod
         super().__init__(**kw)
 
-    def _extractPersistentValue(self, inData):
-        # Values or passed by uhash so we need to dereference
-        # the uhash to get the value.
+    def _extractValue(self, inData):
         if self.is_ppfmethod:
-            uhash = inData["ppfdict"]
+            value = inData["ppfdict"]
         else:
             if self.itemName in inData:
-                uhash = inData[self.itemName]
+                value = inData[self.itemName]
             else:
                 return CONDITIONS_ELSE_VALUE
-        varinfo = inData[ppfrunscript.INFOKEY]["varinfo"]
-        value = Variable(uhash=uhash, varinfo=varinfo).value
+        varinfo = varinfo_from_indata(inData)
+        value = value_from_transfer(value, varinfo=varinfo)
         if self.is_ppfmethod:
             if self.itemName in value:
                 value = value[self.itemName]
@@ -82,23 +101,10 @@ class DecodeRouterActor(RouterActor):
         else:
             return CONDITIONS_ELSE_VALUE
 
-    def _extractValue(self, inData):
-        if self.is_ppfmethod:
-            inData = inData["ppfdict"]
-        if self.itemName in inData:
-            value = inData[self.itemName]
-            if value in self.dictValues:
-                return value
-        return CONDITIONS_ELSE_VALUE
-
     def trigger(self, inData):
         self.setStarted()
         self.setFinished()
-        varinfo = inData[ppfrunscript.INFOKEY]["varinfo"]
-        if varinfo.get("root_uri", None):
-            value = self._extractPersistentValue(inData)
-        else:
-            value = self._extractValue(inData)
+        value = self._extractValue(inData)
         actors = self.dictValues.get(value, list())
         for actor in actors:
             actor.trigger(inData)
@@ -500,7 +506,7 @@ class EwoksWorkflow(Workflow):
         result = self._stop_actor.outData
         if result is None:
             return None
-        self.__parse_result(result)
+        result = self.__parse_result(result)
         ex = result.get("WorkflowException")
         if ex is None or not raise_on_error:
             return result
@@ -513,15 +519,12 @@ class EwoksWorkflow(Workflow):
                 err_msg += " ({})".format(ex["errorMessage"])
             raise RuntimeError(err_msg)
 
-    def __parse_result(self, result):
-        varinfo = self.startargs[ppfrunscript.INFOKEY]["varinfo"]
-        for name in result:
-            value = result[name]
-            if isinstance(value, UniversalHash):
-                value = Variable(uhash=value, varinfo=varinfo)
-            if isinstance(value, Variable):
-                value = value.value
-            result[name] = value
+    def __parse_result(self, result) -> dict:
+        varinfo = varinfo_from_indata(self.startargs)
+        return {
+            name: value_from_transfer(value, varinfo=varinfo)
+            for name, value in result.items()
+        }
 
 
 def execute_graph(
