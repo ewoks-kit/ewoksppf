@@ -493,7 +493,7 @@ class EwoksWorkflow(Workflow):
         # task_name -> EwoksPythonActor
         taskactors = self._taskactors
         stop_actor = self._stop_actor
-        for source_name in taskgraph.result_nodes():
+        for source_name in taskgraph.end_nodes():
             source_actor = taskactors[source_name]
             self._connect_actors(source_actor, stop_actor)
 
