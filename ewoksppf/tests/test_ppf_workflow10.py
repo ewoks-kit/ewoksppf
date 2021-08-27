@@ -35,10 +35,8 @@ def workflow10(inputs):
     ]
 
     graph = {
-        "directed": True,
         "graph": {"name": "workflow10"},
         "links": links,
-        "multigraph": False,
         "nodes": nodes,
     }
 

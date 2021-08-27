@@ -25,10 +25,8 @@ def submodel15(name):
     ]
 
     graph = {
-        "directed": True,
         "graph": {"name": name},
         "links": links,
-        "multigraph": False,
         "nodes": nodes,
     }
 
@@ -64,43 +62,33 @@ def workflow15():
         {
             "source": "addtask1",
             "target": "submodel15a",
-            "links": [
-                {
-                    "source": "addtask1",
-                    "target": "in",
-                    "all_arguments": True,
-                }
-            ],
+            "all_arguments": True,
+            "sub_graph_nodes": {
+                "sub_target": "in",
+            },
         },
         {
             "source": "submodel15a",
             "target": "submodel15b",
-            "links": [
-                {
-                    "source": "out",
-                    "target": "in",
-                    "all_arguments": True,
-                }
-            ],
+            "all_arguments": True,
+            "sub_graph_nodes": {
+                "sub_source": "out",
+                "sub_target": "in",
+            },
         },
         {
             "source": "submodel15b",
             "target": "addtask2",
-            "links": [
-                {
-                    "source": "out",
-                    "target": "addtask2",
-                    "all_arguments": True,
-                }
-            ],
+            "all_arguments": True,
+            "sub_graph_nodes": {
+                "sub_source": "out",
+            },
         },
     ]
 
     graph = {
-        "directed": True,
         "graph": {"name": "workflow15"},
         "links": links,
-        "multigraph": False,
         "nodes": nodes,
     }
 

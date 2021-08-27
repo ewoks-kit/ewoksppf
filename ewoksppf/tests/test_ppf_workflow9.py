@@ -38,10 +38,8 @@ def workflow9():
     ]
 
     graph = {
-        "directed": True,
         "graph": {"name": "workflow9"},
         "links": links,
-        "multigraph": False,
         "nodes": nodes,
     }
 

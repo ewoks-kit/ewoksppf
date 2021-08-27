@@ -25,10 +25,8 @@ def submodel16a():
     ]
 
     graph = {
-        "directed": True,
         "graph": {"name": "submodel16a"},
         "links": links,
-        "multigraph": False,
         "nodes": nodes,
     }
 
@@ -57,33 +55,25 @@ def submodel16b():
         {
             "source": "addtask1",
             "target": "submodel16a",
-            "links": [
-                {
-                    "source": "addtask1",
-                    "target": "in",
-                    "all_arguments": True,
-                }
-            ],
+            "all_arguments": True,
+            "sub_graph_nodes": {
+                "sub_target": "in",
+            },
         },
         {
             "source": "submodel16a",
             "target": "addtask2",
-            "links": [
-                {
-                    "source": "out",
-                    "target": "addtask2",
-                    "all_arguments": True,
-                }
-            ],
+            "all_arguments": True,
+            "sub_graph_nodes": {
+                "sub_source": "out",
+            },
         },
         {"source": "addtask2", "target": "out", "all_arguments": True},
     ]
 
     graph = {
-        "directed": True,
         "graph": {"name": "submodel16b"},
         "links": links,
-        "multigraph": False,
         "nodes": nodes,
     }
 
@@ -110,32 +100,24 @@ def workflow16():
         {
             "source": "addtask1",
             "target": "submodel16b",
-            "links": [
-                {
-                    "source": "addtask1",
-                    "target": "in",
-                    "all_arguments": True,
-                }
-            ],
+            "all_arguments": True,
+            "sub_graph_nodes": {
+                "sub_target": "in",
+            },
         },
         {
             "source": "submodel16b",
             "target": "addtask2",
-            "links": [
-                {
-                    "source": ("submodel16a", "out"),
-                    "target": "addtask2",
-                    "all_arguments": True,
-                }
-            ],
+            "all_arguments": True,
+            "sub_graph_nodes": {
+                "sub_source": ("submodel16a", "out"),
+            },
         },
     ]
 
     graph = {
-        "directed": True,
         "graph": {"name": "workflow16"},
         "links": links,
-        "multigraph": False,
         "nodes": nodes,
     }
 

@@ -26,10 +26,8 @@ def submodel12():
     ]
 
     graph = {
-        "directed": True,
         "graph": {"name": "submodel12"},
         "links": links,
-        "multigraph": False,
         "nodes": nodes,
     }
 
@@ -56,33 +54,25 @@ def workflow12(startvalue, withsubmodel_startvalue):
         {
             "source": "addtask1",
             "target": "submodel12",
-            "links": [
-                {
-                    "source": "addtask1",
-                    "target": "in",
-                    "all_arguments": True,
-                    "conditions": {"value": withsubmodel_startvalue + 1},
-                }
-            ],
+            "all_arguments": True,
+            "conditions": {"value": withsubmodel_startvalue + 1},
+            "sub_graph_nodes": {
+                "sub_target": "in",
+            },
         },
         {
             "source": "submodel12",
             "target": "addtask2",
-            "links": [
-                {
-                    "source": "out",
-                    "target": "addtask2",
-                    "all_arguments": True,
-                }
-            ],
+            "all_arguments": True,
+            "sub_graph_nodes": {
+                "sub_source": "out",
+            },
         },
     ]
 
     graph = {
-        "directed": True,
         "graph": {"name": "workflow12"},
         "links": links,
-        "multigraph": False,
         "nodes": nodes,
     }
 

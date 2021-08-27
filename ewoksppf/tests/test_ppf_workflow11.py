@@ -25,10 +25,8 @@ def submodel11a():
     ]
 
     graph = {
-        "directed": True,
         "graph": {"name": "submodel11a"},
         "links": links,
-        "multigraph": False,
         "nodes": nodes,
     }
 
@@ -57,33 +55,25 @@ def submodel11b():
         {
             "source": "addtask2ba",
             "target": "submodel11a",
-            "links": [
-                {
-                    "source": "addtask2ba",
-                    "target": "in11a",
-                    "all_arguments": True,
-                }
-            ],
+            "all_arguments": True,
+            "sub_graph_nodes": {
+                "sub_target": "in11a",
+            },
         },
         {
             "source": "submodel11a",
             "target": "addtask2bb",
-            "links": [
-                {
-                    "source": "out11a",
-                    "target": "addtask2bb",
-                    "all_arguments": True,
-                }
-            ],
+            "all_arguments": True,
+            "sub_graph_nodes": {
+                "sub_source": "out11a",
+            },
         },
         {"source": "addtask2bb", "target": "out11b", "all_arguments": True},
     ]
 
     graph = {
-        "directed": True,
         "graph": {"name": "submodel11b"},
         "links": links,
-        "multigraph": False,
         "nodes": nodes,
     }
 
@@ -110,32 +100,24 @@ def workflow11():
         {
             "source": "addtask1",
             "target": "submodel11b",
-            "links": [
-                {
-                    "source": "addtask1",
-                    "target": "in11b",
-                    "all_arguments": True,
-                }
-            ],
+            "all_arguments": True,
+            "sub_graph_nodes": {
+                "sub_target": "in11b",
+            },
         },
         {
             "source": "submodel11b",
             "target": "addtask3",
-            "links": [
-                {
-                    "source": "out11b",
-                    "target": "addtask3",
-                    "all_arguments": True,
-                }
-            ],
+            "all_arguments": True,
+            "sub_graph_nodes": {
+                "sub_source": "out11b",
+            },
         },
     ]
 
     graph = {
-        "directed": True,
         "graph": {"name": "workflow11"},
         "links": links,
-        "multigraph": False,
         "nodes": nodes,
     }
 

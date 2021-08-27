@@ -15,10 +15,8 @@ def submodel1():
     links = []
 
     graph = {
-        "directed": True,
         "graph": {"name": "submodel1"},
         "links": links,
-        "multigraph": False,
         "nodes": nodes,
     }
 
@@ -46,32 +44,23 @@ def workflow3():
         {
             "source": "first",
             "target": "middle",
-            "links": [
-                {
-                    "source": "first",
-                    "target": "mytask",
-                    "node_attributes": {"inputs": {"name": "middle"}},
-                }
-            ],
+            "sub_target_attributes": {"inputs": {"name": "middle"}},
+            "sub_graph_nodes": {
+                "sub_target": "mytask",
+            },
         },
         {
             "source": "middle",
             "target": "last",
-            "links": [
-                {
-                    "source": "mytask",
-                    "target": "last",
-                    "node_attributes": "<not-used>",
-                }
-            ],
+            "sub_graph_nodes": {
+                "sub_source": "mytask",
+            },
         },
     ]
 
     graph = {
-        "directed": True,
         "graph": {"name": "workflow3"},
         "links": links,
-        "multigraph": False,
         "nodes": nodes,
     }
 

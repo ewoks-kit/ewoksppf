@@ -26,10 +26,8 @@ def submodel13():
     ]
 
     graph = {
-        "directed": True,
         "graph": {"name": "submodel13"},
         "links": links,
-        "multigraph": False,
         "nodes": nodes,
     }
 
@@ -56,33 +54,25 @@ def workflow13(startvalue, withlastnode_startvalue):
         {
             "source": "addtask1",
             "target": "submodel13",
-            "links": [
-                {
-                    "source": "addtask1",
-                    "target": "in",
-                    "all_arguments": True,
-                }
-            ],
+            "all_arguments": True,
+            "sub_graph_nodes": {
+                "sub_target": "in",
+            },
         },
         {
             "source": "submodel13",
             "target": "addtask2",
-            "links": [
-                {
-                    "source": "out",
-                    "target": "addtask2",
-                    "all_arguments": True,
-                    "conditions": {"value": withlastnode_startvalue + 3},
-                }
-            ],
+            "all_arguments": True,
+            "conditions": {"value": withlastnode_startvalue + 3},
+            "sub_graph_nodes": {
+                "sub_source": "out",
+            },
         },
     ]
 
     graph = {
-        "directed": True,
         "graph": {"name": "workflow13"},
         "links": links,
-        "multigraph": False,
         "nodes": nodes,
     }
 
