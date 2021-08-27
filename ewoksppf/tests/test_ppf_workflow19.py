@@ -14,20 +14,22 @@ def workflow19():
     nodes = [
         {
             "id": "task1",
-            "ppfmethod": sum3,
+            "task_type": "ppfmethod",
+            "task_identifier": sum3,
             "inputs": {"a": 1, "b": 2, "c": 4},
             "inputs_complete": True,
         },
-        {"id": "task2", "ppfmethod": move_d_to_a},
+        {"id": "task2", "task_type": "ppfmethod", "task_identifier": move_d_to_a},
         {
             "id": "task3",
-            "ppfmethod": incrementation,
+            "task_type": "ppfmethod",
+            "task_identifier": incrementation,
             "inputs": {
                 "increment_value": 1,
             },
         },
-        {"id": "task4", "ppfmethod": no_processing},
-        {"id": "task5", "ppfmethod": no_processing},
+        {"id": "task4", "task_type": "ppfmethod", "task_identifier": no_processing},
+        {"id": "task5", "task_type": "ppfmethod", "task_identifier": no_processing},
     ]
     links = [
         {"source": "task1", "target": "task2", "all_arguments": True},

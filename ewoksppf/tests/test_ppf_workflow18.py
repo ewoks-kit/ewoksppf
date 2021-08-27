@@ -6,10 +6,20 @@ from ewokscore.tests.utils import assert_taskgraph_result
 def workflow18(dotask4=True):
     ppfmethod = "ewoksppf.tests.test_ppf_actors.pythonActorAddWithoutSleep.run"
     nodes = [
-        {"id": "task1", "ppfmethod": ppfmethod, "inputs": {"value": 0}},
-        {"id": "task2", "ppfmethod": ppfmethod, "inputs": {"value": 10}},
-        {"id": "task3", "ppfmethod": ppfmethod},
-        {"id": "task4", "ppfmethod": ppfmethod},
+        {
+            "id": "task1",
+            "task_type": "ppfmethod",
+            "task_identifier": ppfmethod,
+            "inputs": {"value": 0},
+        },
+        {
+            "id": "task2",
+            "task_type": "ppfmethod",
+            "task_identifier": ppfmethod,
+            "inputs": {"value": 10},
+        },
+        {"id": "task3", "task_type": "ppfmethod", "task_identifier": ppfmethod},
+        {"id": "task4", "task_type": "ppfmethod", "task_identifier": ppfmethod},
     ]
     links = [
         {"source": "task1", "target": "task3", "all_arguments": True},

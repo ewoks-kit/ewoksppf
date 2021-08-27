@@ -10,11 +10,13 @@ def workflow10(inputs):
             "id": "addWithoutSleep",
             "inputs": inputs,
             "inputs_complete": True,
-            "ppfmethod": "ewoksppf.tests.test_ppf_actors.pythonActorAddWithoutSleep.run",
+            "task_type": "ppfmethod",
+            "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorAddWithoutSleep.run",
         },
         {
             "id": "check",
-            "ppfmethod": "ewoksppf.tests.test_ppf_actors.pythonActorCheck.run",
+            "task_type": "ppfmethod",
+            "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorCheck.run",
         },
     ]
 

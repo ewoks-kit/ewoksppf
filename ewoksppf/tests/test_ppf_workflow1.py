@@ -7,7 +7,8 @@ def workflow1():
         {
             "id": "Python Actor Test",
             "inputs": {"name": "myname"},
-            "ppfmethod": "ewoksppf.tests.test_ppf_actors.pythonActorTest.run",
+            "task_type": "ppfmethod",
+            "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorTest.run",
         },
     ]
 

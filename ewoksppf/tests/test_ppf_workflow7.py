@@ -6,7 +6,8 @@ def submodel7():
     nodes = [
         {
             "id": "addtask2",
-            "ppfmethod": "ewoksppf.tests.test_ppf_actors.pythonActorAdd2.run",
+            "task_type": "ppfmethod",
+            "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorAdd2.run",
         },
     ]
 
@@ -28,13 +29,15 @@ def workflow7():
         {
             "id": "addtask1",
             "inputs": {"all_arguments": {"value": 1}},
-            "ppfmethod": "ewoksppf.tests.test_ppf_actors.pythonActorAdd2.run",
+            "task_type": "ppfmethod",
+            "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorAdd2.run",
         },
         {
             "id": "addtask3",
-            "ppfmethod": "ewoksppf.tests.test_ppf_actors.pythonActorAdd2.run",
+            "task_type": "ppfmethod",
+            "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorAdd2.run",
         },
-        {"id": "submodel7", "graph": submodel7()},
+        {"id": "submodel7", "task_type": "graph", "task_identifier": submodel7()},
     ]
 
     links = [

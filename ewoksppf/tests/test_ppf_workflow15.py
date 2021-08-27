@@ -6,14 +6,16 @@ def submodel15(name):
     nodes = [
         {
             "id": "addtask1",
-            "ppfmethod": "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run",
+            "task_type": "ppfmethod",
+            "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run",
         },
         {
             "id": "addtask2",
-            "ppfmethod": "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run",
+            "task_type": "ppfmethod",
+            "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run",
         },
-        {"id": "in", "ppfport": "input"},
-        {"id": "out", "ppfport": "output"},
+        {"id": "in", "task_type": "ppfport"},
+        {"id": "out", "task_type": "ppfport"},
     ]
 
     links = [
@@ -38,14 +40,24 @@ def workflow15():
         {
             "id": "addtask1",
             "inputs": {"value": 1},
-            "ppfmethod": "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run",
+            "task_type": "ppfmethod",
+            "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run",
         },
         {
             "id": "addtask2",
-            "ppfmethod": "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run",
+            "task_type": "ppfmethod",
+            "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run",
         },
-        {"id": "submodel15a", "graph": submodel15("submodel15a")},
-        {"id": "submodel15b", "graph": submodel15("submodel15b")},
+        {
+            "id": "submodel15a",
+            "task_type": "graph",
+            "task_identifier": submodel15("submodel15a"),
+        },
+        {
+            "id": "submodel15b",
+            "task_type": "graph",
+            "task_identifier": submodel15("submodel15b"),
+        },
     ]
 
     links = [
