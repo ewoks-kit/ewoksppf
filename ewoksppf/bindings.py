@@ -16,6 +16,7 @@ from ewokscore import load_graph
 from ewokscore.variable import value_from_transfer
 from ewokscore.inittask import task_executable
 from ewokscore.inittask import get_varinfo
+from ewokscore.inittask import task_executable_info
 from ewokscore.graph import CONDITIONS_ELSE_VALUE
 from ewokscore.subgraph import flatten_node_name
 
@@ -37,6 +38,11 @@ def varinfo_from_indata(inData):
 
 def actor_name(node_name):
     return ":".join(flatten_node_name(node_name))
+
+
+def is_ppfmethod(node_attrs: dict):
+    task_type, _ = task_executable_info(node_attrs)
+    return task_type in ("ppfmethod", "ppfport")
 
 
 class EwoksPythonActor(PythonActor):
@@ -329,15 +335,11 @@ class EwoksWorkflow(Workflow):
         :returns DecodeRouterActor:
         """
         source_attrs = taskgraph.graph.nodes[source_name]
-        is_ppfmethod = bool(source_attrs.get("ppfmethod")) or bool(
-            source_attrs.get("ppfport")
-        )
-
         routername = f"Route output {repr(outname)} of {actor_name(source_name)}"
         router = DecodeRouterActor(
             name=routername,
             itemName=outname,
-            is_ppfmethod=is_ppfmethod,
+            is_ppfmethod=is_ppfmethod(source_attrs),
             **self._actor_arguments,
         )
         self._connect_actors(source_actor, router)

@@ -6,14 +6,16 @@ def submodel14a():
     nodes = [
         {
             "id": "addtask2aa",
-            "ppfmethod": "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run",
+            "task_type": "ppfmethod",
+            "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run",
         },
         {
             "id": "addtask2ab",
-            "ppfmethod": "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run",
+            "task_type": "ppfmethod",
+            "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run",
         },
-        {"id": "In", "ppfport": "input"},
-        {"id": "Out", "ppfport": "output"},
+        {"id": "In", "task_type": "ppfport"},
+        {"id": "Out", "task_type": "ppfport"},
     ]
 
     links = [
@@ -35,9 +37,9 @@ def submodel14a():
 
 def submodel14b():
     nodes = [
-        {"id": "submodel14a", "graph": submodel14a()},
-        {"id": "In", "ppfport": "input"},
-        {"id": "Out", "ppfport": "output"},
+        {"id": "submodel14a", "task_type": "graph", "task_identifier": submodel14a()},
+        {"id": "In", "task_type": "ppfport"},
+        {"id": "Out", "task_type": "ppfport"},
     ]
 
     links = [
@@ -81,13 +83,15 @@ def workflow14():
         {
             "id": "addtask1",
             "inputs": {"value": 1},
-            "ppfmethod": "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run",
+            "task_type": "ppfmethod",
+            "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run",
         },
         {
             "id": "addtask3",
-            "ppfmethod": "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run",
+            "task_type": "ppfmethod",
+            "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run",
         },
-        {"id": "submodel14b", "graph": submodel14b()},
+        {"id": "submodel14b", "task_type": "graph", "task_identifier": submodel14b()},
     ]
 
     links = [

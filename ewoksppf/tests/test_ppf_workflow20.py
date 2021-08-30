@@ -5,8 +5,8 @@ from ewoksppf import execute_graph
 def workflow20():
     ppfmethod = "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run"
     nodes = [
-        {"id": "task1", "ppfmethod": ppfmethod},
-        {"id": "task2", "ppfmethod": ppfmethod},
+        {"id": "task1", "task_type": "ppfmethod", "task_identifier": ppfmethod},
+        {"id": "task2", "task_type": "ppfmethod", "task_identifier": ppfmethod},
     ]
 
     links = [{"source": "task1", "target": "task2", "all_arguments": True}]

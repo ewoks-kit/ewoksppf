@@ -12,11 +12,16 @@ def workflow17(doloop=True):
 
     ppfmethod = "ewoksppf.tests.test_ppf_actors.pythonActorAddWithoutSleep.run"
     nodes = [
-        {"id": "task1", "ppfmethod": ppfmethod, "inputs": {"value": 0}},
-        {"id": "task2", "ppfmethod": ppfmethod},
-        {"id": "task3", "ppfmethod": ppfmethod},
-        {"id": "task4", "ppfmethod": ppfmethod},
-        {"id": "task5", "ppfmethod": ppfmethod},
+        {
+            "id": "task1",
+            "task_type": "ppfmethod",
+            "task_identifier": ppfmethod,
+            "inputs": {"value": 0},
+        },
+        {"id": "task2", "task_type": "ppfmethod", "task_identifier": ppfmethod},
+        {"id": "task3", "task_type": "ppfmethod", "task_identifier": ppfmethod},
+        {"id": "task4", "task_type": "ppfmethod", "task_identifier": ppfmethod},
+        {"id": "task5", "task_type": "ppfmethod", "task_identifier": ppfmethod},
     ]
     links = [
         {"source": "task1", "target": "task2", "all_arguments": True},

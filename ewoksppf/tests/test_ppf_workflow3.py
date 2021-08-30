@@ -7,7 +7,8 @@ def submodel1():
         {
             "id": "mytask",
             "inputs": {"name": "myname"},
-            "ppfmethod": "ewoksppf.tests.test_ppf_actors.pythonActorTest.run",
+            "task_type": "ppfmethod",
+            "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorTest.run",
         },
     ]
 
@@ -29,14 +30,16 @@ def workflow3():
         {
             "id": "first",
             "inputs": {"name": "first"},
-            "ppfmethod": "ewoksppf.tests.test_ppf_actors.pythonActorTest.run",
+            "task_type": "ppfmethod",
+            "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorTest.run",
         },
         {
             "id": "last",
             "inputs": {"name": "last"},
-            "ppfmethod": "ewoksppf.tests.test_ppf_actors.pythonActorTest.run",
+            "task_type": "ppfmethod",
+            "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorTest.run",
         },
-        {"id": "middle", "graph": submodel1()},
+        {"id": "middle", "task_type": "graph", "task_identifier": submodel1()},
     ]
 
     links = [
