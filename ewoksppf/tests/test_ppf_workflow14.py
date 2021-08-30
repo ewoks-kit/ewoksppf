@@ -25,10 +25,8 @@ def submodel14a():
     ]
 
     graph = {
-        "directed": True,
         "graph": {"name": "submodel14a"},
         "links": links,
-        "multigraph": False,
         "nodes": nodes,
     }
 
@@ -46,32 +44,24 @@ def submodel14b():
         {
             "source": "In",
             "target": "submodel14a",
-            "links": [
-                {
-                    "source": "In",
-                    "target": "In",
-                    "all_arguments": True,
-                }
-            ],
+            "all_arguments": True,
+            "sub_graph_nodes": {
+                "sub_target": "In",
+            },
         },
         {
             "source": "submodel14a",
             "target": "Out",
-            "links": [
-                {
-                    "source": "Out",
-                    "target": "Out",
-                    "all_arguments": True,
-                }
-            ],
+            "all_arguments": True,
+            "sub_graph_nodes": {
+                "sub_source": "Out",
+            },
         },
     ]
 
     graph = {
-        "directed": True,
         "graph": {"name": "submodel14b"},
         "links": links,
-        "multigraph": False,
         "nodes": nodes,
     }
 
@@ -98,32 +88,20 @@ def workflow14():
         {
             "source": "addtask1",
             "target": "submodel14b",
-            "links": [
-                {
-                    "source": "addtask1",
-                    "target": "In",
-                    "all_arguments": True,
-                }
-            ],
+            "all_arguments": True,
+            "sub_graph_nodes": {"sub_target": "In"},
         },
         {
             "source": "submodel14b",
             "target": "addtask3",
-            "links": [
-                {
-                    "source": "Out",
-                    "target": "addtask3",
-                    "all_arguments": True,
-                }
-            ],
+            "all_arguments": True,
+            "sub_graph_nodes": {"sub_source": "Out"},
         },
     ]
 
     graph = {
-        "directed": True,
         "graph": {"name": "workflow14"},
         "links": links,
-        "multigraph": False,
         "nodes": nodes,
     }
 
