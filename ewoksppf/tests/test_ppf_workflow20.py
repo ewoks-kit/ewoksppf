@@ -9,7 +9,7 @@ def workflow20():
         {"id": "task2", "task_type": "ppfmethod", "task_identifier": ppfmethod},
     ]
 
-    links = [{"source": "task1", "target": "task2", "all_arguments": True}]
+    links = [{"source": "task1", "target": "task2", "map_all_data": True}]
 
     graph = {
         "links": links,

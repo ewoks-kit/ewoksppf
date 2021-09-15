@@ -20,9 +20,9 @@ def submodel12():
     ]
 
     links = [
-        {"source": "in", "target": "addtask2a", "all_arguments": True},
-        {"source": "addtask2a", "target": "addtask2b", "all_arguments": True},
-        {"source": "addtask2b", "target": "out", "all_arguments": True},
+        {"source": "in", "target": "addtask2a", "map_all_data": True},
+        {"source": "addtask2a", "target": "addtask2b", "map_all_data": True},
+        {"source": "addtask2b", "target": "out", "map_all_data": True},
     ]
 
     graph = {
@@ -38,7 +38,7 @@ def workflow12(startvalue, withsubmodel_startvalue):
     nodes = [
         {
             "id": "addtask1",
-            "inputs": {"value": startvalue},
+            "default_inputs": [{"name": "value", "value": startvalue}],
             "task_type": "ppfmethod",
             "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run",
         },
@@ -54,19 +54,17 @@ def workflow12(startvalue, withsubmodel_startvalue):
         {
             "source": "addtask1",
             "target": "submodel12",
-            "all_arguments": True,
-            "conditions": {"value": withsubmodel_startvalue + 1},
-            "sub_graph_nodes": {
-                "sub_target": "in",
-            },
+            "sub_target": "in",
+            "map_all_data": True,
+            "conditions": [
+                {"source_output": "value", "value": withsubmodel_startvalue + 1}
+            ],
         },
         {
             "source": "submodel12",
+            "sub_source": "out",
             "target": "addtask2",
-            "all_arguments": True,
-            "sub_graph_nodes": {
-                "sub_source": "out",
-            },
+            "map_all_data": True,
         },
     ]
 

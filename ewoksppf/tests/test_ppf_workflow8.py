@@ -26,7 +26,7 @@ def workflow8():
     nodes = [
         {
             "id": "addtask1",
-            "inputs": {"a": 1},
+            "default_inputs": [{"name": "a", "value": 1}],
             "task_type": "ppfmethod",
             "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorAddA2B.run",
         },
@@ -42,18 +42,14 @@ def workflow8():
         {
             "source": "addtask1",
             "target": "submodel8",
-            "all_arguments": True,
-            "sub_graph_nodes": {
-                "sub_target": "addtask2",
-            },
+            "sub_target": "addtask2",
+            "map_all_data": True,
         },
         {
             "source": "submodel8",
+            "sub_source": "addtask2",
             "target": "addtask3",
-            "all_arguments": True,
-            "sub_graph_nodes": {
-                "sub_source": "addtask2",
-            },
+            "map_all_data": True,
         },
     ]
 

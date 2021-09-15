@@ -19,9 +19,9 @@ def submodel15(name):
     ]
 
     links = [
-        {"source": "in", "target": "addtask1", "all_arguments": True},
-        {"source": "addtask1", "target": "addtask2", "all_arguments": True},
-        {"source": "addtask2", "target": "out", "all_arguments": True},
+        {"source": "in", "target": "addtask1", "map_all_data": True},
+        {"source": "addtask1", "target": "addtask2", "map_all_data": True},
+        {"source": "addtask2", "target": "out", "map_all_data": True},
     ]
 
     graph = {
@@ -37,7 +37,7 @@ def workflow15():
     nodes = [
         {
             "id": "addtask1",
-            "inputs": {"value": 1},
+            "default_inputs": [{"name": "value", "value": 1}],
             "task_type": "ppfmethod",
             "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run",
         },
@@ -62,27 +62,21 @@ def workflow15():
         {
             "source": "addtask1",
             "target": "submodel15a",
-            "all_arguments": True,
-            "sub_graph_nodes": {
-                "sub_target": "in",
-            },
+            "sub_target": "in",
+            "map_all_data": True,
         },
         {
             "source": "submodel15a",
+            "sub_source": "out",
             "target": "submodel15b",
-            "all_arguments": True,
-            "sub_graph_nodes": {
-                "sub_source": "out",
-                "sub_target": "in",
-            },
+            "sub_target": "in",
+            "map_all_data": True,
         },
         {
             "source": "submodel15b",
+            "sub_source": "out",
             "target": "addtask2",
-            "all_arguments": True,
-            "sub_graph_nodes": {
-                "sub_source": "out",
-            },
+            "map_all_data": True,
         },
     ]
 

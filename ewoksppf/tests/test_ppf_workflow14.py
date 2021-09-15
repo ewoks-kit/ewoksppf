@@ -19,9 +19,9 @@ def submodel14a():
     ]
 
     links = [
-        {"source": "In", "target": "addtask2aa", "all_arguments": True},
-        {"source": "addtask2aa", "target": "addtask2ab", "all_arguments": True},
-        {"source": "addtask2ab", "target": "Out", "all_arguments": True},
+        {"source": "In", "target": "addtask2aa", "map_all_data": True},
+        {"source": "addtask2aa", "target": "addtask2ab", "map_all_data": True},
+        {"source": "addtask2ab", "target": "Out", "map_all_data": True},
     ]
 
     graph = {
@@ -44,18 +44,14 @@ def submodel14b():
         {
             "source": "In",
             "target": "submodel14a",
-            "all_arguments": True,
-            "sub_graph_nodes": {
-                "sub_target": "In",
-            },
+            "sub_target": "In",
+            "map_all_data": True,
         },
         {
             "source": "submodel14a",
+            "sub_source": "Out",
             "target": "Out",
-            "all_arguments": True,
-            "sub_graph_nodes": {
-                "sub_source": "Out",
-            },
+            "map_all_data": True,
         },
     ]
 
@@ -72,7 +68,7 @@ def workflow14():
     nodes = [
         {
             "id": "addtask1",
-            "inputs": {"value": 1},
+            "default_inputs": [{"name": "value", "value": 1}],
             "task_type": "ppfmethod",
             "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run",
         },
@@ -88,14 +84,14 @@ def workflow14():
         {
             "source": "addtask1",
             "target": "submodel14b",
-            "all_arguments": True,
-            "sub_graph_nodes": {"sub_target": "In"},
+            "sub_target": "In",
+            "map_all_data": True,
         },
         {
             "source": "submodel14b",
+            "sub_source": "Out",
             "target": "addtask3",
-            "all_arguments": True,
-            "sub_graph_nodes": {"sub_source": "Out"},
+            "map_all_data": True,
         },
     ]
 

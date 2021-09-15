@@ -6,7 +6,7 @@ def submodel1():
     nodes = [
         {
             "id": "mytask",
-            "inputs": {"name": "myname"},
+            "default_inputs": [{"name": "name", "value": "myname"}],
             "task_type": "ppfmethod",
             "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorTest.run",
         },
@@ -27,13 +27,13 @@ def workflow3():
     nodes = [
         {
             "id": "first",
-            "inputs": {"name": "first"},
+            "default_inputs": [{"name": "name", "value": "first"}],
             "task_type": "ppfmethod",
             "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorTest.run",
         },
         {
             "id": "last",
-            "inputs": {"name": "last"},
+            "default_inputs": [{"name": "name", "value": "last"}],
             "task_type": "ppfmethod",
             "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorTest.run",
         },
@@ -44,17 +44,15 @@ def workflow3():
         {
             "source": "first",
             "target": "middle",
-            "sub_target_attributes": {"inputs": {"name": "middle"}},
-            "sub_graph_nodes": {
-                "sub_target": "mytask",
+            "sub_target": "mytask",
+            "sub_target_attributes": {
+                "default_inputs": [{"name": "name", "value": "middle"}],
             },
         },
         {
             "source": "middle",
+            "sub_source": "mytask",
             "target": "last",
-            "sub_graph_nodes": {
-                "sub_source": "mytask",
-            },
         },
     ]
 

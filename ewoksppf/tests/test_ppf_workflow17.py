@@ -16,7 +16,7 @@ def workflow17(doloop=True):
             "id": "task1",
             "task_type": "ppfmethod",
             "task_identifier": ppfmethod,
-            "inputs": {"value": 0},
+            "default_inputs": [{"name": "value", "value": 0}],
         },
         {"id": "task2", "task_type": "ppfmethod", "task_identifier": ppfmethod},
         {"id": "task3", "task_type": "ppfmethod", "task_identifier": ppfmethod},
@@ -24,16 +24,16 @@ def workflow17(doloop=True):
         {"id": "task5", "task_type": "ppfmethod", "task_identifier": ppfmethod},
     ]
     links = [
-        {"source": "task1", "target": "task2", "all_arguments": True},
-        {"source": "task2", "target": "task3", "all_arguments": True},
+        {"source": "task1", "target": "task2", "map_all_data": True},
+        {"source": "task2", "target": "task3", "map_all_data": True},
         {
             "source": "task3",
             "target": "task4",
-            "all_arguments": True,
-            "conditions": {"value": condition},
+            "map_all_data": True,
+            "conditions": [{"source_output": "value", "value": condition}],
         },
-        {"source": "task4", "target": "task5", "all_arguments": True},
-        {"source": "task5", "target": "task2", "all_arguments": True},
+        {"source": "task4", "target": "task5", "map_all_data": True},
+        {"source": "task5", "target": "task2", "map_all_data": True},
     ]
     graph = {
         "graph": {"name": "workflow17"},
