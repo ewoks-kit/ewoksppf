@@ -26,22 +26,28 @@ def workflow():
         {"id": "task5", "class": myclass},
     ]
     links = [
-        {"source": "task1", "target": "task2", "all_arguments": True},
-        {"source": "task2", "target": "task3", "all_arguments": True},
+        {"source": "task1", "target": "task2", "map_all_data": True},
+        {"source": "task2", "target": "task3", "map_all_data": True},
         {
             "source": "task3",
             "target": "task4",
-            "all_arguments": True,
-            "conditions": {"a": 3, "b": 3},
+            "map_all_data": True,
+            "conditions": [
+                {"source_output": "a", "value": 3},
+                {"source_output": "b", "value": 3},
+            ],
         },
         {
             "source": "task3",
             "target": "task5",
-            "all_arguments": True,
-            "conditions": {"a": 6, "b": "other"},
+            "map_all_data": True,
+            "conditions": [
+                {"source_output": "a", "value": 6},
+                {"source_output": "b", "value": "other"},
+            ],
         },
-        {"source": "task4", "target": "task2", "all_arguments": True},
-        {"source": "task5", "target": "task2", "all_arguments": True},
+        {"source": "task4", "target": "task2", "map_all_data": True},
+        {"source": "task5", "target": "task2", "map_all_data": True},
     ]
 
     graph = {"links": links, "nodes": nodes}

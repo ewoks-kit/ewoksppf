@@ -17,9 +17,24 @@ def run(**inputs):
     info = inputs.pop(INFOKEY)
     log = info.get("enable_logging")
     varinfo = info["varinfo"]
-    task = instantiate_task(
-        info["node_attrs"], varinfo=varinfo, inputs=inputs, node_name=info["node_name"]
-    )
+
+    try:
+        task = instantiate_task(
+            info["node_attrs"],
+            varinfo=varinfo,
+            inputs=inputs,
+            node_name=info["node_name"],
+        )
+    except Exception as e:
+        if log:
+            logger.error(
+                "\nINSTANTIATE {}\n ATTRIBUTES: {}\n ERROR: {}".format(
+                    info["node_name"],
+                    info["node_attrs"],
+                    e,
+                ),
+            )
+        raise
 
     try:
         task.execute()

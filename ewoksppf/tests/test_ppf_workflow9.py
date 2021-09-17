@@ -6,7 +6,7 @@ def workflow9():
     nodes = [
         {
             "id": "addtask1",
-            "inputs": {"value": 1},
+            "default_inputs": [{"name": "value", "value": 1}],
             "task_type": "ppfmethod",
             "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run",
         },
@@ -26,14 +26,14 @@ def workflow9():
         {
             "source": "addtask1",
             "target": "addtask2",
-            "conditions": {"value": 2},
-            "all_arguments": True,
+            "conditions": [{"source_output": "value", "value": 2}],
+            "map_all_data": True,
         },
         {
             "source": "addtask1",
             "target": "addtask3",
-            "conditions": {"value": 3},
-            "all_arguments": True,
+            "conditions": [{"source_output": "value", "value": 3}],
+            "map_all_data": True,
         },
     ]
 

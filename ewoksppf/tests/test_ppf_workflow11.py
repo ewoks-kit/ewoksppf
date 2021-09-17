@@ -19,9 +19,9 @@ def submodel11a():
     ]
 
     links = [
-        {"source": "in11a", "target": "addtask2aa", "all_arguments": True},
-        {"source": "addtask2aa", "target": "addtask2ab", "all_arguments": True},
-        {"source": "addtask2ab", "target": "out11a", "all_arguments": True},
+        {"source": "in11a", "target": "addtask2aa", "map_all_data": True},
+        {"source": "addtask2aa", "target": "addtask2ab", "map_all_data": True},
+        {"source": "addtask2ab", "target": "out11a", "map_all_data": True},
     ]
 
     graph = {
@@ -51,24 +51,20 @@ def submodel11b():
     ]
 
     links = [
-        {"source": "in11b", "target": "addtask2ba", "all_arguments": True},
+        {"source": "in11b", "target": "addtask2ba", "map_all_data": True},
         {
             "source": "addtask2ba",
             "target": "submodel11a",
-            "all_arguments": True,
-            "sub_graph_nodes": {
-                "sub_target": "in11a",
-            },
+            "sub_target": "in11a",
+            "map_all_data": True,
         },
         {
             "source": "submodel11a",
+            "sub_source": "out11a",
             "target": "addtask2bb",
-            "all_arguments": True,
-            "sub_graph_nodes": {
-                "sub_source": "out11a",
-            },
+            "map_all_data": True,
         },
-        {"source": "addtask2bb", "target": "out11b", "all_arguments": True},
+        {"source": "addtask2bb", "target": "out11b", "map_all_data": True},
     ]
 
     graph = {
@@ -84,7 +80,7 @@ def workflow11():
     nodes = [
         {
             "id": "addtask1",
-            "inputs": {"value": 1},
+            "default_inputs": [{"name": "value", "value": 1}],
             "task_type": "ppfmethod",
             "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorAdd.run",
         },
@@ -100,18 +96,14 @@ def workflow11():
         {
             "source": "addtask1",
             "target": "submodel11b",
-            "all_arguments": True,
-            "sub_graph_nodes": {
-                "sub_target": "in11b",
-            },
+            "sub_target": "in11b",
+            "map_all_data": True,
         },
         {
             "source": "submodel11b",
+            "sub_source": "out11b",
             "target": "addtask3",
-            "all_arguments": True,
-            "sub_graph_nodes": {
-                "sub_source": "out11b",
-            },
+            "map_all_data": True,
         },
     ]
 

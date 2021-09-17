@@ -5,10 +5,11 @@ from ewokscore.tests.utils import assert_workflow_merged_result
 
 
 def workflow10(inputs):
+    default_inputs = [{"name": name, "value": value} for name, value in inputs.items()]
     nodes = [
         {
             "id": "addWithoutSleep",
-            "inputs": inputs,
+            "default_inputs": default_inputs,
             "inputs_complete": True,
             "task_type": "ppfmethod",
             "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorAddWithoutSleep.run",
@@ -24,13 +25,13 @@ def workflow10(inputs):
         {
             "source": "addWithoutSleep",
             "target": "check",
-            "all_arguments": True,
+            "map_all_data": True,
         },
         {
             "source": "check",
             "target": "addWithoutSleep",
-            "conditions": {"doContinue": "true"},
-            "all_arguments": True,
+            "conditions": [{"source_output": "doContinue", "value": "true"}],
+            "map_all_data": True,
         },
     ]
 

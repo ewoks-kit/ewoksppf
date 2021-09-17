@@ -6,7 +6,7 @@ def workflow1():
     nodes = [
         {
             "id": "Python Actor Test",
-            "inputs": {"name": "myname"},
+            "default_inputs": [{"name": "name", "value": "myname"}],
             "task_type": "ppfmethod",
             "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorTest.run",
         },

@@ -16,7 +16,11 @@ def workflow19():
             "id": "task1",
             "task_type": "ppfmethod",
             "task_identifier": sum3,
-            "inputs": {"a": 1, "b": 2, "c": 4},
+            "default_inputs": [
+                {"name": "a", "value": 1},
+                {"name": "b", "value": 2},
+                {"name": "c", "value": 4},
+            ],
             "inputs_complete": True,
         },
         {"id": "task2", "task_type": "ppfmethod", "task_identifier": move_d_to_a},
@@ -24,35 +28,33 @@ def workflow19():
             "id": "task3",
             "task_type": "ppfmethod",
             "task_identifier": incrementation,
-            "inputs": {
-                "increment_value": 1,
-            },
+            "default_inputs": [{"name": "increment_value", "value": 1}],
         },
         {"id": "task4", "task_type": "ppfmethod", "task_identifier": no_processing},
         {"id": "task5", "task_type": "ppfmethod", "task_identifier": no_processing},
     ]
     links = [
-        {"source": "task1", "target": "task2", "all_arguments": True},
+        {"source": "task1", "target": "task2", "map_all_data": True},
         {
             "source": "task2",
             "target": "task3",
-            "all_arguments": True,
-            "conditions": {"d": 7},
+            "map_all_data": True,
+            "conditions": [{"source_output": "d", "value": 7}],
         },
         {
             "source": "task2",
             "target": "task4",
-            "all_arguments": True,
-            "conditions": {"d": 13},
+            "map_all_data": True,
+            "conditions": [{"source_output": "d", "value": 13}],
         },
         {
             "source": "task2",
             "target": "task5",
-            "all_arguments": True,
-            "conditions": {"d": "__other__"},
+            "map_all_data": True,
+            "conditions": [{"source_output": "d", "value": "__other__"}],
         },
-        {"source": "task3", "target": "task1", "all_arguments": True},
-        {"source": "task4", "target": "task1", "all_arguments": True},
+        {"source": "task3", "target": "task1", "map_all_data": True},
+        {"source": "task4", "target": "task1", "map_all_data": True},
     ]
     graph = {
         "graph": {"name": "workflow19"},

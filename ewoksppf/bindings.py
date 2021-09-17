@@ -124,7 +124,7 @@ class NameMapperActor(AbstractActor):
     def __init__(
         self,
         namemap=None,
-        mapall=False,
+        map_all_data=False,
         name="Name mapper",
         trigger_on_error=False,
         required=False,
@@ -132,7 +132,7 @@ class NameMapperActor(AbstractActor):
     ):
         super().__init__(name=name, **kw)
         self.namemap = namemap
-        self.mapall = mapall
+        self.map_all_data = map_all_data
         self.trigger_on_error = trigger_on_error
         self.required = required
 
@@ -150,7 +150,7 @@ class NameMapperActor(AbstractActor):
             if not is_error:
                 # Map output names of this task to input
                 # names of the downstream task
-                if self.mapall:
+                if self.map_all_data:
                     newInData.update(inData)
                 for input_name, output_name in self.namemap.items():
                     newInData[input_name] = inData[output_name]
@@ -316,8 +316,10 @@ class EwoksWorkflow(Workflow):
             source_actor = taskactors[source_name]
             for target_name in taskgraph.successors(source_name):
                 link_attrs = taskgraph.graph[source_name][target_name]
-                conditions = link_attrs.get("conditions", dict())
-                for outname, outvalue in conditions.items():
+                conditions = link_attrs.get("conditions", list())
+                for item in conditions:
+                    outname = item["source_output"]
+                    outvalue = item["value"]
                     router = routers.get(outname)
                     if router is None:
                         router = self._create_router_actor(
@@ -366,12 +368,14 @@ class EwoksWorkflow(Workflow):
         routeractors = self._routeractors
 
         link_attrs = taskgraph.graph[source_name][target_name]
-        conditions = link_attrs.get("conditions", dict())
+        conditions = link_attrs.get("conditions", list())
         on_error = link_attrs.get("on_error", False)
         if on_error:
             return self._create_source_on_error_actor(
                 taskgraph, source_name, target_name
             )
+        if conditions:
+            conditions = {item["source_output"]: item["value"] for item in conditions}
 
         # One router actor for each output name
         routers = dict()
@@ -426,8 +430,11 @@ class EwoksWorkflow(Workflow):
         self, taskgraph, source_name, target_name
     ) -> NameMapperActor:
         link_attrs = taskgraph.graph[source_name][target_name]
-        mapall = link_attrs.get("all_arguments", dict())
-        arguments = link_attrs.get("arguments", dict())
+        map_all_data = link_attrs.get("map_all_data", False)
+        data_mapping = link_attrs.get("data_mapping", list())
+        data_mapping = {
+            item["target_input"]: item["source_output"] for item in data_mapping
+        }
         on_error = link_attrs.get("on_error", False)
         required = taskgraph.link_is_required(source_name, target_name)
 
@@ -439,8 +446,8 @@ class EwoksWorkflow(Workflow):
             name = f"Name mapper <{source_name} - {target_name}>"
         return NameMapperActor(
             name=name,
-            namemap=dict(arguments),
-            mapall=mapall,
+            namemap=data_mapping,
+            map_all_data=map_all_data,
             trigger_on_error=on_error,
             required=required,
             **self._actor_arguments,
