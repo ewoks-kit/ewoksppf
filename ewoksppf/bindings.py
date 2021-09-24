@@ -10,6 +10,7 @@ from pypushflow.RouterActor import RouterActor
 from pypushflow.ErrorHandler import ErrorHandler
 from pypushflow.AbstractActor import AbstractActor
 from pypushflow.ThreadCounter import ThreadCounter
+from pypushflow.persistence import register_actorinfo_filter
 
 from . import ppfrunscript
 from ewokscore import load_graph
@@ -45,6 +46,23 @@ def is_ppfmethod(node_attrs: dict):
     return task_type in ("ppfmethod", "ppfport")
 
 
+def actordata_filter(actorData):
+    for key in ["inData", "outData"]:
+        data = actorData.get(key, None)
+        if data is None:
+            continue
+        varinfo = varinfo_from_indata(data)
+        actorData[key] = {
+            k: value_from_transfer(v, varinfo=varinfo)
+            for k, v in data.items()
+            if k != ppfrunscript.INFOKEY
+        }
+    return actorData
+
+
+register_actorinfo_filter(actordata_filter)
+
+
 class EwoksPythonActor(PythonActor):
     def __init__(self, node_name, node_attrs, **kw):
         self.node_name = node_name
@@ -61,20 +79,6 @@ class EwoksPythonActor(PythonActor):
         inData[infokey]["node_name"] = self.node_name
         inData[infokey]["node_attrs"] = self.node_attrs
         return super().trigger(inData)
-
-    def uploadInDataToMongo(self, **kw):
-        if self.parent is None:
-            return
-        if self.parent.mongoId is None:
-            return
-        actorData = kw.get("actorData", dict())
-        inData = actorData.get("inData")
-        if inData:
-            varinfo = varinfo_from_indata(inData)
-            actorData["inData"] = {
-                k: value_from_transfer(v, varinfo=varinfo) for k, v in inData.items()
-            }
-        super().uploadInDataToMongo(**kw)
 
 
 class DecodeRouterActor(RouterActor):
