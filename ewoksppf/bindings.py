@@ -19,7 +19,7 @@ from ewokscore.inittask import task_executable
 from ewokscore.inittask import get_varinfo
 from ewokscore.inittask import task_executable_info
 from ewokscore.graph import CONDITIONS_ELSE_VALUE
-from ewokscore.subgraph import flatten_node_name
+from ewokscore.node import node_name_as_string as actor_name
 
 # Scheme: task graph
 # Workflow: instance of a task graph
@@ -35,10 +35,6 @@ def varinfo_from_indata(inData):
     varinfo = inData[ppfrunscript.INFOKEY].get("varinfo")
     node_attrs = inData[ppfrunscript.INFOKEY].get("node_attrs", dict())
     return get_varinfo(node_attrs, varinfo=varinfo)
-
-
-def actor_name(node_name):
-    return ":".join(flatten_node_name(node_name))
 
 
 def is_ppfmethod(node_attrs: dict):
@@ -400,7 +396,9 @@ class EwoksWorkflow(Workflow):
                 connectkw["expectedValue"] = value
         else:
             # JoinActor
-            name = f"Join routers {source_name} -> {target_name}"
+            name = (
+                f"Join routers {actor_name(source_name)} -> {actor_name(target_name)}"
+            )
             source_actor = JoinActor(name=name, **self._actor_arguments)
             for outname, router_actor in routers.items():
                 value = conditions[outname]
