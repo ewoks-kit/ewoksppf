@@ -1,5 +1,6 @@
 import sys
 import logging
+from typing import Optional
 
 from pypushflow.Workflow import Workflow
 from pypushflow.StopActor import StopActor
@@ -31,18 +32,20 @@ from ewokscore.node import node_name_as_string as actor_name
 logger = logging.getLogger(__name__)
 
 
-def varinfo_from_indata(inData):
+def varinfo_from_indata(inData) -> Optional[dict]:
+    if ppfrunscript.INFOKEY not in inData:
+        return None
     varinfo = inData[ppfrunscript.INFOKEY].get("varinfo")
     node_attrs = inData[ppfrunscript.INFOKEY].get("node_attrs", dict())
     return get_varinfo(node_attrs, varinfo=varinfo)
 
 
-def is_ppfmethod(node_attrs: dict):
+def is_ppfmethod(node_attrs: dict) -> bool:
     task_type, _ = task_executable_info(node_attrs)
     return task_type in ("ppfmethod", "ppfport")
 
 
-def actordata_filter(actorData):
+def actordata_filter(actorData: dict) -> dict:
     for key in ["inData", "outData"]:
         data = actorData.get(key, None)
         if data is None:
