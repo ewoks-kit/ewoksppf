@@ -1,6 +1,7 @@
 import sys
 import logging
 import pytest
+from pypushflow import persistence
 from . import test_ppf_actors
 
 # loggers = [logging.getLogger("pypushflow"), logging.getLogger("ewoksppf")]
@@ -18,7 +19,12 @@ def ppf_logging():
         logger.setLevel(logging.DEBUG)
         logger.addHandler(stdouthandler)
 
+    DEFAULT_DB_TYPE = persistence.DEFAULT_DB_TYPE
+    persistence.DEFAULT_DB_TYPE = "memory"
+
     yield
+
+    persistence.DEFAULT_DB_TYPE = DEFAULT_DB_TYPE
 
     for level, logger in zip(levels, loggers):
         logger.setLevel(level)

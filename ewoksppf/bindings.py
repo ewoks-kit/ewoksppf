@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 def varinfo_from_indata(inData) -> Optional[dict]:
     if ppfrunscript.INFOKEY not in inData:
         return None
-    varinfo = inData[ppfrunscript.INFOKEY].get("varinfo")
+    varinfo = inData[ppfrunscript.INFOKEY].get("varinfo", None)
     node_attrs = inData[ppfrunscript.INFOKEY].get("node_attrs", dict())
     return get_varinfo(node_attrs, varinfo=varinfo)
 
@@ -46,6 +46,7 @@ def is_ppfmethod(node_attrs: dict) -> bool:
 
 
 def actordata_filter(actorData: dict) -> dict:
+    skip = (ppfrunscript.INFOKEY, "ppfdict")
     for key in ["inData", "outData"]:
         data = actorData.get(key, None)
         if data is None:
@@ -54,8 +55,12 @@ def actordata_filter(actorData: dict) -> dict:
         actorData[key] = {
             k: value_from_transfer(v, varinfo=varinfo)
             for k, v in data.items()
-            if k != ppfrunscript.INFOKEY
+            if k not in skip
         }
+        if "ppfdict" in data:
+            ppfdict = value_from_transfer(data["ppfdict"], varinfo=varinfo)
+            if ppfdict:
+                actorData[key].update(ppfdict)
     return actorData
 
 
