@@ -32,7 +32,7 @@ def workflow18(dotask4=True):
         },
     ]
     graph = {
-        "graph": {"name": "workflow18"},
+        "graph": {"id": "workflow18"},
         "links": links,
         "nodes": nodes,
     }

@@ -69,7 +69,7 @@ def workflow12(startvalue, withsubmodel_startvalue):
     ]
 
     graph = {
-        "graph": {"name": "workflow12"},
+        "graph": {"id": "workflow12"},
         "links": links,
         "nodes": nodes,
     }

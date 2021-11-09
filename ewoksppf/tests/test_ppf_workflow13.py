@@ -69,7 +69,7 @@ def workflow13(startvalue, withlastnode_startvalue):
     ]
 
     graph = {
-        "graph": {"name": "workflow13"},
+        "graph": {"id": "workflow13"},
         "links": links,
         "nodes": nodes,
     }

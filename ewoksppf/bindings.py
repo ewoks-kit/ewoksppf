@@ -20,7 +20,7 @@ from ewokscore.inittask import task_executable
 from ewokscore.inittask import get_varinfo
 from ewokscore.inittask import task_executable_info
 from ewokscore.graph import CONDITIONS_ELSE_VALUE
-from ewokscore.node import node_name_as_string as actor_name
+from ewokscore.node import get_node_label
 
 # Scheme: task graph
 # Workflow: instance of a task graph
@@ -68,10 +68,10 @@ register_actorinfo_filter(actordata_filter)
 
 
 class EwoksPythonActor(PythonActor):
-    def __init__(self, node_name, node_attrs, **kw):
-        self.node_name = node_name
+    def __init__(self, node_id, node_attrs, **kw):
+        self.node_id = node_id
         self.node_attrs = node_attrs
-        kw["name"] = actor_name(node_name)
+        kw["name"] = get_node_label(node_attrs, node_id=node_id)
         super().__init__(**kw)
 
     def trigger(self, inData):
@@ -80,7 +80,7 @@ class EwoksPythonActor(PythonActor):
         """
         infokey = ppfrunscript.INFOKEY
         inData[infokey] = dict(inData[infokey])
-        inData[infokey]["node_name"] = self.node_name
+        inData[infokey]["node_id"] = self.node_id
         inData[infokey]["node_attrs"] = self.node_attrs
         return super().trigger(inData)
 
@@ -236,13 +236,13 @@ class EwoksWorkflow(Workflow):
         self._taskactors = dict()
         self.listActorRef = list()  # values of taskactors
 
-        # source_name -> condition_name -> DecodeRouterActor
+        # source_id -> condition_name -> DecodeRouterActor
         self._routeractors = dict()
 
-        # source_name -> target_name -> NameMapperActor
+        # source_id -> target_id -> NameMapperActor
         self._sourceactors = dict()
 
-        # target_name -> EwoksPythonActor or InputMergeActor
+        # target_id -> EwoksPythonActor or InputMergeActor
         self._targetactors = dict()
 
         self._threadcounter = ThreadCounter()
@@ -291,39 +291,39 @@ class EwoksWorkflow(Workflow):
         taskactors = self._taskactors
         error_actor = self._error_actor
         imported = set()
-        for node_name, node_attrs in taskgraph.graph.nodes.items():
+        for node_id, node_attrs in taskgraph.graph.nodes.items():
             # Pre-import to speedup execution
-            name, importfunc = task_executable(node_attrs, node_name=node_name)
+            name, importfunc = task_executable(node_attrs, node_id=node_id)
             if name not in imported:
                 imported.add(name)
                 if importfunc:
                     importfunc(name)
 
             actor = EwoksPythonActor(
-                node_name,
+                node_id,
                 node_attrs,
                 script=ppfrunscript.__name__ + ".dummy",
                 **self._actor_arguments,
             )
-            if not taskgraph.has_successors(node_name, on_error=True):
+            if not taskgraph.has_successors(node_id, on_error=True):
                 self._connect_actors(actor, error_actor)
-            taskactors[node_name] = actor
+            taskactors[node_id] = actor
             self.addActorRef(actor)
 
     def _create_router_actors(self, taskgraph):
         """Insert router actors (one per target and output name) behind
         actors with conditions.
         """
-        # source_name -> condition_name -> DecodeRouterActor
+        # source_id -> condition_name -> DecodeRouterActor
         routeractors = self._routeractors
         # task_name -> EwoksPythonActor
         taskactors = self._taskactors
-        for source_name in taskgraph.graph.nodes:
+        for source_id in taskgraph.graph.nodes:
             # We will get 1 router for each output variable
-            routers = routeractors[source_name] = dict()
-            source_actor = taskactors[source_name]
-            for target_name in taskgraph.successors(source_name):
-                link_attrs = taskgraph.graph[source_name][target_name]
+            routers = routeractors[source_id] = dict()
+            source_actor = taskactors[source_id]
+            for target_id in taskgraph.successors(source_id):
+                link_attrs = taskgraph.graph[source_id][target_id]
                 conditions = link_attrs.get("conditions", list())
                 for item in conditions:
                     outname = item["source_output"]
@@ -332,7 +332,7 @@ class EwoksWorkflow(Workflow):
                     if router is None:
                         router = self._create_router_actor(
                             source_actor,
-                            source_name,
+                            source_id,
                             outname,
                             taskgraph,
                         )
@@ -340,12 +340,13 @@ class EwoksWorkflow(Workflow):
                     if outvalue not in router.listPort:
                         router.listPort.append(outvalue)
 
-    def _create_router_actor(self, source_actor, source_name, outname, taskgraph):
+    def _create_router_actor(self, source_actor, source_id, outname, taskgraph):
         """
         :returns DecodeRouterActor:
         """
-        source_attrs = taskgraph.graph.nodes[source_name]
-        routername = f"Route output {repr(outname)} of {actor_name(source_name)}"
+        source_attrs = taskgraph.graph.nodes[source_id]
+        source_label = get_node_label(source_attrs, node_id=source_id)
+        routername = f"Route output {repr(outname)} of {source_label}"
         router = DecodeRouterActor(
             name=routername,
             itemName=outname,
@@ -359,43 +360,39 @@ class EwoksWorkflow(Workflow):
         """Compile a dictionary NameMapperActor instances for each link.
         These actors will serve as the source actor of each link.
         """
-        # source_name -> target_name -> NameMapperActor
+        # source_id -> target_id -> NameMapperActor
         sourceactors = self._sourceactors
-        for source_name in taskgraph.graph.nodes:
-            sourceactors[source_name] = dict()
-            for target_name in taskgraph.graph.successors(source_name):
-                actor = self._create_source_actor(taskgraph, source_name, target_name)
-                sourceactors[source_name][target_name] = actor
+        for source_id in taskgraph.graph.nodes:
+            sourceactors[source_id] = dict()
+            for target_id in taskgraph.graph.successors(source_id):
+                actor = self._create_source_actor(taskgraph, source_id, target_id)
+                sourceactors[source_id][target_id] = actor
 
-    def _create_source_actor(
-        self, taskgraph, source_name, target_name
-    ) -> NameMapperActor:
+    def _create_source_actor(self, taskgraph, source_id, target_id) -> NameMapperActor:
         # task_name -> EwoksPythonActor
         taskactors = self._taskactors
-        # source_name -> condition_name -> DecodeRouterActor
+        # source_id -> condition_name -> DecodeRouterActor
         routeractors = self._routeractors
 
-        link_attrs = taskgraph.graph[source_name][target_name]
+        link_attrs = taskgraph.graph[source_id][target_id]
         conditions = link_attrs.get("conditions", list())
         on_error = link_attrs.get("on_error", False)
         if on_error:
-            return self._create_source_on_error_actor(
-                taskgraph, source_name, target_name
-            )
+            return self._create_source_on_error_actor(taskgraph, source_id, target_id)
         if conditions:
             conditions = {item["source_output"]: item["value"] for item in conditions}
 
         # One router actor for each output name
         routers = dict()
         for outname in conditions:
-            routers[outname] = routeractors[source_name][outname]
+            routers[outname] = routeractors[source_id][outname]
 
         # Merge routers into one single source actor
         connectkw = dict()
         nrouters = len(routers)
         if nrouters == 0:
             # EwoksTaskActor
-            source_actor = taskactors[source_name]
+            source_actor = taskactors[source_id]
         elif nrouters == 1:
             # DecodeRouterActor
             for outname, router_actor in routers.items():
@@ -404,56 +401,58 @@ class EwoksWorkflow(Workflow):
                 connectkw["expectedValue"] = value
         else:
             # JoinActor
-            name = (
-                f"Join routers {actor_name(source_name)} -> {actor_name(target_name)}"
-            )
+            source_attrs = taskgraph.graph.nodes[source_id]
+            target_attrs = taskgraph.graph.nodes[target_id]
+            source_label = get_node_label(source_attrs, node_id=source_id)
+            target_label = get_node_label(target_attrs, node_id=target_id)
+            name = f"Join routers {source_label} -> {target_label}"
             source_actor = JoinActor(name=name, **self._actor_arguments)
             for outname, router_actor in routers.items():
                 value = conditions[outname]
                 self._connect_actors(router_actor, source_actor, expectedValue=value)
 
         # The final actor of this link does the name mapping
-        final_source = self._create_name_mapper(taskgraph, source_name, target_name)
+        final_source = self._create_name_mapper(taskgraph, source_id, target_id)
         self._connect_actors(source_actor, final_source, **connectkw)
 
         return final_source
 
     def _create_source_on_error_actor(
-        self, taskgraph, source_name, target_name
+        self, taskgraph, source_id, target_id
     ) -> NameMapperActor:
         # task_name -> EwoksPythonActor
         taskactors = self._taskactors
 
-        link_attrs = taskgraph.graph[source_name][target_name]
+        link_attrs = taskgraph.graph[source_id][target_id]
         if not link_attrs.get("on_error", False):
             raise ValueError("The link does not have on_error=True")
 
         # EwoksTaskActor
-        source_actor = taskactors[source_name]
+        source_actor = taskactors[source_id]
         # NameMapperActor
-        final_source = self._create_name_mapper(taskgraph, source_name, target_name)
+        final_source = self._create_name_mapper(taskgraph, source_id, target_id)
         self._connect_actors(source_actor, final_source, on_error=True)
 
         return final_source
 
-    def _create_name_mapper(
-        self, taskgraph, source_name, target_name
-    ) -> NameMapperActor:
-        link_attrs = taskgraph.graph[source_name][target_name]
+    def _create_name_mapper(self, taskgraph, source_id, target_id) -> NameMapperActor:
+        link_attrs = taskgraph.graph[source_id][target_id]
         map_all_data = link_attrs.get("map_all_data", False)
         data_mapping = link_attrs.get("data_mapping", list())
         data_mapping = {
             item["target_input"]: item["source_output"] for item in data_mapping
         }
         on_error = link_attrs.get("on_error", False)
-        required = taskgraph.link_is_required(source_name, target_name)
+        required = taskgraph.link_is_required(source_id, target_id)
 
-        source_name = actor_name(source_name)
-        target_name = actor_name(target_name)
+        source_attrs = taskgraph.graph.nodes[source_id]
+        target_attrs = taskgraph.graph.nodes[target_id]
+        source_label = get_node_label(source_attrs, node_id=source_id)
+        target_label = get_node_label(target_attrs, node_id=target_id)
         if on_error:
-            name = f"Name mapper <{source_name} -only on error- {target_name}>"
+            name = f"Name mapper <{source_label} -only on error- {target_label}>"
         else:
-            name = f"Name mapper <{source_name} - {target_name}>"
+            name = f"Name mapper <{source_label} - {target_label}>"
         return NameMapperActor(
             name=name,
             namemap=data_mapping,
@@ -468,52 +467,52 @@ class EwoksWorkflow(Workflow):
         with predecessors. The actors will serve as the destination of
         each link.
         """
-        # target_name -> EwoksPythonActor or InputMergeActor
+        # target_id -> EwoksPythonActor or InputMergeActor
         targetactors = self._targetactors
         # task_name -> EwoksPythonActor
         taskactors = self._taskactors
-        for target_name in taskgraph.graph.nodes:
-            predecessors = list(taskgraph.predecessors(target_name))
+        for target_id in taskgraph.graph.nodes:
+            predecessors = list(taskgraph.predecessors(target_id))
             npredecessors = len(predecessors)
             if npredecessors == 0:
                 targetactor = None
             else:
                 # InputMergeActor
                 targetactor = InputMergeActor(
-                    name=f"Input merger of {taskactors[target_name].name}",
+                    name=f"Input merger of {taskactors[target_id].name}",
                     **self._actor_arguments,
                 )
-                self._connect_actors(targetactor, taskactors[target_name])
-            targetactors[target_name] = targetactor
+                self._connect_actors(targetactor, taskactors[target_id])
+            targetactors[target_id] = targetactor
 
     def _connect_sources_to_targets(self, taskgraph):
-        # source_name -> target_name -> NameMapperActor
+        # source_id -> target_id -> NameMapperActor
         sourceactors = self._sourceactors
-        # target_name -> EwoksPythonActor or InputMergeActor
+        # target_id -> EwoksPythonActor or InputMergeActor
         targetactors = self._targetactors
-        for source_name, sources in sourceactors.items():
-            for target_name, source_actor in sources.items():
-                target_actor = targetactors[target_name]
+        for source_id, sources in sourceactors.items():
+            for target_id, source_actor in sources.items():
+                target_actor = targetactors[target_id]
                 self._connect_actors(source_actor, target_actor)
 
     def _connect_start_actor(self, taskgraph):
         # task_name -> EwoksPythonActor
         taskactors = self._taskactors
-        # target_name -> EwoksPythonActor or InputMergeActor
+        # target_id -> EwoksPythonActor or InputMergeActor
         targetactors = self._targetactors
         start_actor = self._start_actor
-        for target_name in taskgraph.start_nodes():
-            target_actor = targetactors.get(target_name)
+        for target_id in taskgraph.start_nodes():
+            target_actor = targetactors.get(target_id)
             if target_actor is None:
-                target_actor = taskactors[target_name]
+                target_actor = taskactors[target_id]
             self._connect_actors(start_actor, target_actor)
 
     def _connect_stop_actor(self, taskgraph):
         # task_name -> EwoksPythonActor
         taskactors = self._taskactors
         stop_actor = self._stop_actor
-        for source_name in taskgraph.end_nodes():
-            source_actor = taskactors[source_name]
+        for source_id in taskgraph.end_nodes():
+            source_actor = taskactors[source_id]
             self._connect_actors(source_actor, stop_actor)
 
     def run(self, inputs=None, raise_on_error=True, timeout=None):
@@ -532,8 +531,8 @@ class EwoksWorkflow(Workflow):
         else:
             info = result.get(ppfrunscript.INFOKEY, dict())
             print("\n".join(ex["traceBack"]), file=sys.stderr)
-            node_name = info.get("node_name")
-            err_msg = f"Task {node_name} failed"
+            node_id = info.get("node_id")
+            err_msg = f"Task {node_id} failed"
             if ex["errorMessage"]:
                 err_msg += " ({})".format(ex["errorMessage"])
             raise RuntimeError(err_msg)
