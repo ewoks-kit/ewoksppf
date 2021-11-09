@@ -36,7 +36,7 @@ def workflow17(doloop=True):
         {"source": "task5", "target": "task2", "map_all_data": True},
     ]
     graph = {
-        "graph": {"name": "workflow17"},
+        "graph": {"id": "workflow17"},
         "links": links,
         "nodes": nodes,
     }

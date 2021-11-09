@@ -57,7 +57,7 @@ def workflow19():
         {"source": "task4", "target": "task1", "map_all_data": True},
     ]
     graph = {
-        "graph": {"name": "workflow19"},
+        "graph": {"id": "workflow19"},
         "links": links,
         "nodes": nodes,
     }

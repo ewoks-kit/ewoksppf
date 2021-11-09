@@ -36,7 +36,7 @@ def workflow10(inputs):
     ]
 
     graph = {
-        "graph": {"name": "workflow10"},
+        "graph": {"id": "workflow10"},
         "links": links,
         "nodes": nodes,
     }

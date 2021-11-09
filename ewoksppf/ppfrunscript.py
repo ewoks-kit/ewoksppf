@@ -23,13 +23,13 @@ def run(**inputs):
             info["node_attrs"],
             varinfo=varinfo,
             inputs=inputs,
-            node_name=info["node_name"],
+            node_id=info["node_id"],
         )
     except Exception as e:
         if log:
             logger.error(
                 "\nINSTANTIATE {}\n ATTRIBUTES: {}\n ERROR: {}".format(
-                    info["node_name"],
+                    info["node_id"],
                     info["node_attrs"],
                     e,
                 ),
@@ -42,7 +42,7 @@ def run(**inputs):
         if log:
             logger.error(
                 "\nEXECUTE {} {}\n INPUTS: {}\n ERROR: {}".format(
-                    info["node_name"],
+                    info["node_id"],
                     repr(task),
                     task.input_values,
                     e,
@@ -53,7 +53,7 @@ def run(**inputs):
     if log:
         logger.info(
             "\nEXECUTE {} {}\n INPUTS: {}\n OUTPUTS: {}".format(
-                info["node_name"],
+                info["node_id"],
                 repr(task),
                 task.input_values,
                 task.output_values,

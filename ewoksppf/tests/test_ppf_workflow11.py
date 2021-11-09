@@ -108,7 +108,7 @@ def workflow11():
     ]
 
     graph = {
-        "graph": {"name": "workflow11"},
+        "graph": {"id": "workflow11"},
         "links": links,
         "nodes": nodes,
     }
