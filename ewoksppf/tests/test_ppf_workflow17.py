@@ -41,7 +41,7 @@ def workflow17(doloop=True):
         "nodes": nodes,
     }
 
-    expected_result = {"ppfdict": {"value": result}}
+    expected_result = {"_ppfdict": {"value": result}}
 
     return graph, expected_result
 

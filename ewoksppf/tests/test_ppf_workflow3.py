@@ -63,9 +63,11 @@ def workflow3():
     }
 
     expected_results = {
-        "first": {"ppfdict": {"name": "first", "reply": "Hello first!"}},
-        ("middle", "mytask"): {"ppfdict": {"name": "middle", "reply": "Hello middle!"}},
-        "last": {"ppfdict": {"name": "last", "reply": "Hello last!"}},
+        "first": {"_ppfdict": {"name": "first", "reply": "Hello first!"}},
+        ("middle", "mytask"): {
+            "_ppfdict": {"name": "middle", "reply": "Hello middle!"}
+        },
+        "last": {"_ppfdict": {"name": "last", "reply": "Hello last!"}},
     }
 
     return graph, expected_results

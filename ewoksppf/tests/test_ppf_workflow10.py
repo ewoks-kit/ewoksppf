@@ -43,7 +43,7 @@ def workflow10(inputs):
 
     limit = inputs["limit"]
     expected_result = {
-        "ppfdict": {"doContinue": "false", "limit": limit, "value": limit}
+        "_ppfdict": {"doContinue": "false", "limit": limit, "value": limit}
     }
 
     return graph, expected_result

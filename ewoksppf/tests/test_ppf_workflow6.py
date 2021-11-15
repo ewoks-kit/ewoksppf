@@ -71,12 +71,12 @@ def workflow6():
     }
 
     expected_results = {
-        "addtask1": {"ppfdict": {"value": 2}},
-        ("submodel6", "in"): {"ppfdict": {"value": 2}},
-        ("submodel6", "addtask2a"): {"ppfdict": {"value": 3}},
-        ("submodel6", "addtask2b"): {"ppfdict": {"value": 4}},
-        ("submodel6", "out"): {"ppfdict": {"value": 4}},
-        "addtask3": {"ppfdict": {"value": 5}},
+        "addtask1": {"_ppfdict": {"value": 2}},
+        ("submodel6", "in"): {"_ppfdict": {"value": 2}},
+        ("submodel6", "addtask2a"): {"_ppfdict": {"value": 3}},
+        ("submodel6", "addtask2b"): {"_ppfdict": {"value": 4}},
+        ("submodel6", "out"): {"_ppfdict": {"value": 4}},
+        "addtask3": {"_ppfdict": {"value": 5}},
     }
 
     return graph, expected_results
