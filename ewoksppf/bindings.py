@@ -547,16 +547,17 @@ class EwoksWorkflow(Workflow):
 
 def execute_graph(
     graph,
-    representation=None,
-    varinfo=None,
     inputs=None,
-    raise_on_error=True,
+    varinfo=None,
     timeout=None,
     log_task_execution=False,
-    **load_options,
+    load_options: Optional[dict] = None,
+    **execute_options,
 ):
-    ewoksgraph = load_graph(source=graph, representation=representation, **load_options)
+    if load_options is None:
+        load_options = dict()
+    ewoksgraph = load_graph(source=graph, **load_options)
     ppfgraph = EwoksWorkflow(
         ewoksgraph, varinfo=varinfo, enable_logging=log_task_execution
     )
-    return ppfgraph.run(inputs=inputs, raise_on_error=raise_on_error, timeout=timeout)
+    return ppfgraph.run(inputs=inputs, timeout=timeout, **execute_options)
