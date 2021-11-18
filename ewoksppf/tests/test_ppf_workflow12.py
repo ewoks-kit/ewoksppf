@@ -76,16 +76,16 @@ def workflow12(startvalue, withsubmodel_startvalue):
 
     value = startvalue
     value += 1
-    expected_results = {"addtask1": {"ppfdict": {"value": value}}}
+    expected_results = {"addtask1": {"_ppfdict": {"value": value}}}
     if startvalue == withsubmodel_startvalue:
-        expected_results[("submodel12", "in")] = {"ppfdict": {"value": value}}
+        expected_results[("submodel12", "in")] = {"_ppfdict": {"value": value}}
         value += 1
-        expected_results[("submodel12", "addtask2a")] = {"ppfdict": {"value": value}}
+        expected_results[("submodel12", "addtask2a")] = {"_ppfdict": {"value": value}}
         value += 1
-        expected_results[("submodel12", "addtask2b")] = {"ppfdict": {"value": value}}
-        expected_results[("submodel12", "out")] = {"ppfdict": {"value": value}}
+        expected_results[("submodel12", "addtask2b")] = {"_ppfdict": {"value": value}}
+        expected_results[("submodel12", "out")] = {"_ppfdict": {"value": value}}
         value += 1
-        expected_results["addtask2"] = {"ppfdict": {"value": value}}
+        expected_results["addtask2"] = {"_ppfdict": {"value": value}}
 
     return graph, expected_results
 

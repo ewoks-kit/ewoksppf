@@ -21,7 +21,7 @@ def workflow1():
     }
 
     expected_results = {
-        "Python Actor Test": {"ppfdict": {"name": "myname", "reply": "Hello myname!"}}
+        "Python Actor Test": {"_ppfdict": {"name": "myname", "reply": "Hello myname!"}}
     }
 
     return graph, expected_results

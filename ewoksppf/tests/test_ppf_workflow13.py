@@ -75,14 +75,14 @@ def workflow13(startvalue, withlastnode_startvalue):
     }
 
     expected_results = {
-        "addtask1": {"ppfdict": {"value": startvalue + 1}},
-        ("submodel13", "in"): {"ppfdict": {"value": startvalue + 1}},
-        ("submodel13", "addtask2a"): {"ppfdict": {"value": startvalue + 2}},
-        ("submodel13", "addtask2b"): {"ppfdict": {"value": startvalue + 3}},
-        ("submodel13", "out"): {"ppfdict": {"value": startvalue + 3}},
+        "addtask1": {"_ppfdict": {"value": startvalue + 1}},
+        ("submodel13", "in"): {"_ppfdict": {"value": startvalue + 1}},
+        ("submodel13", "addtask2a"): {"_ppfdict": {"value": startvalue + 2}},
+        ("submodel13", "addtask2b"): {"_ppfdict": {"value": startvalue + 3}},
+        ("submodel13", "out"): {"_ppfdict": {"value": startvalue + 3}},
     }
     if startvalue == withlastnode_startvalue:
-        expected_results["addtask2"] = {"ppfdict": {"value": startvalue + 4}}
+        expected_results["addtask2"] = {"_ppfdict": {"value": startvalue + 4}}
 
     return graph, expected_results
 
