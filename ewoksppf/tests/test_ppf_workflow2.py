@@ -31,5 +31,5 @@ def test_workflow2(ppf_logging, tmpdir):
     graph, expected = workflow2()
     result = execute_graph(graph, varinfo=varinfo, raise_on_error=False)
     assert_taskgraph_result(graph, expected, varinfo=varinfo)
-    err_msg = "Runtime error in pythonErrorHandlerTest.py!"
+    err_msg = "Task 'Python Error Handler Test' failed"
     assert result["WorkflowException"]["errorMessage"] == err_msg

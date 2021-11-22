@@ -38,13 +38,13 @@ def workflow18(dotask4=True):
     }
 
     expected_results = {
-        "task1": {"ppfdict": {"value": 1}},
-        "task2": {"ppfdict": {"value": 11}},
-        "task3": {"ppfdict": {"value": 2}},
+        "task1": {"_ppfdict": {"value": 1}},
+        "task2": {"_ppfdict": {"value": 11}},
+        "task3": {"_ppfdict": {"value": 2}},
     }
 
     if dotask4:
-        expected_results["task4"] = {"ppfdict": {"value": 12}}
+        expected_results["task4"] = {"_ppfdict": {"value": 12}}
     else:
         expected_results["task4"] = None
 

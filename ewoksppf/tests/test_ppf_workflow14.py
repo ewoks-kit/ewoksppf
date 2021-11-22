@@ -102,14 +102,14 @@ def workflow14():
     }
 
     expected_results = {
-        "addtask1": {"ppfdict": {"value": 2}},
-        ("submodel14b", "In"): {"ppfdict": {"value": 2}},
-        ("submodel14b", ("submodel14a", "In")): {"ppfdict": {"value": 2}},
-        ("submodel14b", ("submodel14a", "addtask2aa")): {"ppfdict": {"value": 3}},
-        ("submodel14b", ("submodel14a", "addtask2ab")): {"ppfdict": {"value": 4}},
-        ("submodel14b", ("submodel14a", "Out")): {"ppfdict": {"value": 4}},
-        ("submodel14b", "Out"): {"ppfdict": {"value": 4}},
-        "addtask3": {"ppfdict": {"value": 5}},
+        "addtask1": {"_ppfdict": {"value": 2}},
+        ("submodel14b", "In"): {"_ppfdict": {"value": 2}},
+        ("submodel14b", ("submodel14a", "In")): {"_ppfdict": {"value": 2}},
+        ("submodel14b", ("submodel14a", "addtask2aa")): {"_ppfdict": {"value": 3}},
+        ("submodel14b", ("submodel14a", "addtask2ab")): {"_ppfdict": {"value": 4}},
+        ("submodel14b", ("submodel14a", "Out")): {"_ppfdict": {"value": 4}},
+        ("submodel14b", "Out"): {"_ppfdict": {"value": 4}},
+        "addtask3": {"_ppfdict": {"value": 5}},
     }
 
     return graph, expected_results

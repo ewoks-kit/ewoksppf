@@ -60,9 +60,9 @@ def workflow7():
     }
 
     expected_results = {
-        "addtask1": {"ppfdict": {"all_arguments": {"value": 2}}},
-        ("submodel7", "addtask2"): {"ppfdict": {"all_arguments": {"value": 3}}},
-        "addtask3": {"ppfdict": {"all_arguments": {"value": 4}}},
+        "addtask1": {"_ppfdict": {"all_arguments": {"value": 2}}},
+        ("submodel7", "addtask2"): {"_ppfdict": {"all_arguments": {"value": 3}}},
+        "addtask3": {"_ppfdict": {"all_arguments": {"value": 4}}},
     }
 
     return graph, expected_results

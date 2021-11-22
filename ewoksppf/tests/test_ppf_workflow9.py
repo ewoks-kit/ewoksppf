@@ -47,9 +47,9 @@ def workflow9():
     # the same task instance as addtask2 (same task hash). So it
     # will appear as "done" and have a result.
     expected_results = {
-        "addtask1": {"ppfdict": {"value": 2}},
-        "addtask2": {"ppfdict": {"value": 3}},
-        "addtask3": {"ppfdict": {"value": 3}},
+        "addtask1": {"_ppfdict": {"value": 2}},
+        "addtask2": {"_ppfdict": {"value": 3}},
+        "addtask3": {"_ppfdict": {"value": 3}},
     }
 
     return graph, expected_results

@@ -62,7 +62,7 @@ def workflow19():
         "nodes": nodes,
     }
     expected_results = {
-        "ppfdict": {"a": 18, "b": 1, "c": 4, "d": 18, "increment_value": 1}
+        "_ppfdict": {"a": 18, "b": 1, "c": 4, "d": 18, "increment_value": 1}
     }
 
     return graph, expected_results

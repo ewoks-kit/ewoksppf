@@ -15,6 +15,7 @@ from pypushflow.persistence import register_actorinfo_filter
 
 from . import ppfrunscript
 from ewokscore import load_graph
+from ewokscore import ppftasks
 from ewokscore.variable import value_from_transfer
 from ewokscore.inittask import task_executable
 from ewokscore.inittask import get_varinfo
@@ -46,7 +47,7 @@ def is_ppfmethod(node_attrs: dict) -> bool:
 
 
 def actordata_filter(actorData: dict) -> dict:
-    skip = (ppfrunscript.INFOKEY, "ppfdict")
+    skip = (ppfrunscript.INFOKEY, ppftasks.PPF_DICT_ARGUMENT)
     for key in ["inData", "outData"]:
         data = actorData.get(key, None)
         if data is None:
@@ -57,8 +58,10 @@ def actordata_filter(actorData: dict) -> dict:
             for k, v in data.items()
             if k not in skip
         }
-        if "ppfdict" in data:
-            ppfdict = value_from_transfer(data["ppfdict"], varinfo=varinfo)
+        if ppftasks.PPF_DICT_ARGUMENT in data:
+            ppfdict = value_from_transfer(
+                data[ppftasks.PPF_DICT_ARGUMENT], varinfo=varinfo
+            )
             if ppfdict:
                 actorData[key].update(ppfdict)
     return actorData
@@ -97,7 +100,7 @@ class DecodeRouterActor(RouterActor):
 
     def _extractValue(self, inData):
         if self.is_ppfmethod:
-            value = inData["ppfdict"]
+            value = inData[ppftasks.PPF_DICT_ARGUMENT]
         else:
             if self.itemName in inData:
                 value = inData[self.itemName]
@@ -547,16 +550,17 @@ class EwoksWorkflow(Workflow):
 
 def execute_graph(
     graph,
-    representation=None,
-    varinfo=None,
     inputs=None,
-    raise_on_error=True,
+    varinfo=None,
     timeout=None,
     log_task_execution=False,
-    **load_options,
+    load_options: Optional[dict] = None,
+    **execute_options,
 ):
-    ewoksgraph = load_graph(source=graph, representation=representation, **load_options)
+    if load_options is None:
+        load_options = dict()
+    ewoksgraph = load_graph(source=graph, **load_options)
     ppfgraph = EwoksWorkflow(
         ewoksgraph, varinfo=varinfo, enable_logging=log_task_execution
     )
-    return ppfgraph.run(inputs=inputs, raise_on_error=raise_on_error, timeout=timeout)
+    return ppfgraph.run(inputs=inputs, timeout=timeout, **execute_options)

@@ -114,18 +114,18 @@ def workflow16():
     }
 
     expected_results = {
-        "addtask1": {"ppfdict": {"value": 2}},
-        ("submodel16b", "in"): {"ppfdict": {"value": 2}},
-        ("submodel16b", "addtask1"): {"ppfdict": {"value": 3}},
-        ("submodel16b", ("submodel16a", "in")): {"ppfdict": {"value": 3}},
-        ("submodel16b", ("submodel16a", "addtask1")): {"ppfdict": {"value": 4}},
-        ("submodel16b", ("submodel16a", "addtask2")): {"ppfdict": {"value": 5}},
+        "addtask1": {"_ppfdict": {"value": 2}},
+        ("submodel16b", "in"): {"_ppfdict": {"value": 2}},
+        ("submodel16b", "addtask1"): {"_ppfdict": {"value": 3}},
+        ("submodel16b", ("submodel16a", "in")): {"_ppfdict": {"value": 3}},
+        ("submodel16b", ("submodel16a", "addtask1")): {"_ppfdict": {"value": 4}},
+        ("submodel16b", ("submodel16a", "addtask2")): {"_ppfdict": {"value": 5}},
         ("submodel16b", ("submodel16a", "out")): {
-            "ppfdict": {"value": 5}
+            "_ppfdict": {"value": 5}
         },  # 2 destinations
-        ("submodel16b", "addtask2"): {"ppfdict": {"value": 6}},
-        ("submodel16b", "out"): {"ppfdict": {"value": 6}},
-        "addtask2": {"ppfdict": {"value": 6}},
+        ("submodel16b", "addtask2"): {"_ppfdict": {"value": 6}},
+        ("submodel16b", "out"): {"_ppfdict": {"value": 6}},
+        "addtask2": {"_ppfdict": {"value": 6}},
     }
 
     return graph, expected_results
