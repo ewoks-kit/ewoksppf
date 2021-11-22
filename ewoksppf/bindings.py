@@ -518,7 +518,12 @@ class EwoksWorkflow(Workflow):
             source_actor = taskactors[source_id]
             self._connect_actors(source_actor, stop_actor)
 
-    def run(self, inputs=None, raise_on_error=True, timeout=None):
+    def run(
+        self,
+        inputs: Optional[dict] = None,
+        raise_on_error: Optional[bool] = True,
+        timeout: Optional[float] = None,
+    ):
         startargs = dict(self.startargs)
         if inputs:
             startargs.update(inputs)
