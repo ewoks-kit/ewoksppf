@@ -131,7 +131,7 @@ def workflow16():
     return graph, expected_results
 
 
-def test_workflow16(ppf_logging, tmpdir):
+def test_workflow16(ppf_log_config, tmpdir):
     """Test connecting nodes from sub-submodels to the top model"""
     varinfo = {"root_uri": str(tmpdir)}
     graph, expected = workflow16()

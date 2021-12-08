@@ -52,7 +52,7 @@ def workflow18(dotask4=True):
 
 
 @pytest.mark.parametrize("dotask4", [True, False])
-def test_workflow18(dotask4, ppf_logging, tmpdir):
+def test_workflow18(dotask4, ppf_log_config, tmpdir):
     """Test conditional links"""
     varinfo = {"root_uri": str(tmpdir)}
     graph, expected = workflow18(dotask4=dotask4)

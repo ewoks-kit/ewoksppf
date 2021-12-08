@@ -68,7 +68,7 @@ def workflow19():
     return graph, expected_results
 
 
-def test_workflow19(ppf_logging, tmpdir):
+def test_workflow19(ppf_log_config, tmpdir):
     """Test 2 unconditional upstream tasks, one coming from a feedback loop"""
     graph, expected = workflow19()
     result = execute_graph(graph)

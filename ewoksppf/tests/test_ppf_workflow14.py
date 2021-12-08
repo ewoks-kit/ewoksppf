@@ -115,7 +115,7 @@ def workflow14():
     return graph, expected_results
 
 
-def test_workflow14(ppf_logging, tmpdir):
+def test_workflow14(ppf_log_config, tmpdir):
     varinfo = {"root_uri": str(tmpdir)}
     graph, expected = workflow14()
     execute_graph(graph, varinfo=varinfo)

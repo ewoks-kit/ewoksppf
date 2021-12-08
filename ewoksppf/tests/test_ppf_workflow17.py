@@ -47,7 +47,7 @@ def workflow17(doloop=True):
 
 
 @pytest.mark.parametrize("doloop", [True, False])
-def test_workflow17(doloop, ppf_logging):
+def test_workflow17(doloop, ppf_log_config):
     """Test 2 unconditional upstream tasks, one coming from a feedback loop"""
     graph, expected = workflow17(doloop=doloop)
     result = execute_graph(graph)

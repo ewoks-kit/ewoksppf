@@ -58,7 +58,7 @@ def workflow():
 
 
 @pytest.mark.skip("TODO")
-def test_ppf_end(ppf_logging):
+def test_ppf_end(ppf_log_config):
     graph, expected = workflow()
     result = execute_graph(graph)
     for k, v in expected.items():
