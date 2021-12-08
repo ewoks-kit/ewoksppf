@@ -88,7 +88,7 @@ def workflow13(startvalue, withlastnode_startvalue):
 
 
 @pytest.mark.parametrize("startvalue", [0, 1])
-def test_workflow13(startvalue, ppf_logging, tmpdir):
+def test_workflow13(startvalue, ppf_log_config, tmpdir):
     withlastnode_startvalue = 1
     varinfo = {"root_uri": str(tmpdir)}
     graph, expected = workflow13(startvalue, withlastnode_startvalue)

@@ -102,7 +102,7 @@ def workflow15():
     return graph, expected_results
 
 
-def test_workflow15(ppf_logging, tmpdir):
+def test_workflow15(ppf_log_config, tmpdir):
     """Test connecting nodes from submodels directly"""
     varinfo = {"root_uri": str(tmpdir)}
     graph, expected = workflow15()

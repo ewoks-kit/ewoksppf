@@ -14,7 +14,7 @@ from ewokscore.tests.utils import assert_workflow_merged_result
 @pytest.mark.parametrize(
     "graph_name,persist", itertools.product(graph_names(), (True, False))
 )
-def test_execute_graph(graph_name, persist, ppf_logging, tmpdir):
+def test_execute_graph(graph_name, persist, ppf_log_config, tmpdir):
     g, expected = get_graph(graph_name)
     if persist:
         varinfo = {"root_uri": str(tmpdir)}

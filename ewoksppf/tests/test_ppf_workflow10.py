@@ -53,7 +53,7 @@ def workflow10(inputs):
     "limit,persistent",
     itertools.product([10], [True, False]),
 )
-def test_workflow10(limit, persistent, ppf_logging, tmpdir):
+def test_workflow10(limit, persistent, ppf_log_config, tmpdir):
     if persistent:
         varinfo = {"root_uri": str(tmpdir)}
     else:

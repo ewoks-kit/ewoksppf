@@ -20,7 +20,7 @@ def workflow20():
 
 
 @pytest.mark.parametrize("persist", [True, False])
-def test_workflow20(persist, ppf_logging, tmpdir):
+def test_workflow20(persist, ppf_log_config, tmpdir):
     if persist:
         varinfo = {"root_uri": str(tmpdir)}
     else:

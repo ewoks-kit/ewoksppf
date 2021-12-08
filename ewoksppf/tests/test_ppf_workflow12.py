@@ -91,7 +91,7 @@ def workflow12(startvalue, withsubmodel_startvalue):
 
 
 @pytest.mark.parametrize("startvalue", [0, 1])
-def test_workflow12(startvalue, ppf_logging, tmpdir):
+def test_workflow12(startvalue, ppf_log_config, tmpdir):
     withsubmodel_startvalue = 1
     varinfo = {"root_uri": str(tmpdir)}
     graph, expected = workflow12(startvalue, withsubmodel_startvalue)
