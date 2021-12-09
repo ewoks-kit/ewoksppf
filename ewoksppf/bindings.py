@@ -182,34 +182,42 @@ class InputMergeActor(AbstractActor):
 
     def __init__(self, parent=None, name="Input merger", **kw):
         super().__init__(parent=parent, name=name, **kw)
-        self.requiredDownStreamActor = list()
         self.startInData = list()
-        self.requiredInData = list()
+        self.requiredInData = dict()
         self.nonrequiredInData = dict()
 
     def _required_actor(self, actor):
         if actor.required:
-            self.requiredDownStreamActor.append(actor)
-            self.requiredInData.append(None)
+            self.requiredInData[actor] = None
 
     def trigger(self, inData, source=None):
+        self.logger.info("triggered with inData =\n %s", pprint.pformat(inData))
         self.setStarted()
         self.setFinished()
         if source is None:
             self.startInData.append(inData)
         else:
-            try:
-                i = self.requiredDownStreamActor.index(source)
-            except ValueError:
-                self.nonrequiredInData = inData
+            if source in self.requiredInData:
+                self.requiredInData[source] = inData
             else:
-                self.requiredInData[i] = inData
-        if None in self.requiredInData:
+                self.nonrequiredInData = inData
+        missing = {k: v for k, v in self.requiredInData.items() if v is None}
+        if missing:
+            self.logger.info(
+                "not triggering downstream actors (missing inputs %s)",
+                [actor.name for actor in missing],
+            )
             return
+        self.logger.info(
+            "triggering downstream actors (%d start inputs, %d required inputs, %d optional inputs)",
+            len(self.startInData),
+            len(self.requiredInData),
+            int(bool(self.nonrequiredInData)),
+        )
         newInData = dict()
         for data in self.startInData:
             newInData.update(data)
-        for data in self.requiredInData:
+        for data in self.requiredInData.values():
             newInData.update(data)
         newInData.update(self.nonrequiredInData)
         for actor in self.listDownStreamActor:
