@@ -1,4 +1,5 @@
 import sys
+import pprint
 from typing import Optional
 
 from pypushflow.Workflow import Workflow
@@ -77,6 +78,7 @@ class EwoksPythonActor(PythonActor):
         """
         :param dict inData: output from the previous task
         """
+        self.logger.info("triggered with inData =\n %s", pprint.pformat(inData))
         infokey = ppfrunscript.INFOKEY
         inData[infokey] = dict(inData[infokey])
         inData[infokey]["node_id"] = self.node_id
@@ -115,6 +117,7 @@ class DecodeRouterActor(RouterActor):
             return CONDITIONS_ELSE_VALUE
 
     def trigger(self, inData):
+        self.logger.info("triggered with inData =\n %s", pprint.pformat(inData))
         self.setStarted()
         self.setFinished()
         value = self._extractValue(inData)
@@ -149,6 +152,7 @@ class NameMapperActor(AbstractActor):
             actor._required_actor(self)
 
     def trigger(self, inData):
+        self.logger.info("triggered with inData =\n %s", pprint.pformat(inData))
         is_error = "WorkflowException" in inData
         if is_error and not self.trigger_on_error:
             return
