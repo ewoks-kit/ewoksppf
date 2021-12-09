@@ -242,7 +242,7 @@ class EwoksWorkflow(Workflow):
         # target_id -> EwoksPythonActor or InputMergeActor
         self._targetactors = dict()
 
-        self._threadcounter = ThreadCounter()
+        self._threadcounter = ThreadCounter(parent=self)
 
         self._start_actor = StartActor(name="Start", **self._actor_arguments)
         self._stop_actor = StopActor(name="Stop", **self._actor_arguments)
