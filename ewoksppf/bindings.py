@@ -1,5 +1,4 @@
 import sys
-import logging
 from typing import Optional
 
 from pypushflow.Workflow import Workflow
@@ -28,9 +27,6 @@ from ewokscore.node import get_node_label
 # Actor: task scheduler mechanism (trigger downstream taskactors)
 # PythonActor: trigger execution of an method (full qualifier name)
 #              in subprocess (python's multiprocessing)
-
-
-logger = logging.getLogger(__name__)
 
 
 def varinfo_from_indata(inData) -> Optional[dict]:
@@ -172,7 +168,7 @@ class NameMapperActor(AbstractActor):
                 else:
                     actor.trigger(newInData)
         except Exception as e:
-            logger.exception(e)
+            self.logger.exception(e)
             raise
 
 
@@ -221,7 +217,7 @@ class InputMergeActor(AbstractActor):
 
 
 class EwoksWorkflow(Workflow):
-    def __init__(self, ewoksgraph, varinfo=None, enable_logging=False):
+    def __init__(self, ewoksgraph, varinfo=None):
         name = repr(ewoksgraph)
         super().__init__(name)
 
@@ -229,9 +225,7 @@ class EwoksWorkflow(Workflow):
         # is merged with the input dict of the current task.
         if varinfo is None:
             varinfo = dict()
-        self.startargs = {
-            ppfrunscript.INFOKEY: {"varinfo": varinfo, "enable_logging": enable_logging}
-        }
+        self.startargs = {ppfrunscript.INFOKEY: {"varinfo": varinfo}}
         self.graph_to_actors(ewoksgraph, varinfo)
 
     def _clean_workflow(self):
@@ -287,7 +281,6 @@ class EwoksWorkflow(Workflow):
             type(target_actor).__name__,
             target_actor.name,
         )
-        logger.debug(msg)
 
     def _create_task_actors(self, taskgraph):
         # task_name -> EwoksPythonActor
@@ -558,14 +551,11 @@ def execute_graph(
     inputs=None,
     varinfo=None,
     timeout=None,
-    log_task_execution=False,
     load_options: Optional[dict] = None,
     **execute_options,
 ):
     if load_options is None:
         load_options = dict()
     ewoksgraph = load_graph(source=graph, **load_options)
-    ppfgraph = EwoksWorkflow(
-        ewoksgraph, varinfo=varinfo, enable_logging=log_task_execution
-    )
+    ppfgraph = EwoksWorkflow(ewoksgraph, varinfo=varinfo)
     return ppfgraph.run(inputs=inputs, timeout=timeout, **execute_options)
