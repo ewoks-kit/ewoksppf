@@ -111,6 +111,9 @@ class DecodeRouterActor(RouterActor):
                 value = value[self.itemName]
             else:
                 return CONDITIONS_ELSE_VALUE
+
+        if isinstance(value, numpy.ndarray):
+            value = value.item()
         if value in self.dictValues:
             return value
         else:
