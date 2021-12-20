@@ -1,34 +1,44 @@
-import itertools
 import pytest
-from ewoksppf import execute_graph
 from ewokscore import load_graph
+from ewoksppf import execute_graph
 from ewokscore.tests.examples.graphs import graph_names
 from ewokscore.tests.examples.graphs import get_graph
-from ewokscore.tests.utils import assert_taskgraph_result
-from ewokscore.tests.utils import assert_workflow_merged_result
-
-# Logging makes multiprocessing hangs?
-# https://pythonspeed.com/articles/python-multiprocessing/
+from ewokscore.tests.utils.results import assert_execute_graph_all_tasks
+from ewokscore.tests.utils.results import assert_execute_graph_values
+from ewokscore.tests.utils.results import filter_expected_results
 
 
-@pytest.mark.parametrize(
-    "graph_name,persist", itertools.product(graph_names(), (True, False))
-)
-def test_execute_graph(graph_name, persist, ppf_log_config, tmpdir):
-    g, expected = get_graph(graph_name)
-    if persist:
-        varinfo = {"root_uri": str(tmpdir)}
+@pytest.mark.parametrize("graph_name", graph_names())
+@pytest.mark.parametrize("scheme", (None, "json"))
+def test_execute_graph(graph_name, scheme, ppf_log_config, tmpdir):
+    graph, expected = get_graph(graph_name)
+    if scheme:
+        varinfo = {"root_uri": str(tmpdir), "scheme": scheme}
     else:
         varinfo = None
-    ewoksgraph = load_graph(g)
-    if ewoksgraph.is_cyclic:
-        result = execute_graph(g, varinfo=varinfo)
-        assert_workflow_merged_result(result, expected, varinfo)
+    ewoksgraph = load_graph(graph)
+    result = execute_graph(graph, varinfo=varinfo, timeout=10)
+    assert_results(graph, ewoksgraph, result, expected, varinfo)
+
+
+def assert_results(graph, ewoksgraph, result, expected, varinfo):
+    if varinfo:
+        scheme = varinfo.get("scheme")
     else:
-        execute_graph(g, varinfo=varinfo)
-        if persist:
-            assert_taskgraph_result(g, expected, varinfo=varinfo)
-        else:
-            pytest.skip(
-                "The expected result is the output of each task when the binding gives the output of the workflow"
-            )
+        scheme = None
+    if ewoksgraph.is_cyclic:
+        expected = filter_expected_results(
+            ewoksgraph, expected, end_only=True, merge=True
+        )
+        assert_execute_graph_values(result, expected, varinfo)
+    elif scheme:
+        assert_execute_graph_all_tasks(graph, expected, varinfo=varinfo)
+        expected = filter_expected_results(
+            ewoksgraph, expected, end_only=True, merge=True
+        )
+        assert_execute_graph_values(result, expected, varinfo)
+    else:
+        expected = filter_expected_results(
+            ewoksgraph, expected, end_only=True, merge=True
+        )
+        assert_execute_graph_values(result, expected, varinfo)

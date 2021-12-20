@@ -1,6 +1,7 @@
 import sys
 import pprint
-from typing import Optional
+from typing import Optional, List
+import numpy
 
 from pypushflow.Workflow import Workflow
 from pypushflow.StopActor import StopActor
@@ -111,6 +112,9 @@ class DecodeRouterActor(RouterActor):
                 value = value[self.itemName]
             else:
                 return CONDITIONS_ELSE_VALUE
+
+        if isinstance(value, numpy.ndarray):
+            value = value.item()
         if value in self.dictValues:
             return value
         else:
@@ -229,7 +233,7 @@ class InputMergeActor(AbstractActor):
 
 
 class EwoksWorkflow(Workflow):
-    def __init__(self, ewoksgraph, varinfo=None):
+    def __init__(self, ewoksgraph, varinfo: Optional[dict] = None):
         name = repr(ewoksgraph)
         super().__init__(name)
 
@@ -525,24 +529,26 @@ class EwoksWorkflow(Workflow):
 
     def run(
         self,
-        inputs: Optional[dict] = None,
+        startargs: Optional[dict] = None,
         raise_on_error: Optional[bool] = True,
+        results_of_all_nodes: Optional[bool] = False,
+        outputs: Optional[List[dict]] = None,
         timeout: Optional[float] = None,
     ):
-        startargs = dict(self.startargs)
-        if inputs:
-            startargs.update(inputs)
-        self._start_actor.trigger(startargs)
+        startindata = dict(self.startargs)
+        if startargs:
+            startindata.update(startargs)
+        self._start_actor.trigger(startindata)
         self._stop_actor.join(timeout=timeout)
         result = self._stop_actor.outData
         if result is None:
             return None
+        info = result.pop(ppfrunscript.INFOKEY, dict())
         result = self.__parse_result(result)
         ex = result.get("WorkflowException")
         if ex is None or not raise_on_error:
             return result
         else:
-            info = result.get(ppfrunscript.INFOKEY, dict())
             print("\n".join(ex["traceBack"]), file=sys.stderr)
             node_id = info.get("node_id")
             err_msg = f"Task {node_id} failed"
@@ -560,14 +566,17 @@ class EwoksWorkflow(Workflow):
 
 def execute_graph(
     graph,
-    inputs=None,
-    varinfo=None,
-    timeout=None,
+    inputs: Optional[dict] = None,
+    startargs: Optional[dict] = None,
+    varinfo: Optional[dict] = None,
+    timeout: Optional[float] = None,
     load_options: Optional[dict] = None,
     **execute_options,
 ):
     if load_options is None:
         load_options = dict()
     ewoksgraph = load_graph(source=graph, **load_options)
+    if inputs:
+        ewoksgraph.update_default_inputs(inputs)
     ppfgraph = EwoksWorkflow(ewoksgraph, varinfo=varinfo)
-    return ppfgraph.run(inputs=inputs, timeout=timeout, **execute_options)
+    return ppfgraph.run(startargs=startargs, timeout=timeout, **execute_options)

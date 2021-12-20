@@ -1,7 +1,6 @@
-import itertools
 import pytest
 from ewoksppf import execute_graph
-from ewokscore.tests.utils import assert_workflow_merged_result
+from ewokscore.tests.utils.results import assert_execute_graph_values
 
 
 def workflow10(inputs):
@@ -49,20 +48,18 @@ def workflow10(inputs):
     return graph, expected_result
 
 
-@pytest.mark.parametrize(
-    "limit,persistent",
-    itertools.product([10], [True, False]),
-)
-def test_workflow10(limit, persistent, ppf_log_config, tmpdir):
-    if persistent:
-        varinfo = {"root_uri": str(tmpdir)}
+@pytest.mark.parametrize("limit", [10])
+@pytest.mark.parametrize("scheme", [None, "json"])
+def test_workflow10(limit, scheme, ppf_log_config, tmpdir):
+    if scheme:
+        varinfo = {"root_uri": str(tmpdir), "scheme": scheme}
     else:
         varinfo = {}
     inputs = {"value": 1, "limit": limit}
     graph, expected = workflow10(inputs)
     result = execute_graph(graph, varinfo=varinfo)
-    if persistent:
-        assert_workflow_merged_result(result, expected, varinfo)
+    if scheme:
+        assert_execute_graph_values(result, expected, varinfo)
     else:
         assert len(tmpdir.listdir()) == 0
         for k in expected:

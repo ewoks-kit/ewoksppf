@@ -26,5 +26,7 @@ def test_workflow20(persist, ppf_log_config, tmpdir):
     else:
         varinfo = None
     graph = workflow20()
-    result = execute_graph(graph, inputs={"value": 5}, varinfo=varinfo)
+    result = execute_graph(
+        graph, inputs=[{"name": "value", "value": 5}], varinfo=varinfo
+    )
     assert result["_ppfdict"]["value"] == 7
