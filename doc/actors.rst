@@ -22,19 +22,8 @@ Conditional link with one condition
 .. mermaid::
 
    graph LR;
-   EwoksPythonActor-->DecodeRouterActor;
-   DecodeRouterActor-->NameMapperActor;
-
-Conditional link with multiple conditions
-
-.. mermaid::
-
-   graph LR;
-   EwoksPythonActor-->DecodeRouterActor1;
-   EwoksPythonActor-->DecodeRouterActor2;
-   DecodeRouterActor1-->JoinActor;
-   DecodeRouterActor2-->JoinActor;
-   JoinActor-->NameMapperActor;
+   EwoksPythonActor-->ConditionalActor;
+   ConditionalActor-->NameMapperActor;
 
 On-Error conditional link
 
@@ -71,5 +60,5 @@ These actors are not provided by *pypushflow*
 
 * *EwoksythonActor*: like *PythonActor* but it passes node name and attributes to the next actor.
 * *InputMergeActor*: like *Joinactor* (merges the input data dictionaries) triggers the downstream actors when all required input has been provided at least once. Only one non-required input passed.
-* *DecodeRouterActor*: line *RouterActor* but it dereferences thet input hashes to get the values.
+* *ConditionalActor*: triggers downstream actors when all conditions are fulfilled.
 * *NameMapperActor*: before triggering the next task it applies filtering and name mapping to the input data.

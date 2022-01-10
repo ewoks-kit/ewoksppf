@@ -3,9 +3,9 @@ def run(b=None, **kwargs):
         raise RuntimeError("Missing argument 'b'!")
     b += 1
     print(f"In AddB, b={b}")
-    if b == 5:
+    if b == 4:
         print(f"b reached {b}!")
-        b_is_5 = True
+        b_is_4 = True
     else:
-        b_is_5 = False
-    return {"b": b, "b_is_5": b_is_5}
+        b_is_4 = False
+    return {"b": b, "b_is_4": b_is_4}
