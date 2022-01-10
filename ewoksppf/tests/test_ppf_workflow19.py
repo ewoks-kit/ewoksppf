@@ -23,7 +23,12 @@ def workflow19():
             ],
             "inputs_complete": True,
         },
-        {"id": "task2", "task_type": "ppfmethod", "task_identifier": move_d_to_a},
+        {
+            "id": "task2",
+            "task_type": "ppfmethod",
+            "task_identifier": move_d_to_a,
+            "conditions_else_value": "__other__",
+        },
         {
             "id": "task3",
             "task_type": "ppfmethod",

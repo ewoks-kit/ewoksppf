@@ -1,4 +1,3 @@
-import pytest
 from ewoksppf import execute_graph
 from ewokscore import Task
 from ewokscore.utils import qualname
@@ -19,11 +18,11 @@ class MyTask(Task, optional_input_names=["a", "b"], output_names=["a", "b"]):
 def workflow():
     myclass = qualname(MyTask)
     nodes = [
-        {"id": "task1", "class": myclass},
-        {"id": "task2", "class": myclass},
-        {"id": "task3", "class": myclass},
-        {"id": "task4", "class": myclass},
-        {"id": "task5", "class": myclass},
+        {"id": "task1", "task_type": "class", "task_identifier": myclass},
+        {"id": "task2", "task_type": "class", "task_identifier": myclass},
+        {"id": "task3", "task_type": "class", "task_identifier": myclass},
+        {"id": "task4", "task_type": "class", "task_identifier": myclass},
+        {"id": "task5", "task_type": "class", "task_identifier": myclass},
     ]
     links = [
         {"source": "task1", "target": "task2", "map_all_data": True},
@@ -43,7 +42,7 @@ def workflow():
             "map_all_data": True,
             "conditions": [
                 {"source_output": "a", "value": 6},
-                {"source_output": "b", "value": "other"},
+                {"source_output": "b", "value": None},
             ],
         },
         {"source": "task4", "target": "task2", "map_all_data": True},
@@ -52,12 +51,11 @@ def workflow():
 
     graph = {"links": links, "nodes": nodes}
 
-    expected_results = {"a": 10}
+    expected_results = {"a": 9, "b": 9}
 
     return graph, expected_results
 
 
-@pytest.mark.skip("TODO")
 def test_ppf_end(ppf_log_config):
     graph, expected = workflow()
     result = execute_graph(graph)
