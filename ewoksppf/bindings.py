@@ -529,7 +529,7 @@ class EwoksWorkflow(Workflow):
 
 def execute_graph(
     graph,
-    inputs: Optional[dict] = None,
+    inputs: Optional[List[dict]] = None,
     startargs: Optional[dict] = None,
     varinfo: Optional[dict] = None,
     timeout: Optional[float] = None,
