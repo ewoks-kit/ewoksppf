@@ -158,8 +158,6 @@ ARG_FAILURE = {"inputs": {"a": 0}, "return_value": 2}
 @pytest.mark.parametrize("persist", [True, False])
 def test_workflow21(args, on_error, persist, ppf_log_config, tmpdir):
     """Test conditions in output nodes"""
-    if args == ARG_FAILURE and on_error:
-        pytest.skip("Bug to fix for `on_error`")
     if persist:
         varinfo = {"root_uri": str(tmpdir)}
     else:

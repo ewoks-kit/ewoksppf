@@ -158,7 +158,7 @@ class NameMapperActor(AbstractActor):
     def connect(self, actor):
         super().connect(actor)
         if isinstance(actor, InputMergeActor):
-            actor._required_actor(self)
+            actor.require_input_from_actor(self)
 
     def trigger(self, inData: dict):
         self.logger.info("triggered with inData =\n %s", pprint.pformat(inData))
@@ -199,7 +199,7 @@ class InputMergeActor(AbstractActor):
         self.requiredInData = dict()
         self.nonrequiredInData = dict()
 
-    def _required_actor(self, actor):
+    def require_input_from_actor(self, actor):
         if actor.required:
             self.requiredInData[actor] = None
 
@@ -217,7 +217,7 @@ class InputMergeActor(AbstractActor):
         missing = {k: v for k, v in self.requiredInData.items() if v is None}
         if missing:
             self.logger.info(
-                "not triggering downstream actors (missing inputs %s)",
+                "not triggering downstream actors because missing inputs from actors %s",
                 [actor.name for actor in missing],
             )
             return
@@ -309,7 +309,7 @@ class EwoksWorkflow(Workflow):
                 script=ppfrunscript.__name__ + ".dummy",
                 **self._actor_arguments,
             )
-            if not taskgraph.has_successors(node_id, on_error=True):
+            if not taskgraph.has_successors(node_id, link_has_on_error=True):
                 self._connect_actors(actor, error_actor)
             taskactors[node_id] = actor
             self.addActorRef(actor)
@@ -419,7 +419,6 @@ class EwoksWorkflow(Workflow):
         }
         on_error = link_attrs.get("on_error", False)
         required = taskgraph.link_is_required(source_id, target_id)
-
         source_attrs = taskgraph.graph.nodes[source_id]
         target_attrs = taskgraph.graph.nodes[target_id]
         source_label = get_node_label(source_attrs, node_id=source_id)
@@ -497,27 +496,29 @@ class EwoksWorkflow(Workflow):
         results_of_all_nodes: Optional[bool] = False,
         outputs: Optional[List[dict]] = None,
         timeout: Optional[float] = None,
+        shared_pool: bool = False,
     ):
-        startindata = dict(self.startargs)
-        if startargs:
-            startindata.update(startargs)
-        self._start_actor.trigger(startindata)
-        self._stop_actor.join(timeout=timeout)
-        result = self._stop_actor.outData
-        if result is None:
-            return None
-        info = result.pop(ppfrunscript.INFOKEY, dict())
-        result = self.__parse_result(result)
-        ex = result.get("WorkflowException")
-        if ex is None or not raise_on_error:
-            return result
-        else:
-            print("\n".join(ex["traceBack"]), file=sys.stderr)
-            node_id = info.get("node_id")
-            err_msg = f"Task {node_id} failed"
-            if ex["errorMessage"]:
-                err_msg += " ({})".format(ex["errorMessage"])
-            raise RuntimeError(err_msg)
+        with self._run_context(shared_pool=shared_pool):
+            startindata = dict(self.startargs)
+            if startargs:
+                startindata.update(startargs)
+            self._start_actor.trigger(startindata)
+            self._stop_actor.join(timeout=timeout)
+            result = self._stop_actor.outData
+            if result is None:
+                return None
+            info = result.pop(ppfrunscript.INFOKEY, dict())
+            result = self.__parse_result(result)
+            ex = result.get("WorkflowException")
+            if ex is None or not raise_on_error:
+                return result
+            else:
+                print("\n".join(ex["traceBack"]), file=sys.stderr)
+                node_id = info.get("node_id")
+                err_msg = f"Task {node_id} failed"
+                if ex["errorMessage"]:
+                    err_msg += " ({})".format(ex["errorMessage"])
+                raise RuntimeError(err_msg)
 
     def __parse_result(self, result) -> dict:
         varinfo = varinfo_from_indata(self.startargs)
