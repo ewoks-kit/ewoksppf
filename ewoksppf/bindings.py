@@ -164,18 +164,21 @@ class NameMapperActor(AbstractActor):
 
     def trigger(self, inData: dict):
         self.logger.info("triggered with inData =\n %s", pprint.pformat(inData))
-        is_error = "WorkflowException" in inData
+        is_error = "WorkflowException" in inData and inData.get("NewWorkflowException")
         if is_error and not self.trigger_on_error:
             return
         try:
+            if is_error:
+                inData = dict(inData)
+                inData["NewWorkflowException"] = False
+            # Map output names of this task to input
+            # names of the downstream task
             newInData = dict()
-            if not is_error:
-                # Map output names of this task to input
-                # names of the downstream task
-                if self.map_all_data:
-                    newInData.update(inData)
-                for input_name, output_name in self.namemap.items():
-                    newInData[input_name] = inData[output_name]
+            if self.map_all_data:
+                newInData.update(inData)
+            for input_name, output_name in self.namemap.items():
+                newInData[input_name] = inData[output_name]
+
             newInData[ppfrunscript.INFOKEY] = dict(inData[ppfrunscript.INFOKEY])
             for actor in self.listDownStreamActor:
                 if isinstance(actor, InputMergeActor):
