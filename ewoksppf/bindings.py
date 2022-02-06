@@ -316,7 +316,6 @@ class EwoksWorkflow(Workflow):
             ):
                 self._connect_actors(actor, error_actor)
             taskactors[node_id] = actor
-            self.addActorRef(actor)
 
     def _create_conditional_actor(
         self,
