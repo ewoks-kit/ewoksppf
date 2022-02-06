@@ -311,7 +311,7 @@ class EwoksWorkflow(Workflow):
                 script=ppfrunscript.__name__ + ".dummy",
                 **self._actor_arguments,
             )
-            if not analysis.has_successors(
+            if not analysis.node_has_successors(
                 taskgraph.graph, node_id, link_has_on_error=True
             ):
                 self._connect_actors(actor, error_actor)
@@ -449,7 +449,7 @@ class EwoksWorkflow(Workflow):
         # task_name -> EwoksPythonActor
         taskactors = self._taskactors
         for target_id in taskgraph.graph.nodes:
-            predecessors = list(analysis.predecessors(taskgraph.graph, target_id))
+            predecessors = list(analysis.node_predecessors(taskgraph.graph, target_id))
             npredecessors = len(predecessors)
             if npredecessors == 0:
                 targetactor = None
