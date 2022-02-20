@@ -81,6 +81,17 @@ class EwoksPythonActor(PythonActor):
         inData[infokey]["node_attrs"] = self.node_attrs
         return super().trigger(inData)
 
+    def uploadInDataToMongo(self, **kw):
+        task_identifier = self.node_attrs.get("task_identifier")
+        if task_identifier:
+            kw["script"] = task_identifier
+            super().uploadInDataToMongo(**kw)
+
+    def uploadOutDataToMongo(self, **kw):
+        task_identifier = self.node_attrs.get("task_identifier")
+        if task_identifier:
+            super().uploadOutDataToMongo(**kw)
+
 
 class ConditionalActor(AbstractActor):
     """Triggers downstream actors when conditions are fulfilled."""
