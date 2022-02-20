@@ -22,14 +22,12 @@ from ewokscore.inittask import task_executable_info
 from ewokscore.graph import TaskGraph
 from ewokscore.graph import analysis
 from ewokscore.graph import graph_io
-from ewokscore.node import get_node_label
+from ewokscore.node import node_id_as_string
 from ewokscore.node import NodeIdType
 
-# Scheme: task graph
-# Workflow: instance of a task graph
-# Actor: task scheduler mechanism (trigger downstream taskactors)
-# PythonActor: trigger execution of an method (full qualifier name)
-#              in subprocess (python's multiprocessing)
+
+def ppfname(node_id: NodeIdType) -> str:
+    return node_id_as_string(node_id, sep="/")
 
 
 def varinfo_from_indata(inData: dict) -> Optional[dict]:
@@ -73,7 +71,7 @@ class EwoksPythonActor(PythonActor):
     def __init__(self, node_id, node_attrs, **kw):
         self.node_id = node_id
         self.node_attrs = node_attrs
-        kw["name"] = get_node_label(node_attrs, node_id=node_id)
+        kw["name"] = ppfname(node_id)
         super().__init__(**kw)
 
     def trigger(self, inData: dict):
@@ -330,16 +328,15 @@ class EwoksWorkflow(Workflow):
         all_conditions: dict,
         conditions_else_value,
     ) -> ConditionalActor:
-        source_attrs = taskgraph.graph.nodes[source_id]
-        target_attrs = taskgraph.graph.nodes[target_id]
-        source_label = get_node_label(source_attrs, node_id=source_id)
-        target_label = get_node_label(target_attrs, node_id=target_id)
-        name = f"Conditional actor between {source_label} and {target_label}"
+        source_is_ppfmethod = is_ppfmethod(taskgraph.graph.nodes[source_id])
+        source_label = ppfname(source_id)
+        target_label = ppfname(target_id)
+        name = f"Conditional actor between '{source_label}' and '{target_label}'"
         actor = ConditionalActor(
             conditions,
             all_conditions,
             conditions_else_value,
-            is_ppfmethod=is_ppfmethod(source_attrs),
+            is_ppfmethod=source_is_ppfmethod,
             name=name,
             **self._actor_arguments,
         )
@@ -425,10 +422,8 @@ class EwoksWorkflow(Workflow):
         }
         on_error = link_attrs.get("on_error", False)
         required = analysis.link_is_required(taskgraph.graph, source_id, target_id)
-        source_attrs = taskgraph.graph.nodes[source_id]
-        target_attrs = taskgraph.graph.nodes[target_id]
-        source_label = get_node_label(source_attrs, node_id=source_id)
-        target_label = get_node_label(target_attrs, node_id=target_id)
+        source_label = ppfname(source_id)
+        target_label = ppfname(target_id)
         if on_error:
             name = f"Name mapper <{source_label} -only on error- {target_label}>"
         else:
@@ -459,7 +454,7 @@ class EwoksWorkflow(Workflow):
             else:
                 # InputMergeActor
                 targetactor = InputMergeActor(
-                    name=f"Input merger of {taskactors[target_id].name}",
+                    name=f"Input merger of '{taskactors[target_id].name}'",
                     **self._actor_arguments,
                 )
                 self._connect_actors(targetactor, taskactors[target_id])
