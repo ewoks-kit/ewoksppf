@@ -14,10 +14,10 @@ def run(**inputs):
     varinfo = info["varinfo"]
 
     task = instantiate_task(
+        info["node_id"],
         info["node_attrs"],
         varinfo=varinfo,
         inputs=inputs,
-        node_id=info["node_id"],
     )
 
     task.execute()

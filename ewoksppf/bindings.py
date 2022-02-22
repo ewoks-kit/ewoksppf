@@ -38,8 +38,8 @@ def varinfo_from_indata(inData: dict) -> Optional[dict]:
     return get_varinfo(node_attrs, varinfo=varinfo)
 
 
-def is_ppfmethod(node_attrs: dict) -> bool:
-    task_type, _ = task_executable_info(node_attrs)
+def is_ppfmethod(node_id: NodeIdType, node_attrs: dict) -> bool:
+    task_type, _ = task_executable_info(node_id, node_attrs)
     return task_type in ("ppfmethod", "ppfport")
 
 
@@ -311,7 +311,7 @@ class EwoksWorkflow(Workflow):
         imported = set()
         for node_id, node_attrs in taskgraph.graph.nodes.items():
             # Pre-import to speedup execution
-            name, importfunc = task_executable(node_attrs, node_id=node_id)
+            name, importfunc = task_executable(node_id, node_attrs)
             if name not in imported:
                 imported.add(name)
                 if importfunc:
@@ -339,7 +339,7 @@ class EwoksWorkflow(Workflow):
         all_conditions: dict,
         conditions_else_value,
     ) -> ConditionalActor:
-        source_is_ppfmethod = is_ppfmethod(taskgraph.graph.nodes[source_id])
+        source_is_ppfmethod = is_ppfmethod(source_id, taskgraph.graph.nodes[source_id])
         source_label = ppfname(source_id)
         target_label = ppfname(target_id)
         name = f"Conditional actor between '{source_label}' and '{target_label}'"
