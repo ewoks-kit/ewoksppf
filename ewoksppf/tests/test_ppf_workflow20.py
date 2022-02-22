@@ -12,6 +12,7 @@ def workflow20():
     links = [{"source": "task1", "target": "task2", "map_all_data": True}]
 
     graph = {
+        "graph": {"id": "workflow20"},
         "links": links,
         "nodes": nodes,
     }
