@@ -12,12 +12,14 @@ def run(**inputs):
     """
     info = inputs.pop(INFOKEY)
     varinfo = info["varinfo"]
+    execinfo = info["execinfo"]
 
     task = instantiate_task(
         info["node_id"],
         info["node_attrs"],
-        varinfo=varinfo,
         inputs=inputs,
+        varinfo=varinfo,
+        execinfo=execinfo,
     )
 
     task.execute()
