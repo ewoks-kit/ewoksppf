@@ -1,6 +1,8 @@
 import sys
 import pprint
-from typing import Optional, List
+import logging
+from contextlib import contextmanager
+from typing import Iterable, Optional, List
 
 from pypushflow.Workflow import Workflow
 from pypushflow.StopActor import StopActor
@@ -15,15 +17,16 @@ from pypushflow.persistence import register_actorinfo_filter
 from . import ppfrunscript
 from ewokscore import load_graph
 from ewokscore import ppftasks
+from ewokscore import execute_graph_decorator
 from ewokscore.variable import value_from_transfer
 from ewokscore.inittask import task_executable
-from ewokscore.inittask import get_varinfo
 from ewokscore.inittask import task_executable_info
 from ewokscore.graph import TaskGraph
 from ewokscore.graph import analysis
-from ewokscore.graph import graph_io
 from ewokscore.node import node_id_as_string
 from ewokscore.node import NodeIdType
+from ewokscore.node import get_varinfo
+from ewokscore import events
 
 
 def ppfname(node_id: NodeIdType) -> str:
@@ -38,8 +41,8 @@ def varinfo_from_indata(inData: dict) -> Optional[dict]:
     return get_varinfo(node_attrs, varinfo=varinfo)
 
 
-def is_ppfmethod(node_attrs: dict) -> bool:
-    task_type, _ = task_executable_info(node_attrs)
+def is_ppfmethod(node_id: NodeIdType, node_attrs: dict) -> bool:
+    task_type, _ = task_executable_info(node_id, node_attrs)
     return task_type in ("ppfmethod", "ppfport")
 
 
@@ -252,16 +255,18 @@ class InputMergeActor(AbstractActor):
 
 
 class EwoksWorkflow(Workflow):
-    def __init__(self, ewoksgraph: TaskGraph, varinfo: Optional[dict] = None):
+    def __init__(
+        self,
+        ewoksgraph: TaskGraph,
+    ):
         name = repr(ewoksgraph)
-        super().__init__(name)
+        super().__init__(name, level=logging.WARNING)
 
         # When triggering a task, the output dict of the previous task
         # is merged with the input dict of the current task.
-        if varinfo is None:
-            varinfo = dict()
-        self.startargs = {ppfrunscript.INFOKEY: {"varinfo": varinfo}}
+        self.startargs = {ppfrunscript.INFOKEY: {"varinfo": None, "execinfo": None}}
         self.graph_to_actors(ewoksgraph)
+        self.__ewoksgraph = ewoksgraph
 
     def _clean_workflow(self):
         # task_name -> EwoksPythonActor
@@ -311,7 +316,7 @@ class EwoksWorkflow(Workflow):
         imported = set()
         for node_id, node_attrs in taskgraph.graph.nodes.items():
             # Pre-import to speedup execution
-            name, importfunc = task_executable(node_attrs, node_id=node_id)
+            name, importfunc = task_executable(node_id, node_attrs)
             if name not in imported:
                 imported.add(name)
                 if importfunc:
@@ -339,7 +344,7 @@ class EwoksWorkflow(Workflow):
         all_conditions: dict,
         conditions_else_value,
     ) -> ConditionalActor:
-        source_is_ppfmethod = is_ppfmethod(taskgraph.graph.nodes[source_id])
+        source_is_ppfmethod = is_ppfmethod(source_id, taskgraph.graph.nodes[source_id])
         source_label = ppfname(source_id)
         target_label = ppfname(target_id)
         name = f"Conditional actor between '{source_label}' and '{target_label}'"
@@ -501,6 +506,20 @@ class EwoksWorkflow(Workflow):
             source_actor = taskactors[source_id]
             self._connect_actors(source_actor, stop_actor)
 
+    @contextmanager
+    def _run_context(
+        self,
+        varinfo: Optional[dict] = None,
+        execinfo: Optional[dict] = None,
+        **pool_options,
+    ) -> Iterable[Optional[dict]]:
+        self.startargs[ppfrunscript.INFOKEY]["varinfo"] = varinfo
+        graph = self.__ewoksgraph.graph
+        with events.workflow_context(execinfo, workflow=graph) as execinfo:
+            self.startargs[ppfrunscript.INFOKEY]["execinfo"] = execinfo
+            with super()._run_context(**pool_options):
+                yield execinfo
+
     def run(
         self,
         startargs: Optional[dict] = None,
@@ -508,12 +527,13 @@ class EwoksWorkflow(Workflow):
         results_of_all_nodes: Optional[bool] = False,
         outputs: Optional[List[dict]] = None,
         timeout: Optional[float] = None,
-        **pool_options,
+        **execute_options,
     ):
-        with self._run_context(**pool_options):
+        with self._run_context(**execute_options) as execinfo:
             startindata = dict(self.startargs)
             if startargs:
                 startindata.update(startargs)
+
             self._start_actor.trigger(startindata)
             self._stop_actor.join(timeout=timeout)
             result = self._stop_actor.outData
@@ -522,15 +542,21 @@ class EwoksWorkflow(Workflow):
             info = result.pop(ppfrunscript.INFOKEY, dict())
             result = self.__parse_result(result)
             ex = result.get("WorkflowException")
+            if ex is not None:
+                if not ex["errorMessage"]:
+                    node_id = info.get("node_id")
+                    ex["errorMessage"] = f"Task {node_id} failed"
+                execinfo["error"] = True
+                execinfo["error_message"] = ex["errorMessage"]
+                if isinstance(ex["traceBack"], str):
+                    execinfo["error_traceback"] = ex["traceBack"]
+                else:
+                    execinfo["error_traceback"] = "".join(ex["traceBack"])
             if ex is None or not raise_on_error:
                 return result
             else:
                 print("\n".join(ex["traceBack"]), file=sys.stderr)
-                node_id = info.get("node_id")
-                err_msg = f"Task {node_id} failed"
-                if ex["errorMessage"]:
-                    err_msg += " ({})".format(ex["errorMessage"])
-                raise RuntimeError(err_msg)
+                raise RuntimeError(ex["errorMessage"])
 
     def __parse_result(self, result) -> dict:
         varinfo = varinfo_from_indata(self.startargs)
@@ -540,19 +566,15 @@ class EwoksWorkflow(Workflow):
         }
 
 
+@execute_graph_decorator(binding="ppf")
 def execute_graph(
     graph,
     inputs: Optional[List[dict]] = None,
-    startargs: Optional[dict] = None,
-    varinfo: Optional[dict] = None,
-    timeout: Optional[float] = None,
     load_options: Optional[dict] = None,
     **execute_options,
 ):
     if load_options is None:
         load_options = dict()
-    ewoksgraph = load_graph(source=graph, **load_options)
-    if inputs:
-        graph_io.update_default_inputs(ewoksgraph.graph, inputs)
-    ppfgraph = EwoksWorkflow(ewoksgraph, varinfo=varinfo)
-    return ppfgraph.run(startargs=startargs, timeout=timeout, **execute_options)
+    ewoksgraph = load_graph(graph, inputs=inputs, **load_options)
+    ppfgraph = EwoksWorkflow(ewoksgraph)
+    return ppfgraph.run(**execute_options)

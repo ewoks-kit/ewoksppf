@@ -49,7 +49,7 @@ def workflow():
         {"source": "task5", "target": "task2", "map_all_data": True},
     ]
 
-    graph = {"links": links, "nodes": nodes}
+    graph = {"graph": {"id": "test_graph"}, "links": links, "nodes": nodes}
 
     expected_results = {"a": 9, "b": 9}
 

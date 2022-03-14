@@ -75,7 +75,7 @@ def workflow():
         },
     ]
 
-    graph = {"links": links, "nodes": nodes}
+    graph = {"graph": {"id": "workflow22"}, "links": links, "nodes": nodes}
 
     expected_results = {"a": 6, "a_is_5": False, "b": 3, "b_is_4": False}
 
