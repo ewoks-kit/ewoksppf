@@ -255,12 +255,9 @@ class InputMergeActor(AbstractActor):
 
 
 class EwoksWorkflow(Workflow):
-    def __init__(
-        self,
-        ewoksgraph: TaskGraph,
-    ):
+    def __init__(self, ewoksgraph: TaskGraph, ppf_log_level=logging.WARNING):
         name = repr(ewoksgraph)
-        super().__init__(name, level=logging.WARNING)
+        super().__init__(name, level=ppf_log_level)
 
         # When triggering a task, the output dict of the previous task
         # is merged with the input dict of the current task.
@@ -571,10 +568,11 @@ def execute_graph(
     graph,
     inputs: Optional[List[dict]] = None,
     load_options: Optional[dict] = None,
+    ppf_log_level: int = logging.WARNING,
     **execute_options,
 ):
     if load_options is None:
         load_options = dict()
     ewoksgraph = load_graph(graph, inputs=inputs, **load_options)
-    ppfgraph = EwoksWorkflow(ewoksgraph)
+    ppfgraph = EwoksWorkflow(ewoksgraph, ppf_log_level=ppf_log_level)
     return ppfgraph.run(**execute_options)
