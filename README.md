@@ -16,4 +16,4 @@ pytest --pyargs ewoksppf.tests
 
 ## Documentation
 
-https://workflow.gitlab-pages.esrf.fr/ewoks/ewoksppf/
+https://ewoksppf.readthedocs.io/
