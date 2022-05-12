@@ -1,6 +1,7 @@
 import pytest
 from ewoksppf import execute_graph
 from ewokscore.utils import qualname
+from ewokscore.tests.utils.results import assert_execute_graph_default_result
 
 
 def passthrough(**kw):
@@ -164,6 +165,12 @@ def test_workflow21(args, on_error, persist, ppf_log_config, tmpdir):
         varinfo = None
     graph = workflow21(on_error=on_error)
     inputs = [{"name": k, "value": v} for k, v in args["inputs"].items()]
-    result1 = execute_graph(graph, inputs=inputs, varinfo=varinfo)
-    assert result1
-    assert result1["return_value"] == args["return_value"]
+    result = execute_graph(graph, inputs=inputs, varinfo=varinfo)
+    assert result
+    assert result["return_value"] == args["return_value"]
+
+    if args == ARG_SUCCESS:
+        expected = {"a": 1, "return_value": args["return_value"]}
+    else:
+        expected = {"b": 2, "return_value": args["return_value"]}
+    assert_execute_graph_default_result(graph, result, expected, varinfo=varinfo)

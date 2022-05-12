@@ -520,11 +520,15 @@ class EwoksWorkflow(Workflow):
         self,
         startargs: Optional[dict] = None,
         raise_on_error: Optional[bool] = True,
-        results_of_all_nodes: Optional[bool] = False,
         outputs: Optional[List[dict]] = None,
+        merge_outputs: Optional[bool] = True,
         timeout: Optional[float] = None,
         **execute_options,
     ):
+        if outputs and outputs != [{"all": True}] or not merge_outputs:
+            raise ValueError(
+                "The Pypushflow binding can only return the merged results of all tasks"
+            )
         with self._run_context(**execute_options) as execinfo:
             startindata = dict(self.startargs)
             if startargs:

@@ -1,6 +1,7 @@
 import pytest
 from ewoksppf import execute_graph
 from ewokscore.utils import qualname
+from ewokscore.tests.utils.results import assert_execute_graph_default_result
 
 
 def raise_not_greater_than(**kwargs):
@@ -80,7 +81,7 @@ def workflow():
 
 @pytest.mark.skip("Conditional branches that merge again are not handled yet")
 @pytest.mark.parametrize("on_error", [True, False])
-def test_ppf_workflow23(on_error, ppf_log_config):
+def test_ppf_workflow23(on_error, ppf_log_config, tmpdir):
     """Test error conditions."""
 
     graph = workflow()
@@ -94,6 +95,6 @@ def test_ppf_workflow23(on_error, ppf_log_config):
         {"name": "tasks", "value": set()},
         {"name": "groups", "value": set()},
     ]
-    result = execute_graph(graph, inputs=inputs)
-    for k, v in expected.items():
-        assert result["_ppfdict"][k] == v, k
+    varinfo = {"root_uri": str(tmpdir)}
+    result = execute_graph(graph, inputs=inputs, varinfo=varinfo)
+    assert_execute_graph_default_result(graph, result, expected, varinfo=varinfo)
