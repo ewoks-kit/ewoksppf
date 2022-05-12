@@ -1,4 +1,5 @@
 from ewoksppf import execute_graph
+from ewokscore.tests.utils.results import assert_execute_graph_default_result
 
 
 def workflow19():
@@ -75,7 +76,7 @@ def workflow19():
 
 def test_workflow19(ppf_log_config, tmpdir):
     """Test 2 unconditional upstream tasks, one coming from a feedback loop"""
+    varinfo = {"root_uri": str(tmpdir)}
     graph, expected = workflow19()
     result = execute_graph(graph)
-    for k in expected:
-        assert result[k] == expected[k]
+    assert_execute_graph_default_result(graph, result, expected, varinfo=varinfo)

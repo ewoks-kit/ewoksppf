@@ -1,5 +1,5 @@
 from ewoksppf import execute_graph
-from ewokscore.tests.utils.results import assert_execute_graph_all_tasks
+from ewokscore.tests.utils.results import assert_execute_graph_default_result
 
 
 def submodel15(name):
@@ -106,5 +106,5 @@ def test_workflow15(ppf_log_config, tmpdir):
     """Test connecting nodes from submodels directly"""
     varinfo = {"root_uri": str(tmpdir)}
     graph, expected = workflow15()
-    execute_graph(graph, varinfo=varinfo)
-    assert_execute_graph_all_tasks(graph, expected, varinfo=varinfo)
+    result = execute_graph(graph, varinfo=varinfo)
+    assert_execute_graph_default_result(graph, result, expected, varinfo=varinfo)

@@ -1,5 +1,6 @@
 import pytest
 from ewoksppf import execute_graph
+from ewokscore.tests.utils.results import assert_execute_graph_default_result
 
 
 def workflow20():
@@ -30,4 +31,5 @@ def test_workflow20(persist, ppf_log_config, tmpdir):
     result = execute_graph(
         graph, inputs=[{"name": "value", "value": 5}], varinfo=varinfo
     )
-    assert result["_ppfdict"]["value"] == 7
+    expected = {"_ppfdict": {"value": 7}}
+    assert_execute_graph_default_result(graph, result, expected, varinfo=varinfo)

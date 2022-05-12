@@ -1,4 +1,5 @@
 from ewoksppf import execute_graph
+from ewokscore.tests.utils.results import assert_execute_graph_default_result
 
 
 def workflow():
@@ -82,7 +83,7 @@ def workflow():
     return graph, expected_results
 
 
-def test_ppf_workflow22(ppf_log_config):
+def test_ppf_workflow22(ppf_log_config, tmpdir):
     """This is a test of a loop with several conditions for exiting the loop."""
     # The execution should be like this:
     #   Initial conditions: {"a": 1, "a_is_5": False, "b": 1, "b_is_4": False}
@@ -95,6 +96,6 @@ def test_ppf_workflow22(ppf_log_config):
     #   After 'AddA outside loop': {"a": 6, "a_is_5": False, "b": 1, "b_is_4": False}
 
     graph, expected = workflow()
-    result = execute_graph(graph)
-    for k, v in expected.items():
-        assert result["_ppfdict"][k] == v, k
+    varinfo = {"root_uri": str(tmpdir)}
+    result = execute_graph(graph, varinfo=varinfo)
+    assert_execute_graph_default_result(graph, result, expected, varinfo=varinfo)

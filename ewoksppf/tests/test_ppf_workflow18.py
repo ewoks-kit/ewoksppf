@@ -1,6 +1,6 @@
 import pytest
 from ewoksppf import execute_graph
-from ewokscore.tests.utils.results import assert_execute_graph_all_tasks
+from ewokscore.tests.utils.results import assert_execute_graph_default_result
 
 
 def workflow18(dotask4=True):
@@ -37,16 +37,10 @@ def workflow18(dotask4=True):
         "nodes": nodes,
     }
 
-    expected_results = {
-        "task1": {"_ppfdict": {"value": 1}},
-        "task2": {"_ppfdict": {"value": 11}},
-        "task3": {"_ppfdict": {"value": 2}},
-    }
-
     if dotask4:
-        expected_results["task4"] = {"_ppfdict": {"value": 12}}
+        expected_results = {"_ppfdict": {"value": 12}}
     else:
-        expected_results["task4"] = None
+        expected_results = {"_ppfdict": {"value": 2}}
 
     return graph, expected_results
 
@@ -56,5 +50,5 @@ def test_workflow18(dotask4, ppf_log_config, tmpdir):
     """Test conditional links"""
     varinfo = {"root_uri": str(tmpdir)}
     graph, expected = workflow18(dotask4=dotask4)
-    execute_graph(graph, varinfo=varinfo)
-    assert_execute_graph_all_tasks(graph, expected, varinfo=varinfo)
+    result = execute_graph(graph, varinfo=varinfo)
+    assert_execute_graph_default_result(graph, result, expected, varinfo=varinfo)
