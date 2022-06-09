@@ -29,6 +29,7 @@ def submodel21_conditions():
     ]
 
     graph = {
+        "id": "submodel21",
         "input_nodes": [
             {"id": "in", "node": "gt"},
         ],
@@ -69,6 +70,7 @@ def submodel21_on_error():
     ]
 
     graph = {
+        "id": "submodel21",
         "input_nodes": [
             {"id": "in", "node": "gt"},
         ],
@@ -139,6 +141,7 @@ def workflow21(on_error):
     ]
 
     graph = {
+        "graph": {"id": "workflow21"},
         "links": links,
         "nodes": nodes,
     }
