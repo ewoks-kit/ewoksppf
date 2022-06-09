@@ -51,6 +51,7 @@ def subsub_handler(**kw):
 
 def subsubmodel():
     graph = {
+        "id": "subsubmodel",
         "input_nodes": [{"id": "in", "node": "subsubtask1"}],
         "output_nodes": [{"id": "out", "node": "subsubtask3"}],
     }
@@ -86,6 +87,7 @@ def subsubmodel():
 
 def submodel():
     graph = {
+        "id": "submodel",
         "input_nodes": [{"id": "in", "node": "subtask1"}],
         "output_nodes": [{"id": "out", "node": "subtask3"}],
     }
@@ -147,7 +149,7 @@ def workflow():
         {"source": "task1", "target": "task2", "map_all_data": True},
         {"source": "task2", "target": "task3", "map_all_data": True},
     ]
-    return {"nodes": nodes, "links": links}
+    return {"graph": {"id": "workflow"}, "nodes": nodes, "links": links}
 
 
 def test_ppf_workflow24(ppf_log_config):

@@ -26,7 +26,7 @@ def submodel12():
     ]
 
     graph = {
-        "graph": {"name": "submodel12"},
+        "graph": {"id": "submodel12"},
         "links": links,
         "nodes": nodes,
     }
