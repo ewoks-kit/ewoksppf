@@ -1,6 +1,6 @@
-# EwoksPpf: Pypushflow binding for Ewoks
+# ewoksppf
 
-ewoksppf provides task scheduling for cyclic Ewoks workflows.
+ewoksppf provides task scheduling for cyclic [ewoks](https://ewoks.readthedocs.io/) workflows.
 
 ## Install
 

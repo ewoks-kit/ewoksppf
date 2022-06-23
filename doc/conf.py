@@ -10,6 +10,9 @@ extensions = ["sphinx.ext.autodoc", "sphinx.ext.autosummary", "sphinxcontrib.mer
 templates_path = ["_templates"]
 exclude_patterns = []
 
+autodoc_typehints = "description"
+autodoc_typehints_description_target = "all"
+
 html_theme = "alabaster"
 html_static_path = []
 
