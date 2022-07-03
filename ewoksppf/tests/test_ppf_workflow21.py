@@ -1,7 +1,7 @@
 import pytest
-from ewoksppf import execute_graph
-from ewokscore.utils import qualname
+from ewoksutils.import_utils import qualname
 from ewokscore.tests.utils.results import assert_execute_graph_default_result
+from ewoksppf import execute_graph
 
 
 def passthrough(**kw):
