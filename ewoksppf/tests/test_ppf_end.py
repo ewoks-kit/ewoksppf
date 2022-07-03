@@ -1,6 +1,6 @@
-from ewoksppf import execute_graph
+from ewoksutils.import_utils import qualname
 from ewokscore import Task
-from ewokscore.utils import qualname
+from ewoksppf import execute_graph
 
 
 class MyTask(Task, optional_input_names=["a", "b"], output_names=["a", "b"]):

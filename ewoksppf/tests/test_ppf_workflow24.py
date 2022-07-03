@@ -1,5 +1,5 @@
+from ewoksutils.import_utils import qualname
 from ewoksppf import execute_graph
-from ewokscore.utils import qualname
 
 
 def myfunc(name=None, succeeded=tuple(), raise_on_names=tuple(), **_):
