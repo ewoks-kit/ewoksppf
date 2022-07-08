@@ -5,13 +5,13 @@ ewoksppf provides task scheduling for cyclic [ewoks](https://ewoks.readthedocs.i
 ## Install
 
 ```bash
-python -m pip install ewoksppf[test]
+python3 -m pip install ewoksppf[test]
 ```
 
 ## Test
 
 ```bash
-pytest --pyargs ewoksppf.tests
+python3 -m pytest --pyargs ewoksppf.tests
 ```
 
 ## Documentation
