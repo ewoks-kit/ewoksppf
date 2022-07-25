@@ -254,9 +254,10 @@ class InputMergeActor(AbstractActor):
 
 
 class EwoksWorkflow(Workflow):
-    def __init__(self, ewoksgraph: TaskGraph):
+    def __init__(self, ewoksgraph: TaskGraph, pre_import: Optional[bool] = None):
         name = repr(ewoksgraph)
         super().__init__(name)
+        self._pre_import = pre_import
 
         # When triggering a task, the output dict of the previous task
         # is merged with the input dict of the current task.
@@ -311,12 +312,13 @@ class EwoksWorkflow(Workflow):
         error_actor = self._error_actor
         imported = set()
         for node_id, node_attrs in taskgraph.graph.nodes.items():
-            # Pre-import to speedup execution
-            name, importfunc = task_executable(node_id, node_attrs)
-            if name not in imported:
-                imported.add(name)
-                if importfunc:
-                    importfunc(name)
+            if self._pre_import:
+                # Pre-import to speedup execution
+                name, importfunc = task_executable(node_id, node_attrs)
+                if name not in imported:
+                    imported.add(name)
+                    if importfunc:
+                        importfunc(name)
 
             actor = EwoksPythonActor(
                 node_id,
@@ -571,10 +573,11 @@ def execute_graph(
     graph,
     inputs: Optional[List[dict]] = None,
     load_options: Optional[dict] = None,
+    pre_import: Optional[bool] = None,
     **execute_options,
 ):
     if load_options is None:
         load_options = dict()
     ewoksgraph = load_graph(graph, inputs=inputs, **load_options)
-    ppfgraph = EwoksWorkflow(ewoksgraph)
+    ppfgraph = EwoksWorkflow(ewoksgraph, pre_import=pre_import)
     return ppfgraph.run(**execute_options)
