@@ -1,7 +1,7 @@
 import sys
 import pprint
 from contextlib import contextmanager
-from typing import Iterable, Optional, List
+from typing import Iterable, Optional, List, Sequence
 
 from pypushflow.Workflow import Workflow
 from pypushflow.StopActor import StopActor
@@ -254,9 +254,9 @@ class InputMergeActor(AbstractActor):
 
 
 class EwoksWorkflow(Workflow):
-    def __init__(self, ewoksgraph: TaskGraph, pre_import: Optional[bool] = None):
+    def __init__(self, ewoksgraph: TaskGraph, pre_import: Optional[bool] = None, **kw):
         name = repr(ewoksgraph)
-        super().__init__(name)
+        super().__init__(name, **kw)
         self._pre_import = pre_import
 
         # When triggering a task, the output dict of the previous task
@@ -531,6 +531,7 @@ class EwoksWorkflow(Workflow):
             raise ValueError(
                 "The Pypushflow binding can only return the merged results of all tasks"
             )
+        self._stop_actor.reset()
         with self._run_context(**execute_options) as execinfo:
             startindata = dict(self.startargs)
             if startargs:
@@ -574,10 +575,19 @@ def execute_graph(
     inputs: Optional[List[dict]] = None,
     load_options: Optional[dict] = None,
     pre_import: Optional[bool] = None,
+    stop_on_signals: bool = False,
+    forced_interruption: bool = False,
+    stop_signals: Optional[Sequence] = None,
     **execute_options,
 ):
     if load_options is None:
         load_options = dict()
     ewoksgraph = load_graph(graph, inputs=inputs, **load_options)
-    ppfgraph = EwoksWorkflow(ewoksgraph, pre_import=pre_import)
+    ppfgraph = EwoksWorkflow(
+        ewoksgraph,
+        pre_import=pre_import,
+        stop_on_signals=stop_on_signals,
+        forced_interruption=forced_interruption,
+        stop_signals=stop_signals,
+    )
     return ppfgraph.run(**execute_options)
