@@ -13,13 +13,13 @@ build_sdist:
 test_sdist-3.6:
   extends: .test_sdist-3.6
   before_script:
-    - !reference [.test-3.6, before_script]
+    - !reference [.test_sdist-3.6, before_script]
     - pip install git+https://git@gitlab.esrf.fr/workflow/pypushflow.git@main
 
 test_sdist-3.8-win:
   extends: .test_sdist-3.8-win
   before_script:
-    - !reference [.test-3.6, before_script]
+    - !reference [.test_sdist-3.8-win, before_script]
     - pip install git+https://git@gitlab.esrf.fr/workflow/pypushflow.git@main
 
 build_doc:
