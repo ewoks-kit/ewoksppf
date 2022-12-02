@@ -1,11 +1,9 @@
 include:
-  - remote: https://gitlab.esrf.fr/workflow/ewoks/ewoksci/raw/main/.gitlab-ci-template.yml
+  - project: workflow/ewoks/ewoksci
+    file: .gitlab-ci-template.yml
 
 test-3.6:
   extends: .test-3.6
-  before_script:
-    - !reference [.test-3.6, before_script]
-    - pip install git+https://git@gitlab.esrf.fr/workflow/pypushflow.git@main
 
 build_sdist:
   extends: .build_sdist
