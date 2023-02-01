@@ -3,7 +3,6 @@ from . import SLEEP_TIME
 
 
 def run(all_arguments=None):
-
     if all_arguments is None:
         raise RuntimeError("Missing argument 'all_arguments'!")
     time.sleep(SLEEP_TIME)

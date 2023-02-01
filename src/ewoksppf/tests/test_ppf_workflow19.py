@@ -3,7 +3,6 @@ from ewokscore.tests.utils.results import assert_execute_graph_default_result
 
 
 def workflow19():
-
     sum3 = "ewoksppf.tests.test_ppf_actors.pythonActorAddABC2D.run"
     incrementation = (
         "ewoksppf.tests.test_ppf_actors.pythonActorDiamondTest.run_incrementation"

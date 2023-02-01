@@ -3,7 +3,6 @@ from . import SLEEP_TIME
 
 
 def run(c=None, **kwargs):
-
     time.sleep(SLEEP_TIME)
     if c is None:
         raise RuntimeError("Missing argument 'c'!")
