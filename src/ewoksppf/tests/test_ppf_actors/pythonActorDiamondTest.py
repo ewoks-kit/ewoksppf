@@ -1,5 +1,4 @@
 def run_incrementation(a=None, b=None, c=None, d=None, increment_value=None, **kwargs):
-
     if a is None:
         raise RuntimeError("Missing argument 'a'!")
     if b is None:

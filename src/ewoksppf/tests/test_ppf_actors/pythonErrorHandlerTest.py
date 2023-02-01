@@ -1,5 +1,4 @@
 def run(name, **kwargs):
-
     reply = None
     # This actor throws an exception
     raise RuntimeError("Runtime error in pythonErrorHandlerTest.py!")
