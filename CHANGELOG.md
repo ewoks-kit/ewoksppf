@@ -2,6 +2,11 @@
 
 ## 0.2.0 (unreleased)
 
+## 0.1.1
+
+Changes:
+  - use new "engine" argument instead of the deprecated "binding"
+
 ## 0.1.0
 
 New features:
