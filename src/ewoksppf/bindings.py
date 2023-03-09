@@ -569,7 +569,7 @@ class EwoksWorkflow(Workflow):
         }
 
 
-@execute_graph_decorator(binding="ppf")
+@execute_graph_decorator(engine="ppf")
 def execute_graph(
     graph,
     inputs: Optional[List[dict]] = None,
