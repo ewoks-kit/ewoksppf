@@ -527,9 +527,9 @@ class EwoksWorkflow(Workflow):
         timeout: Optional[float] = None,
         **execute_options,
     ):
-        if outputs and outputs != [{"all": True}] or not merge_outputs:
+        if outputs and ((outputs != [{"all": True}] or not merge_outputs)):
             raise ValueError(
-                "The Pypushflow binding can only return the merged results of all tasks"
+                "the Pypushflow engine can only return the merged results of all tasks"
             )
         self._stop_actor.reset()
         with self._run_context(**execute_options) as execinfo:
@@ -541,7 +541,7 @@ class EwoksWorkflow(Workflow):
             self._stop_actor.join(timeout=timeout)
             result = self._stop_actor.outData
             if result is None:
-                return None
+                return dict()
             info = result.pop(ppfrunscript.INFOKEY, dict())
             result = self.__parse_result(result)
             ex = result.get("WorkflowException")
@@ -556,7 +556,10 @@ class EwoksWorkflow(Workflow):
                 else:
                     execinfo["error_traceback"] = "".join(ex["traceBack"])
             if ex is None or not raise_on_error:
-                return result
+                if outputs:
+                    return result
+                else:
+                    return dict()
             else:
                 print("\n".join(ex["traceBack"]), file=sys.stderr)
                 raise RuntimeError(ex["errorMessage"])

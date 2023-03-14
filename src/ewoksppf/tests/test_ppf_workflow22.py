@@ -97,5 +97,5 @@ def test_ppf_workflow22(ppf_log_config, tmpdir):
 
     graph, expected = workflow()
     varinfo = {"root_uri": str(tmpdir)}
-    result = execute_graph(graph, varinfo=varinfo)
+    result = execute_graph(graph, varinfo=varinfo, outputs=[{"all": True}])
     assert_execute_graph_default_result(graph, result, expected, varinfo=varinfo)

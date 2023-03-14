@@ -57,7 +57,7 @@ def test_workflow10(limit, scheme, ppf_log_config, tmpdir):
         varinfo = {}
     inputs = {"value": 1, "limit": limit}
     graph, expected = workflow10(inputs)
-    result = execute_graph(graph, varinfo=varinfo)
+    result = execute_graph(graph, varinfo=varinfo, outputs=[{"all": True}])
     if scheme:
         assert_execute_graph_values(result, expected, varinfo)
     else:

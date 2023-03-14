@@ -77,5 +77,5 @@ def test_workflow19(ppf_log_config, tmpdir):
     """Test 2 unconditional upstream tasks, one coming from a feedback loop"""
     varinfo = {"root_uri": str(tmpdir)}
     graph, expected = workflow19()
-    result = execute_graph(graph)
+    result = execute_graph(graph, outputs=[{"all": True}])
     assert_execute_graph_default_result(graph, result, expected, varinfo=varinfo)

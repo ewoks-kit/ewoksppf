@@ -168,7 +168,9 @@ def test_workflow21(args, on_error, persist, ppf_log_config, tmpdir):
         varinfo = None
     graph = workflow21(on_error=on_error)
     inputs = [{"name": k, "value": v} for k, v in args["inputs"].items()]
-    result = execute_graph(graph, inputs=inputs, varinfo=varinfo)
+    result = execute_graph(
+        graph, inputs=inputs, varinfo=varinfo, outputs=[{"all": True}]
+    )
     assert result
     assert result["return_value"] == args["return_value"]
 

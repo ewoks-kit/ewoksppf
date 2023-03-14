@@ -30,5 +30,5 @@ def workflow1():
 def test_workflow1(ppf_log_config, tmpdir):
     varinfo = {"root_uri": str(tmpdir)}
     graph, expected = workflow1()
-    result = execute_graph(graph, varinfo=varinfo)
+    result = execute_graph(graph, varinfo=varinfo, outputs=[{"all": True}])
     assert_execute_graph_default_result(graph, result, expected, varinfo)
