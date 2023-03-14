@@ -12,7 +12,7 @@ Install requirements
 
 .. code:: bash
 
-    python3 -m pip install ewoksppf
+    pip install ewoksppf
 
 Execute a workflow
 
@@ -26,8 +26,8 @@ Run the tests
 
 .. code:: bash
 
-    python3 -m pip install ewoksppf[test]
-    python3 -m pytest --pyargs ewoksppf.tests
+    pip install ewoksppf[test]
+    pytest --pyargs ewoksppf.tests
 
 Documentation
 -------------
