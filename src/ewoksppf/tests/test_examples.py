@@ -15,5 +15,5 @@ def test_execute_graph(graph_name, scheme, ppf_log_config, tmpdir):
     else:
         varinfo = None
     ewoksgraph = load_graph(graph)
-    result = execute_graph(graph, varinfo=varinfo, timeout=10)
+    result = execute_graph(graph, varinfo=varinfo, timeout=10, outputs=[{"all": True}])
     assert_execute_graph_default_result(ewoksgraph, result, expected, varinfo)
