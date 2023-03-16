@@ -35,5 +35,6 @@ Documentation
 .. toctree::
     :maxdepth: 2
 
+    parallel
     actors
     api
