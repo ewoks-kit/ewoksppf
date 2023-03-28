@@ -2,6 +2,11 @@
 
 ## 0.2.0 (unreleased)
 
+## 0.1.2
+
+Bug fixes:
+  - output of execute_graph was not consistent with other bindings
+
 ## 0.1.1
 
 Changes:

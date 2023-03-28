@@ -527,7 +527,7 @@ class EwoksWorkflow(Workflow):
         timeout: Optional[float] = None,
         **execute_options,
     ):
-        if outputs and ((outputs != [{"all": True}] or not merge_outputs)):
+        if outputs and (outputs != [{"all": True}] or not merge_outputs):
             raise ValueError(
                 "the Pypushflow engine can only return the merged results of all tasks"
             )
