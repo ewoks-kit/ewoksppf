@@ -2,6 +2,11 @@
 
 ## 0.2.0 (unreleased)
 
+## 0.1.3
+
+Bug fixes:
+  - fix "outputs" argument default of execute_graph
+
 ## 0.1.2
 
 Bug fixes:
