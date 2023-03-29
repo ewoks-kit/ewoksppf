@@ -527,9 +527,13 @@ class EwoksWorkflow(Workflow):
         timeout: Optional[float] = None,
         **execute_options,
     ):
-        if outputs and (outputs != [{"all": True}] or not merge_outputs):
+        if outputs is None:
+            outputs = [{"all": False}]
+            # TODO: pypushflow returns the values of the last task that was
+            # executed, not all end nodes as is expected here
+        if outputs and (outputs != [{"all": False}] or not merge_outputs):
             raise ValueError(
-                "the Pypushflow engine can only return the merged results of all tasks"
+                "the Pypushflow engine can only return the merged results of end tasks"
             )
         self._stop_actor.reset()
         with self._run_context(**execute_options) as execinfo:

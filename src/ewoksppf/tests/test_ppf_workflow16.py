@@ -135,5 +135,5 @@ def test_workflow16(ppf_log_config, tmpdir):
     """Test connecting nodes from sub-submodels to the top model"""
     varinfo = {"root_uri": str(tmpdir)}
     graph, expected = workflow16()
-    result = execute_graph(graph, varinfo=varinfo, outputs=[{"all": True}])
+    result = execute_graph(graph, varinfo=varinfo)
     assert_execute_graph_default_result(graph, result, expected, varinfo=varinfo)

@@ -92,5 +92,5 @@ def test_workflow13(startvalue, ppf_log_config, tmpdir):
     withlastnode_startvalue = 1
     varinfo = {"root_uri": str(tmpdir)}
     graph, expected = workflow13(startvalue, withlastnode_startvalue)
-    result = execute_graph(graph, varinfo=varinfo, outputs=[{"all": True}])
+    result = execute_graph(graph, varinfo=varinfo)
     assert_execute_graph_default_result(graph, result, expected, varinfo=varinfo)
