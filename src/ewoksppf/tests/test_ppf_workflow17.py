@@ -50,6 +50,6 @@ def workflow17(doloop=True):
 def test_workflow17(doloop, ppf_log_config):
     """Test 2 unconditional upstream tasks, one coming from a feedback loop"""
     graph, expected = workflow17(doloop=doloop)
-    result = execute_graph(graph, outputs=[{"all": True}])
+    result = execute_graph(graph)
     for k, v in expected.items():
         assert result[k] == v, k

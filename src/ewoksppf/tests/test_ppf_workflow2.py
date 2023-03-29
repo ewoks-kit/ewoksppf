@@ -29,9 +29,7 @@ def workflow2():
 def test_workflow2(ppf_log_config, tmpdir):
     varinfo = {"root_uri": str(tmpdir)}
     graph, expected = workflow2()
-    result = execute_graph(
-        graph, varinfo=varinfo, raise_on_error=False, outputs=[{"all": True}]
-    )
+    result = execute_graph(graph, varinfo=varinfo, raise_on_error=False)
     assert_execute_graph_default_result(graph, result, expected, varinfo=varinfo)
     err_msg = "Task 'Python Error Handler Test' failed"
     assert result["WorkflowException"]["errorMessage"] == err_msg

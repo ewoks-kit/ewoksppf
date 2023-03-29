@@ -159,9 +159,7 @@ def test_ppf_workflow24(ppf_log_config):
         {"name": "succeeded", "value": tuple()},
         {"name": "raise_on_names", "value": tuple()},
     ]
-    result = execute_graph(
-        workflow(), inputs=inputs, raise_on_error=False, outputs=[{"all": True}]
-    )
+    result = execute_graph(workflow(), inputs=inputs, raise_on_error=False)
     succeeded = "task1", "task2", "task3"
     assert result["_ppfdict"]["succeeded"] == succeeded
     assert "WorkflowException" not in result["_ppfdict"]
@@ -170,9 +168,7 @@ def test_ppf_workflow24(ppf_log_config):
         {"name": "succeeded", "value": tuple()},
         {"name": "raise_on_names", "value": ("task3",)},
     ]
-    result = execute_graph(
-        workflow(), inputs=inputs, raise_on_error=False, outputs=[{"all": True}]
-    )
+    result = execute_graph(workflow(), inputs=inputs, raise_on_error=False)
     succeeded = "task1", "task2", "subtask1", "subtask2", "subtask3"
     assert result["_ppfdict"]["succeeded"] == succeeded
     errorMessage = result["_ppfdict"]["WorkflowException"]["errorMessage"]
@@ -182,9 +178,7 @@ def test_ppf_workflow24(ppf_log_config):
         {"name": "succeeded", "value": tuple()},
         {"name": "raise_on_names", "value": ("task3", "subtask2")},
     ]
-    result = execute_graph(
-        workflow(), inputs=inputs, raise_on_error=False, outputs=[{"all": True}]
-    )
+    result = execute_graph(workflow(), inputs=inputs, raise_on_error=False)
     succeeded = (
         "task1",
         "task2",
@@ -201,9 +195,7 @@ def test_ppf_workflow24(ppf_log_config):
         {"name": "succeeded", "value": tuple()},
         {"name": "raise_on_names", "value": ("task3", "subtask3", "subsubtask1")},
     ]
-    result = execute_graph(
-        workflow(), inputs=inputs, raise_on_error=False, outputs=[{"all": True}]
-    )
+    result = execute_graph(workflow(), inputs=inputs, raise_on_error=False)
     succeeded = "task1", "task2", "subtask1", "subtask2", "subsub_handler"
     assert result["_ppfdict"]["succeeded"] == succeeded
     errorMessage = result["_ppfdict"]["WorkflowException"]["errorMessage"]

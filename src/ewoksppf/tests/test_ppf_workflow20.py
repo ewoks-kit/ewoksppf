@@ -29,10 +29,7 @@ def test_workflow20(persist, ppf_log_config, tmpdir):
         varinfo = None
     graph = workflow20()
     result = execute_graph(
-        graph,
-        inputs=[{"name": "value", "value": 5}],
-        varinfo=varinfo,
-        outputs=[{"all": True}],
+        graph, inputs=[{"name": "value", "value": 5}], varinfo=varinfo
     )
     expected = {"_ppfdict": {"value": 7}}
     assert_execute_graph_default_result(graph, result, expected, varinfo=varinfo)

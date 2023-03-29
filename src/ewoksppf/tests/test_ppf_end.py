@@ -58,6 +58,6 @@ def workflow():
 
 def test_ppf_end(ppf_log_config):
     graph, expected = workflow()
-    result = execute_graph(graph, outputs=[{"all": True}])
+    result = execute_graph(graph)
     for k, v in expected.items():
         assert result[k] == v, k

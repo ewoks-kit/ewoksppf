@@ -96,7 +96,5 @@ def test_ppf_workflow23(on_error, ppf_log_config, tmpdir):
         {"name": "groups", "value": set()},
     ]
     varinfo = {"root_uri": str(tmpdir)}
-    result = execute_graph(
-        graph, inputs=inputs, varinfo=varinfo, outputs=[{"all": True}]
-    )
+    result = execute_graph(graph, inputs=inputs, varinfo=varinfo)
     assert_execute_graph_default_result(graph, result, expected, varinfo=varinfo)
