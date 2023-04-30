@@ -1,4 +1,4 @@
-ewoksppf |release|
+ewoksppf |version|
 ==================
 
 *ewoksppf* provides task scheduling for cyclic `ewoks <https://ewoks.readthedocs.io/>`_ workflows.
