@@ -26,4 +26,4 @@ def run(*args, **kwargs):
 
     task.execute()
 
-    return task.output_transfer_data
+    return task.get_output_transfer_data()
