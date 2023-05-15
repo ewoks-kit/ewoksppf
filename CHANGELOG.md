@@ -2,6 +2,11 @@
 
 ## 0.2.0 (unreleased)
 
+## 0.1.4
+
+Changes:
+  - remove deprecated ewokscore Task properties
+
 ## 0.1.3
 
 Bug fixes:
