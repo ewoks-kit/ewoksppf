@@ -1,7 +1,6 @@
-import sys
 import pprint
 from contextlib import contextmanager
-from typing import Iterable, Optional, List, Sequence
+from typing import Generator, Optional, List, Sequence
 
 from pypushflow.Workflow import Workflow
 from pypushflow.StopActor import StopActor
@@ -175,13 +174,15 @@ class NameMapperActor(AbstractActor):
 
     def trigger(self, inData: dict):
         self.logger.info("triggered with inData =\n %s", pprint.pformat(inData))
-        is_error = "WorkflowException" in inData and inData.get("NewWorkflowException")
+        is_error = "WorkflowExceptionInstance" in inData and inData.get(
+            "_NewWorkflowException"
+        )
         if is_error and not self.trigger_on_error:
             return
         try:
             if is_error:
                 inData = dict(inData)
-                inData["NewWorkflowException"] = False
+                inData["_NewWorkflowException"] = False
             # Map output names of this task to input
             # names of the downstream task
             newInData = dict()
@@ -510,13 +511,13 @@ class EwoksWorkflow(Workflow):
         varinfo: Optional[dict] = None,
         execinfo: Optional[dict] = None,
         **pool_options,
-    ) -> Iterable[Optional[dict]]:
+    ) -> Generator[None, None, None]:
         self.startargs[ppfrunscript.INFOKEY]["varinfo"] = varinfo
         graph = self.__ewoksgraph.graph
         with events.workflow_context(execinfo, workflow=graph) as execinfo:
             self.startargs[ppfrunscript.INFOKEY]["execinfo"] = execinfo
             with super()._run_context(**pool_options):
-                yield execinfo
+                yield
 
     def run(
         self,
@@ -536,7 +537,7 @@ class EwoksWorkflow(Workflow):
                 "the Pypushflow engine can only return the merged results of end tasks"
             )
         self._stop_actor.reset()
-        with self._run_context(**execute_options) as execinfo:
+        with self._run_context(**execute_options):
             startindata = dict(self.startargs)
             if startargs:
                 startindata.update(startargs)
@@ -546,27 +547,13 @@ class EwoksWorkflow(Workflow):
             result = self._stop_actor.outData
             if result is None:
                 return dict()
-            info = result.pop(ppfrunscript.INFOKEY, dict())
             result = self.__parse_result(result)
-            ex = result.get("WorkflowException")
-            if ex is not None:
-                if not ex["errorMessage"]:
-                    node_id = info.get("node_id")
-                    ex["errorMessage"] = f"Task {node_id} failed"
-                execinfo["error"] = True
-                execinfo["error_message"] = ex["errorMessage"]
-                if isinstance(ex["traceBack"], str):
-                    execinfo["error_traceback"] = ex["traceBack"]
-                else:
-                    execinfo["error_traceback"] = "".join(ex["traceBack"])
-            if ex is None or not raise_on_error:
-                if outputs:
-                    return result
-                else:
-                    return dict()
-            else:
-                print("\n".join(ex["traceBack"]), file=sys.stderr)
-                raise RuntimeError(ex["errorMessage"])
+            ex = result.get("WorkflowExceptionInstance")
+            if ex is not None and raise_on_error:
+                raise ex
+            if outputs:
+                return result
+            return dict()
 
     def __parse_result(self, result) -> dict:
         varinfo = varinfo_from_indata(self.startargs)

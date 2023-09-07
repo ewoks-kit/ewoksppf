@@ -162,7 +162,7 @@ def test_ppf_workflow24(ppf_log_config):
     result = execute_graph(workflow(), inputs=inputs, raise_on_error=False)
     succeeded = "task1", "task2", "task3"
     assert result["_ppfdict"]["succeeded"] == succeeded
-    assert "WorkflowException" not in result["_ppfdict"]
+    assert "WorkflowExceptionInstance" not in result["_ppfdict"]
 
     inputs = [
         {"name": "succeeded", "value": tuple()},
@@ -171,7 +171,7 @@ def test_ppf_workflow24(ppf_log_config):
     result = execute_graph(workflow(), inputs=inputs, raise_on_error=False)
     succeeded = "task1", "task2", "subtask1", "subtask2", "subtask3"
     assert result["_ppfdict"]["succeeded"] == succeeded
-    errorMessage = result["_ppfdict"]["WorkflowException"]["errorMessage"]
+    errorMessage = str(result["_ppfdict"]["WorkflowExceptionInstance"])
     assert errorMessage == "Task 'task3' failed"
 
     inputs = [
@@ -188,7 +188,7 @@ def test_ppf_workflow24(ppf_log_config):
         "subsubtask3",
     )
     assert result["_ppfdict"]["succeeded"] == succeeded
-    errorMessage = result["_ppfdict"]["WorkflowException"]["errorMessage"]
+    errorMessage = str(result["_ppfdict"]["WorkflowExceptionInstance"])
     assert errorMessage == "Task 'task3' failed"
 
     inputs = [
@@ -198,5 +198,5 @@ def test_ppf_workflow24(ppf_log_config):
     result = execute_graph(workflow(), inputs=inputs, raise_on_error=False)
     succeeded = "task1", "task2", "subtask1", "subtask2", "subsub_handler"
     assert result["_ppfdict"]["succeeded"] == succeeded
-    errorMessage = result["_ppfdict"]["WorkflowException"]["errorMessage"]
+    errorMessage = str(result["_ppfdict"]["WorkflowExceptionInstance"])
     assert errorMessage == "Task 'task3' failed"
