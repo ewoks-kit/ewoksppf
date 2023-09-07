@@ -2,6 +2,11 @@
 
 ## 0.2.0 (unreleased)
 
+## 0.1.5
+
+Changes:
+  - re-raise pypushflow exceptions by default
+
 ## 0.1.4
 
 Changes:
