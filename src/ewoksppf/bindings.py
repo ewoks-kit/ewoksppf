@@ -560,6 +560,7 @@ class EwoksWorkflow(Workflow):
         return {
             name: value_from_transfer(value, varinfo=varinfo)
             for name, value in result.items()
+            if name is not ppfrunscript.INFOKEY
         }
 
 
