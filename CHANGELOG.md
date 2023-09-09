@@ -2,6 +2,11 @@
 
 ## 0.2.0 (unreleased)
 
+## 0.1.6
+
+Bug fixes:
+  - remove info key from workflow outputs
+
 ## 0.1.5
 
 Changes:
