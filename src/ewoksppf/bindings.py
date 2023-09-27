@@ -24,6 +24,7 @@ from ewokscore.graph import analysis
 from ewokscore.node import node_id_as_string
 from ewokscore.node import NodeIdType
 from ewokscore.node import get_varinfo
+from ewokscore.node import get_node_label
 from ewokscore import events
 
 
@@ -256,7 +257,7 @@ class InputMergeActor(AbstractActor):
 
 class EwoksWorkflow(Workflow):
     def __init__(self, ewoksgraph: TaskGraph, pre_import: Optional[bool] = None, **kw):
-        name = repr(ewoksgraph)
+        name = ewoksgraph.graph_label
         super().__init__(name, **kw)
         self._pre_import = pre_import
 
@@ -321,8 +322,9 @@ class EwoksWorkflow(Workflow):
                     if importfunc:
                         importfunc(name)
 
+            node_label = get_node_label(node_id, node_attrs)
             actor = EwoksPythonActor(
-                node_id,
+                node_label,
                 node_attrs,
                 script=ppfrunscript.__name__ + ".dummy",
                 **self._actor_arguments,
