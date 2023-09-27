@@ -2,6 +2,11 @@
 
 ## 0.2.0 (unreleased)
 
+## 0.1.7
+
+Changes:
+  - use workflow and node labels with id fallback for pypushflow logging
+
 ## 0.1.6
 
 Bug fixes:
