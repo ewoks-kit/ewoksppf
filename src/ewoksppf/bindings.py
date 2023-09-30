@@ -77,11 +77,20 @@ class EwoksPythonActor(PythonActor):
         super().__init__(**kw)
 
     def trigger(self, inData: dict):
+        # Update the INFOKEY with node information
         infokey = ppfrunscript.INFOKEY
         inData[infokey] = dict(inData[infokey])
         inData[infokey]["node_id"] = self.node_id
         inData[infokey]["node_attrs"] = self.node_attrs
         return super().trigger(inData)
+
+    def compileDownstreamData(self, result: dict) -> dict:
+        # Merging inputs and outputs to trigger the next task
+        # is not an ewoks convention. `ppfmethod` tasks still
+        # have it thanks to `ewokscore.ppftasks`.
+        #
+        # We do need to take INFOKEY from the inputs.
+        return {ppfrunscript.INFOKEY: self.inData[ppfrunscript.INFOKEY], **result}
 
     def uploadInDataToMongo(self, **kw):
         task_identifier = self.node_attrs.get("task_identifier")
