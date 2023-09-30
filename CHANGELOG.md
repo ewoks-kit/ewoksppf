@@ -1,6 +1,11 @@
 # CHANGELOG.md
 
-## 0.2.0 (unreleased)
+## 0.3.0 (unreleased)
+
+## 0.2.0
+
+Changes:
+  - stop merging task inputs and outputs to trigger the next task
 
 ## 0.1.7
 
