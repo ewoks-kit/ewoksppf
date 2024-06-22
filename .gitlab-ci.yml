@@ -5,11 +5,17 @@ include:
 test-3.7:
   extends: .test-3.7
 
+test-3.9:
+  extends: .test-3.9
+
+test-3.11:
+  extends: .test-3.11
+
 build_sdist:
   extends: .build_sdist
 
-test_sdist-3.7:
-  extends: .test_sdist-3.7
+test_sdist-3.10:
+  extends: .test_sdist-3.10
 
 test_sdist-3.8-win:
   extends: .test_sdist-3.8-win
