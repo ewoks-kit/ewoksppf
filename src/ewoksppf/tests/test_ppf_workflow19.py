@@ -21,7 +21,7 @@ def workflow19():
                 {"name": "b", "value": 2},
                 {"name": "c", "value": 4},
             ],
-            "inputs_complete": True,
+            "force_start_node": True,
         },
         {
             "id": "task2",
