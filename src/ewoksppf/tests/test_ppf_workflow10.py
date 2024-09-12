@@ -9,7 +9,7 @@ def workflow10(inputs):
         {
             "id": "addWithoutSleep",
             "default_inputs": default_inputs,
-            "inputs_complete": True,
+            "force_start_node": True,
             "task_type": "ppfmethod",
             "task_identifier": "ewoksppf.tests.test_ppf_actors.pythonActorAddWithoutSleep.run",
         },
