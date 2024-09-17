@@ -2,6 +2,12 @@
 
 ## (unreleased)
 
+## 0.2.2
+
+Bug fixes:
+
+- support ewokscore 0.8.1
+
 ## 0.2.1
 
 Bug fixes:
