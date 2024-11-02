@@ -13,6 +13,7 @@ def run(*args, **kwargs):
     info = kwargs.pop(INFOKEY)
     varinfo = info["varinfo"]
     execinfo = info["execinfo"]
+    profile_directory = info["profile_directory"]
     if args:
         kwargs.update(enumerate(args))
 
@@ -22,6 +23,7 @@ def run(*args, **kwargs):
         inputs=kwargs,
         varinfo=varinfo,
         execinfo=execinfo,
+        profile_directory=profile_directory,
     )
 
     task.execute()
