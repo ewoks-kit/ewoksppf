@@ -521,11 +521,11 @@ class EwoksWorkflow(Workflow):
         self,
         varinfo: Optional[dict] = None,
         execinfo: Optional[dict] = None,
-        profile_directory: Optional[str] = None,
+        task_options: Optional[dict] = None,
         **pool_options,
     ) -> Generator[None, None, None]:
         self.startargs[ppfrunscript.INFOKEY]["varinfo"] = varinfo
-        self.startargs[ppfrunscript.INFOKEY]["profile_directory"] = profile_directory
+        self.startargs[ppfrunscript.INFOKEY]["task_options"] = task_options
         graph = self.__ewoksgraph.graph
         with events.workflow_context(execinfo, workflow=graph) as execinfo:
             self.startargs[ppfrunscript.INFOKEY]["execinfo"] = execinfo
