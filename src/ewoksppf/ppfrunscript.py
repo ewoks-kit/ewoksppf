@@ -13,6 +13,7 @@ def run(*args, **kwargs):
     info = kwargs.pop(INFOKEY)
     varinfo = info["varinfo"]
     execinfo = info["execinfo"]
+    task_options = info["task_options"]
     if args:
         kwargs.update(enumerate(args))
 
@@ -22,6 +23,7 @@ def run(*args, **kwargs):
         inputs=kwargs,
         varinfo=varinfo,
         execinfo=execinfo,
+        task_options=task_options,
     )
 
     task.execute()
