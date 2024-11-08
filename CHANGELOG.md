@@ -2,6 +2,12 @@
 
 ## (unreleased)
 
+## 0.3.0
+
+New features:
+
+- Add `task_options` to `execute_graph`.
+
 ## 0.2.2
 
 Bug fixes:
