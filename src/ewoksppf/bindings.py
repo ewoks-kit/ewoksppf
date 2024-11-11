@@ -586,6 +586,7 @@ def execute_graph(
     stop_on_signals: bool = False,
     forced_interruption: bool = False,
     stop_signals: Optional[Sequence] = None,
+    db_options: Optional[dict] = None,
     **execute_options,
 ):
     if load_options is None:
@@ -597,5 +598,6 @@ def execute_graph(
         stop_on_signals=stop_on_signals,
         forced_interruption=forced_interruption,
         stop_signals=stop_signals,
+        db_options=db_options,
     )
     return ppfgraph.run(**execute_options)
