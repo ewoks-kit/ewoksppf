@@ -2,6 +2,12 @@
 
 ## (unreleased)
 
+## 0.4.0
+
+New features:
+
+- Add `db_options` to `execute_graph` so we can avoid environment variables for pypushflow.
+
 ## 0.3.0
 
 New features:
