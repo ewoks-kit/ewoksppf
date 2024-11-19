@@ -11,6 +11,15 @@ test-3.9:
 test-3.11:
   extends: .test-3.11
 
+test-3.9-scripts:
+  extends: .test-3.9
+  script:
+    - pip install .
+    - |
+      for filename in scripts/*;do
+        python $filename
+      done
+
 build_sdist:
   extends: .build_sdist
 
