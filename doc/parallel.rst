@@ -1,4 +1,5 @@
-# Parallel execution
+Parallel execution
+==================
 
 Options for parallel execution can be provided when executing a workflow
 
