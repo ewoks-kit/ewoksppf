@@ -2,14 +2,11 @@ include:
   - project: dau/ci/pyci
     file: .gitlab-ci-template.yml
 
-test-3.7:
-  extends: .test-3.7
+test-3.8:
+  extends: .test-3.8
 
-test-3.9:
-  extends: .test-3.9
-
-test-3.11:
-  extends: .test-3.11
+test-3.12:
+  extends: .test-3.12
 
 test-3.9-scripts:
   extends: .test-3.9
@@ -23,11 +20,11 @@ test-3.9-scripts:
 build_sdist:
   extends: .build_sdist
 
-test_sdist-3.10:
-  extends: .test_sdist-3.10
-
 test_sdist-3.8-win:
   extends: .test_sdist-3.8-win
+
+test_sdist-3.12:
+  extends: .test_sdist-3.12
 
 build_doc:
   extends: .build_doc
@@ -37,3 +34,9 @@ pages:
 
 assets:
   extends: .assets
+
+testpypi:
+  extends: .testpypi
+
+pypi:
+  extends: .pypi

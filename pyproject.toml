@@ -1,5 +1,45 @@
 [build-system]
-requires = [
-    "setuptools>=46.4"
-]
+requires = ["setuptools>=46.4"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "ewoksppf"
+version = "1.0.0"
+authors = [{ name = "ESRF", email = "dau-pydev@esrf.fr" }]
+description = "Pypushflow binding for Ewoks"
+readme = { file = "README.md", content-type = "text/markdown" }
+license = { file = "LICENSE.md" }
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+]
+requires-python = ">=3.8"
+dependencies = ["ewokscore >=1.0.0", "pypushflow >=1.0.0"]
+
+[project.urls]
+Homepage = "https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/"
+Documentation = "https://ewoksppf.readthedocs.io/"
+Repository = "https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/"
+Issues = "https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/issues"
+Changelog = "https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/-/blob/main/CHANGELOG.md"
+
+[project.optional-dependencies]
+test = ["pytest >=7"]
+dev = ["ewoksppf[test]", "black >=22", "flake8 >=4"]
+doc = [
+    "ewoksppf[test]",
+    "sphinx >=4.5",
+    "sphinxcontrib-mermaid >=0.7",
+    "sphinx-autodoc-typehints >=1.16",
+    "pydata-sphinx-theme",
+]
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.coverage.run]
+omit = ['*/tests/*']
