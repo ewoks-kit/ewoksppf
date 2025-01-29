@@ -26,7 +26,7 @@ Changelog = "https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/-/blob/main/CHANGELO
 
 [project.optional-dependencies]
 test = ["pytest >=7"]
-dev = ["ewoksppf[test]", "black >=22", "flake8 >=4"]
+dev = ["ewoksppf[test]", "black >=25", "flake8 >=4"]
 doc = [
     "ewoksppf[test]",
     "sphinx >=4.5",
