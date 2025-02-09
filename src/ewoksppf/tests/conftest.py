@@ -1,6 +1,9 @@
 import pytest
 from pypushflow import persistence
+
+from ..engine import PpfWorkflowEngine
 from . import test_ppf_actors
+
 
 test_ppf_actors.SLEEP_TIME = 0
 
@@ -11,3 +14,8 @@ def ppf_log_config():
     persistence.DEFAULT_DB_TYPE = "memory"
     yield
     persistence.DEFAULT_DB_TYPE = DEFAULT_DB_TYPE
+
+
+@pytest.fixture()
+def engine():
+    return PpfWorkflowEngine()

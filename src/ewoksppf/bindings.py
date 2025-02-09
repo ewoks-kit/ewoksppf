@@ -1,5 +1,6 @@
 import os
 import pprint
+import warnings
 from contextlib import contextmanager
 from typing import Generator, Optional, List, Sequence
 
@@ -531,6 +532,9 @@ class EwoksWorkflow(Workflow):
         varinfo: Optional[dict] = None,
         execinfo: Optional[dict] = None,
         task_options: Optional[dict] = None,
+        max_workers: Optional[int] = None,
+        scaling_workers: bool = True,
+        pool_type: Optional[str] = None,
         **pool_options,
     ) -> Generator[None, None, None]:
         self.startargs[ppfrunscript.INFOKEY]["varinfo"] = varinfo
@@ -538,7 +542,12 @@ class EwoksWorkflow(Workflow):
         graph = self.__ewoksgraph.graph
         with events.workflow_context(execinfo, workflow=graph) as execinfo:
             self.startargs[ppfrunscript.INFOKEY]["execinfo"] = execinfo
-            with super()._run_context(**pool_options):
+            with super()._run_context(
+                max_workers=max_workers,
+                scaling_workers=scaling_workers,
+                pool_type=pool_type,
+                **pool_options,
+            ):
                 yield
 
     def run(
@@ -548,8 +557,14 @@ class EwoksWorkflow(Workflow):
         outputs: Optional[List[dict]] = None,
         merge_outputs: Optional[bool] = True,
         timeout: Optional[float] = None,
-        **execute_options,
-    ):
+        varinfo: Optional[dict] = None,
+        execinfo: Optional[dict] = None,
+        task_options: Optional[dict] = None,
+        max_workers: Optional[int] = None,
+        scaling_workers: bool = True,
+        pool_type: Optional[str] = None,
+        **pool_options,
+    ) -> dict:
         if outputs is None:
             outputs = [{"all": False}]
             # TODO: pypushflow returns the values of the last task that was
@@ -559,7 +574,15 @@ class EwoksWorkflow(Workflow):
                 "the Pypushflow engine can only return the merged results of end tasks"
             )
         self._stop_actor.reset()
-        with self._run_context(**execute_options):
+        with self._run_context(
+            varinfo=varinfo,
+            execinfo=execinfo,
+            task_options=task_options,
+            max_workers=max_workers,
+            scaling_workers=scaling_workers,
+            pool_type=pool_type,
+            **pool_options,
+        ):
             startindata = dict(self.startargs)
             if startargs:
                 startindata.update(startargs)
@@ -596,13 +619,38 @@ def execute_graph(
     forced_interruption: bool = False,
     stop_signals: Optional[Sequence] = None,
     db_options: Optional[dict] = None,
-    **execute_options,
-):
+    startargs: Optional[dict] = None,
+    raise_on_error: Optional[bool] = True,
+    outputs: Optional[List[dict]] = None,
+    merge_outputs: Optional[bool] = True,
+    timeout: Optional[float] = None,
+    varinfo: Optional[dict] = None,
+    execinfo: Optional[dict] = None,
+    task_options: Optional[dict] = None,
+    max_workers: Optional[int] = None,
+    scaling_workers: bool = True,
+    pool_type: Optional[str] = None,
+    pool_options: Optional[dict] = None,
+    **deprecated_pool_options,
+) -> dict:
     if load_options is None:
         load_options = dict()
     ewoksgraph = load_graph(graph, inputs=inputs, **load_options)
 
-    _besdb_request_id(db_options=db_options, **execute_options)
+    _besdb_request_id(db_options=db_options, execinfo=execinfo)
+
+    if deprecated_pool_options:
+        warnings.warn(
+            f"Provide pool options with the argument `pool_options = {deprecated_pool_options}`",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        if pool_options is None:
+            pool_options = deprecated_pool_options
+        else:
+            pool_options = {**deprecated_pool_options, **pool_options}
+    elif pool_options is None:
+        pool_options = dict()
 
     ppfgraph = EwoksWorkflow(
         ewoksgraph,
@@ -612,11 +660,24 @@ def execute_graph(
         stop_signals=stop_signals,
         db_options=db_options,
     )
-    return ppfgraph.run(**execute_options)
+    return ppfgraph.run(
+        startargs=startargs,
+        raise_on_error=raise_on_error,
+        outputs=outputs,
+        merge_outputs=merge_outputs,
+        timeout=timeout,
+        varinfo=varinfo,
+        execinfo=execinfo,
+        task_options=task_options,
+        max_workers=max_workers,
+        scaling_workers=scaling_workers,
+        pool_type=pool_type,
+        **pool_options,
+    )
 
 
 def _besdb_request_id(
-    db_options: Optional[dict] = None, execinfo: Optional[dict] = None, **_
+    db_options: Optional[dict] = None, execinfo: Optional[dict] = None
 ) -> None:
     """Set the BESDB request ID to the Ewoks job ID when needed."""
     if db_options is None:
