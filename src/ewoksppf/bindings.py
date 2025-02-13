@@ -1,3 +1,4 @@
+import os
 import pprint
 from contextlib import contextmanager
 from typing import Generator, Optional, List, Sequence
@@ -592,6 +593,11 @@ def execute_graph(
     if load_options is None:
         load_options = dict()
     ewoksgraph = load_graph(graph, inputs=inputs, **load_options)
+
+    _deprecated_pypushflow_environment_variables(
+        db_options=db_options, **execute_options
+    )
+
     ppfgraph = EwoksWorkflow(
         ewoksgraph,
         pre_import=pre_import,
@@ -601,3 +607,31 @@ def execute_graph(
         db_options=db_options,
     )
     return ppfgraph.run(**execute_options)
+
+
+def _deprecated_pypushflow_environment_variables(
+    db_options: Optional[dict] = None, execinfo: Optional[dict] = None, **_
+) -> None:
+    if db_options and db_options.get("db_type") is not None:
+        return
+
+    # We are still using the deprecated PYPUSHFLOW_* environment variables.
+
+    if not os.environ.get("PYPUSHFLOW_MONGOURL", None):
+        return
+
+    # pypushflow needs PYPUSHFLOW_OBJECTID to be defined. All the others have defaults.
+
+    if os.environ.get("PYPUSHFLOW_OBJECTID", None):
+        return
+
+    if not execinfo:
+        return
+
+    job_id = execinfo.get("job_id", None)
+    if not job_id:
+        return
+
+    # We do have an Ewoks job ID so use it for PYPUSHFLOW_OBJECTID.
+
+    os.environ["PYPUSHFLOW_OBJECTID"] = str(job_id)

@@ -2,7 +2,10 @@
 
 ## Unreleased
 
+Changes:
+
 - Drop Python 3.6 and 3.7
+- Set deprecated environment variable `PYPUSHFLOW_OBJECTID` to the Ewoks job id when needed.
 
 ## 1.0.0
 
