@@ -594,9 +594,7 @@ def execute_graph(
         load_options = dict()
     ewoksgraph = load_graph(graph, inputs=inputs, **load_options)
 
-    _deprecated_pypushflow_environment_variables(
-        db_options=db_options, **execute_options
-    )
+    _besdb_request_id(db_options=db_options, **execute_options)
 
     ppfgraph = EwoksWorkflow(
         ewoksgraph,
@@ -609,29 +607,48 @@ def execute_graph(
     return ppfgraph.run(**execute_options)
 
 
-def _deprecated_pypushflow_environment_variables(
+def _besdb_request_id(
     db_options: Optional[dict] = None, execinfo: Optional[dict] = None, **_
 ) -> None:
-    if db_options and db_options.get("db_type") is not None:
-        return
+    """Set the BESDB request ID to the Ewoks job ID when needed."""
+    if db_options is None:
+        db_options = dict()
 
-    # We are still using the deprecated PYPUSHFLOW_* environment variables.
+    db_type = db_options.get("db_type")
+    if db_type is None:
+        # We are still using the deprecated PYPUSHFLOW_* environment variables.
 
-    if not os.environ.get("PYPUSHFLOW_MONGOURL", None):
-        return
+        if not os.environ.get("PYPUSHFLOW_MONGOURL", None):
+            return
 
-    # pypushflow needs PYPUSHFLOW_OBJECTID to be defined. All the others have defaults.
+        # pypushflow assumes db_type = "besdb" when PYPUSHFLOW_MONGOURL is defined.
+        # pypushflow needs PYPUSHFLOW_OBJECTID to be defined. All the others have defaults.
 
-    if os.environ.get("PYPUSHFLOW_OBJECTID", None):
-        return
+        if os.environ.get("PYPUSHFLOW_OBJECTID", None):
+            return
 
-    if not execinfo:
-        return
+        if not execinfo:
+            return
 
-    job_id = execinfo.get("job_id", None)
-    if not job_id:
-        return
+        job_id = execinfo.get("job_id", None)
+        if not job_id:
+            return
 
-    # We do have an Ewoks job ID so use it for PYPUSHFLOW_OBJECTID.
+        # We do have an Ewoks job ID so use it for PYPUSHFLOW_OBJECTID.
 
-    os.environ["PYPUSHFLOW_OBJECTID"] = str(job_id)
+        os.environ["PYPUSHFLOW_OBJECTID"] = str(job_id)
+    elif db_type == "besdb":
+        # pypushflow needs db_options["request_id"] to be defined
+        if db_options.get("request_id"):
+            return
+
+        if not execinfo:
+            return
+
+        job_id = execinfo.get("job_id", None)
+        if not job_id:
+            return
+
+        # We do have an Ewoks job ID so use it for db_options["request_id"].
+
+        db_options["request_id"] = str(job_id)
