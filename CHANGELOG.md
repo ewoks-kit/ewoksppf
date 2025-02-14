@@ -2,10 +2,19 @@
 
 ## Unreleased
 
+## 1.2.0
+
+- Set `db_options["request_id"]` to the Ewoks job id when missing.
+
 ## 1.1.0
 
-- Drop Python 3.6 and 3.7
+New features:
+
 - Set deprecated environment variable `PYPUSHFLOW_OBJECTID` to the Ewoks job id when needed.
+
+Changes:
+
+- Drop Python 3.6 and 3.7
 
 ## 1.0.0
 
