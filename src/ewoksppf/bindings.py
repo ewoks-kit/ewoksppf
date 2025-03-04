@@ -503,19 +503,27 @@ class EwoksWorkflow(Workflow):
         # target_id -> EwoksPythonActor or InputMergeActor
         targetactors = self._targetactors
         start_actor = self._start_actor
+        has_start_node = False
         for target_id in analysis.start_nodes(taskgraph.graph):
+            has_start_node = True
             target_actor = targetactors.get(target_id)
             if target_actor is None:
                 target_actor = taskactors[target_id]
             self._connect_actors(start_actor, target_actor)
+        if not has_start_node and taskgraph.graph.nodes:
+            raise RuntimeError(f"{taskgraph} has no start node")
 
     def _connect_stop_actor(self, taskgraph: TaskGraph):
         # task_name -> EwoksPythonActor
         taskactors = self._taskactors
         stop_actor = self._stop_actor
+        has_end_node = False
         for source_id in analysis.end_nodes(taskgraph.graph):
+            has_end_node = True
             source_actor = taskactors[source_id]
             self._connect_actors(source_actor, stop_actor)
+        if not has_end_node and taskgraph.graph.nodes:
+            raise RuntimeError(f"{taskgraph} has no end node")
 
     @contextmanager
     def _run_context(
