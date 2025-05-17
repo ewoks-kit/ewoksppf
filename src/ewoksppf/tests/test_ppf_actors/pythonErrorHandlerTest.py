@@ -1,7 +1,7 @@
 def run(name, **kwargs):
     reply = None
     # This actor throws an exception
-    raise RuntimeError("Runtime error in pythonErrorHandlerTest.py!")
+    raise RuntimeError("Intentional error in pythonErrorHandlerTest!")
     if name is not None:
         reply = "Hello " + name + "!"
 
