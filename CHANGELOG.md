@@ -2,7 +2,15 @@
 
 ## Unreleased
 
+## 1.3.0
+
+Changes:
+
+- Raise error when the workflow does not have a start or end node.
+
 ## 1.2.0
+
+Changes:
 
 - Set `db_options["request_id"]` to the Ewoks job id when missing.
 
