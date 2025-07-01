@@ -15,7 +15,10 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 requires-python = ">=3.8"
-dependencies = ["ewokscore >=1.5.0", "pypushflow >=1.1.0"]
+dependencies = [
+    "ewokscore >=2.0.0rc1",
+    "pypushflow >=1.1.0"
+]
 
 [project.urls]
 Homepage = "https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/"
@@ -43,3 +46,6 @@ where = ["src"]
 
 [tool.coverage.run]
 omit = ['*/tests/*']
+
+[project.entry-points."ewoks.engines"]
+"ppf" = "ewoksppf.engine:PpfWorkflowEngine"
