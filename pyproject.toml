@@ -36,6 +36,7 @@ doc = [
     "sphinxcontrib-mermaid >=0.7",
     "sphinx-autodoc-typehints >=1.16",
     "pydata-sphinx-theme",
+    "sphinx-copybutton",
 ]
 
 [tool.setuptools]

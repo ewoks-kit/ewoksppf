@@ -3,7 +3,7 @@ Parallel execution
 
 Options for parallel execution can be provided when executing a workflow
 
-.. code:: python
+.. code-block:: python
 
     from ewoksppf import execute_graph
 
