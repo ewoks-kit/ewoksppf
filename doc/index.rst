@@ -10,13 +10,13 @@ Getting started
 
 Install requirements
 
-.. code:: bash
+.. code-block:: bash
 
     pip install ewoksppf
 
 Execute a workflow
 
-.. code:: python
+.. code-block:: python
 
     from ewoksppf import execute_graph
 
@@ -24,7 +24,7 @@ Execute a workflow
 
 Run the tests
 
-.. code:: bash
+.. code-block:: bash
 
     pip install ewoksppf[test]
     pytest --pyargs ewoksppf.tests
@@ -34,4 +34,4 @@ Run the tests
 
     parallel
     actors
-    api
+    reference/index
