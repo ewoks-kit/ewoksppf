@@ -5,9 +5,9 @@ INFOKEY = "_noinput"
 
 
 def run(*args, **kwargs):
-    """Main of actor execution.
+    r"""Main of actor execution.
 
-    :param **kw: output hashes from previous tasks
+    :param \**kw: output hashes from previous tasks
     :returns dict: output hashes
     """
     info = kwargs.pop(INFOKEY)
