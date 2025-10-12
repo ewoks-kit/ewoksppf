@@ -1,8 +1,7 @@
-Reference
+Tutorials
 =========
 
 .. toctree::
     :maxdepth: 1
 
-    actors
-    api
+    tutorials/getting_started
