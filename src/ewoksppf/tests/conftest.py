@@ -4,7 +4,6 @@ from pypushflow import persistence
 from ..engine import PpfWorkflowEngine
 from . import test_ppf_actors
 
-
 test_ppf_actors.SLEEP_TIME = 0
 
 

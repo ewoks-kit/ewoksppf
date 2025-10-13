@@ -1,5 +1,6 @@
-from ewoksppf import execute_graph
 from ewokscore.tests.utils.results import assert_execute_graph_default_result
+
+from ewoksppf import execute_graph
 
 
 def workflow():

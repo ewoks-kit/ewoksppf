@@ -1,6 +1,5 @@
 from ewokscore.inittask import instantiate_task
 
-
 INFOKEY = "_noinput"
 
 
