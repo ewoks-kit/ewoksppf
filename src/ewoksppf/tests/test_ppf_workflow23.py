@@ -1,7 +1,8 @@
 import pytest
-from ewoksppf import execute_graph
-from ewoksutils.import_utils import qualname
 from ewokscore.tests.utils.results import assert_execute_graph_default_result
+from ewoksutils.import_utils import qualname
+
+from ewoksppf import execute_graph
 
 
 def raise_not_greater_than(**kwargs):

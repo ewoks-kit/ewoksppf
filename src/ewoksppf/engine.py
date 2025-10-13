@@ -1,7 +1,10 @@
-from typing import Any, Optional, List, Sequence
+from typing import Any
+from typing import List
+from typing import Optional
+from typing import Sequence
 
-from ewokscore.engine_interface import WorkflowEngine
 from ewokscore.engine_interface import RawExecInfoType
+from ewokscore.engine_interface import WorkflowEngine
 
 from . import bindings
 

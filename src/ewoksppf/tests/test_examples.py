@@ -1,8 +1,7 @@
 import pytest
 from ewokscore import load_graph
-
-from ewokscore.tests.examples.graphs import graph_names
 from ewokscore.tests.examples.graphs import get_graph
+from ewokscore.tests.examples.graphs import graph_names
 from ewokscore.tests.utils.results import assert_execute_graph_default_result
 
 

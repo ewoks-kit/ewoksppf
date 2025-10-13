@@ -1,5 +1,6 @@
-from ewoksutils.import_utils import qualname
 from ewokscore import Task
+from ewoksutils.import_utils import qualname
+
 from ewoksppf import execute_graph
 
 

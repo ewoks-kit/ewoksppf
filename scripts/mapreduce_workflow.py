@@ -4,14 +4,14 @@ It runs map-reduce style workflows. This script is an example of the Ewoks equiv
 """
 
 import os
-import time
 import random
+import time
 
 import numpy
+from ewokscore.task import Task
 from silx.io import h5py_utils
 
 from ewoksppf import execute_graph
-from ewokscore.task import Task
 
 
 class GenerateData(

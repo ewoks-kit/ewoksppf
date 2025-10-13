@@ -28,8 +28,14 @@ Issues = "https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/issues"
 Changelog = "https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/-/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
-test = ["pytest >=7"]
-dev = ["ewoksppf[test]", "black >=25", "flake8 >=4"]
+test = [
+    "pytest >=7",
+]
+dev = [
+    "ewoksppf[test]",
+    "black >=25",
+    "flake8 >=4",
+]
 doc = [
     "ewoksppf[test]",
     "sphinx >=4.5",
@@ -50,3 +56,7 @@ omit = ['*/tests/*']
 
 [project.entry-points."ewoks.engines"]
 "ppf" = "ewoksppf.engine:PpfWorkflowEngine"
+
+[tool.isort]
+profile = "black"
+force_single_line = "True"
