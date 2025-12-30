@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2025-12-30
+
+### Fixed
+
+- Adapt to `ewokscore>=4` test utility API change.
+
 ## [2.0.0] - 2025-07-25
 
 ### Added
@@ -115,7 +121,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Convert Ewoks `Graph` to graph of actors for exection.
 
-[unreleased]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v2.0.0...HEAD
+[unreleased]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v2.0.1...HEAD
+[2.0.1]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v2.0.0...v2.0.1
 [2.0.0]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v1.3.0...v2.0.0
 [1.3.0]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v1.2.0...v1.3.0
 [1.2.0]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v1.1.0...v1.2.0
