@@ -7,7 +7,7 @@ release = importlib.metadata.version("ewoksppf")
 
 project = "ewoksppf"
 version = ".".join(release.split(".")[:2])
-copyright = "2021-2025, ESRF"
+copyright = "2021-2026, ESRF"
 author = "ESRF"
 docstitle = f"{project} {version}"
 
@@ -46,7 +46,7 @@ copybutton_prompt_is_regexp = True
 
 html_theme = "pydata_sphinx_theme"
 html_title = docstitle
-# html_logo = "_static/logo.png"
+html_logo = "_static/logo.png"
 html_static_path = ["_static"]
 html_template_path = ["_templates"]
 html_css_files = ["custom.css"]
