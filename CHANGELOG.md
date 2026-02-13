@@ -121,23 +121,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Convert Ewoks `Graph` to graph of actors for exection.
 
-[unreleased]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v2.0.1...HEAD
-[2.0.1]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v2.0.0...v2.0.1
-[2.0.0]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v1.3.0...v2.0.0
-[1.3.0]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v1.2.0...v1.3.0
-[1.2.0]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v1.1.0...v1.2.0
-[1.1.0]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v1.0.0...v1.1.0
-[1.0.0]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v0.4.0...v1.0.0
-[0.4.0]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v0.3.0...v0.4.0
-[0.3.0]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v0.2.2...v0.3.0
-[0.2.2]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v0.2.1...v0.2.2
-[0.2.1]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v0.2.0...v0.2.1
-[0.2.0]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v0.1.7...v0.2.0
-[0.1.7]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v0.1.6...v0.1.7
-[0.1.6]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v0.1.5...v0.1.6
-[0.1.5]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v0.1.4...v0.1.5
-[0.1.4]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v0.1.3...v0.1.4
-[0.1.3]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v0.1.2...v0.1.3
-[0.1.2]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v0.1.1...v0.1.2
-[0.1.1]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/compare/v0.1.0...v0.1.1
-[0.1.0]: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/-/tags/v0.1.0
+[unreleased]: https://github.com/ewoks-kit/ewoksppf/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/ewoks-kit/ewoksppf/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/ewoks-kit/ewoksppf/compare/v1.3.0...v2.0.0
+[1.3.0]: https://github.com/ewoks-kit/ewoksppf/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/ewoks-kit/ewoksppf/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/ewoks-kit/ewoksppf/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/ewoks-kit/ewoksppf/compare/v0.4.0...v1.0.0
+[0.4.0]: https://github.com/ewoks-kit/ewoksppf/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/ewoks-kit/ewoksppf/compare/v0.2.2...v0.3.0
+[0.2.2]: https://github.com/ewoks-kit/ewoksppf/compare/v0.2.1...v0.2.2
+[0.2.1]: https://github.com/ewoks-kit/ewoksppf/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/ewoks-kit/ewoksppf/compare/v0.1.7...v0.2.0
+[0.1.7]: https://github.com/ewoks-kit/ewoksppf/compare/v0.1.6...v0.1.7
+[0.1.6]: https://github.com/ewoks-kit/ewoksppf/compare/v0.1.5...v0.1.6
+[0.1.5]: https://github.com/ewoks-kit/ewoksppf/compare/v0.1.4...v0.1.5
+[0.1.4]: https://github.com/ewoks-kit/ewoksppf/compare/v0.1.3...v0.1.4
+[0.1.3]: https://github.com/ewoks-kit/ewoksppf/compare/v0.1.2...v0.1.3
+[0.1.2]: https://github.com/ewoks-kit/ewoksppf/compare/v0.1.1...v0.1.2
+[0.1.1]: https://github.com/ewoks-kit/ewoksppf/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/ewoks-kit/ewoksppf/-/tags/v0.1.0

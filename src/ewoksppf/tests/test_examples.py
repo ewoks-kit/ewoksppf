@@ -10,7 +10,7 @@ from ewokscore.tests.utils.results import assert_execute_graph_default_result
 def test_execute_graph(engine, graph_name, scheme, ppf_log_config, tmpdir):
     if graph_name == "self_trigger":
         pytest.skip(
-            "Self-triggering workflow execution is inconsistent: https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/-/issues/16"
+            "Self-triggering workflow execution is inconsistent: https://github.com/ewoks-kit/ewoksppf/issues/16"
         )
 
     graph, expected = get_graph(graph_name)

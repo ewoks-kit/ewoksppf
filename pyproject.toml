@@ -21,11 +21,11 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/"
+Homepage = "https://github.com/ewoks-kit/ewoksppf/"
 Documentation = "https://ewoksppf.readthedocs.io/"
-Repository = "https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/"
-Issues = "https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/issues"
-Changelog = "https://gitlab.esrf.fr/workflow/ewoks/ewoksppf/-/blob/main/CHANGELOG.md"
+Repository = "https://github.com/ewoks-kit/ewoksppf/"
+Issues = "https://github.com/ewoks-kit/ewoksppf/issues"
+Changelog = "https://github.com/ewoks-kit/ewoksppf/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 test = [
