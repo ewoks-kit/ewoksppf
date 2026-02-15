@@ -13,23 +13,40 @@ jobs:
     needs: build
     uses: ewoks-kit/.github/.github/workflows/python-tests.yml@main
 
-  # Run linter / checks
-  checks:
-    uses: ewoks-kit/.github/.github/workflows/python-check.yml@main
+  # Publish package to TestPyPI
+  publish-testpypi:
+    needs: tests
+    runs-on: ubuntu-latest
+    environment:
+      name: release
+    permissions:
+      id-token: write
+    steps:
+      - uses: ewoks-kit/.github/.github/actions/setup-python-package@main
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
 
-  # Build documentation
-  docs:
-    needs: build
-    uses: ewoks-kit/.github/.github/workflows/python-docs.yml@main
+  # Publish package to PyPI
+  publish-pypi:
+    needs: tests
+    runs-on: ubuntu-latest
+    environment:
+      name: release
+    permissions:
+      id-token: write
+    steps:
+      - uses: ewoks-kit/.github/.github/actions/setup-python-package@main
+      - uses: pypa/gh-action-pypi-publish@release/v1
 
-  # Publish package
-  publish:
-    uses: ewoks-kit/.github/.github/workflows/python-publish.yml@main
-    needs:
-      - tests
-      - checks
-      - docs
-    with:
-      twine-username: "__token__"
-      twine-password: ${{ secrets.PYPI_TOKEN }}
-      test-twine-password: ${{ secrets.TEST_PYPI_TOKEN }}
+  # Tag
+  tag-release:
+    needs: publish-pypi
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: ewoks-kit/.github/.github/actions/setup-python-package@main
+      - uses: ewoks-kit/.github/.github/actions/tag-release@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
