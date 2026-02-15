@@ -6,6 +6,7 @@ on:
       - main
   pull_request:
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   # Build Python package
@@ -16,6 +17,28 @@ jobs:
   tests:
     needs: build
     uses: ewoks-kit/.github/.github/workflows/python-tests.yml@main
+    # with:
+    #   os: ${{ matrix.os }}
+    #   python-version: ${{ matrix.python-version }}
+    #   pytest-args: ${{ matrix.pytest-args || '' }}
+    # strategy:
+    #   fail-fast: false
+    #   matrix:
+    #     include:
+    #       - os: ubuntu-latest
+    #         python-version: "3.8"
+    #         pytest-args: >-
+    #           -v -ra -W error
+    #           -W ignore::DeprecationWarning:silx.resources
+    #
+    #       - os: ubuntu-latest
+    #         python-version: "3.12"
+    #
+    #       - os: windows-latest
+    #         python-version: "3.12"
+    #
+    #       - os: macos-latest
+    #         python-version: "3.12"
 
   # Run linter / checks
   checks:
