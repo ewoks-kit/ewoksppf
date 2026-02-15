@@ -1,0 +1,35 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  # Build Python package
+  build:
+    uses: ewoks-kit/.github/.github/workflows/python-build.yml@main
+
+  # Run tests
+  tests:
+    needs: build
+    uses: ewoks-kit/.github/.github/workflows/python-tests.yml@main
+
+  # Run linter / checks
+  checks:
+    uses: ewoks-kit/.github/.github/workflows/python-check.yml@main
+
+  # Build documentation
+  docs:
+    needs: build
+    uses: ewoks-kit/.github/.github/workflows/python-docs.yml@main
+
+  # Publish package
+  publish:
+    uses: ewoks-kit/.github/.github/workflows/python-publish.yml@main
+    needs:
+      - tests
+      - checks
+      - docs
+    with:
+      twine-username: "__token__"
+      twine-password: ${{ secrets.PYPI_TOKEN }}
+      test-twine-password: ${{ secrets.TEST_PYPI_TOKEN }}
