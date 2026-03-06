@@ -174,6 +174,7 @@ class NameMapperActor(AbstractActor):
         name="Name mapper",
         trigger_on_error=False,
         required=False,
+        cache_non_required=False,
         **kw,
     ):
         super().__init__(name=name, **kw)
@@ -181,11 +182,12 @@ class NameMapperActor(AbstractActor):
         self.map_all_data = map_all_data
         self.trigger_on_error = trigger_on_error
         self.required = required
+        self.cache_non_required = cache_non_required
 
     def connect(self, actor):
         super().connect(actor)
         if isinstance(actor, InputMergeActor):
-            actor.require_input_from_actor(self)
+            actor.register_input_actor(self)
 
     def trigger(self, inData: dict):
         self.logger.info("triggered with inData =\n %s", pprint.pformat(inData))
@@ -227,46 +229,80 @@ class InputMergeActor(AbstractActor):
 
     def __init__(self, parent=None, name="Input merger", **kw):
         super().__init__(parent=parent, name=name, **kw)
-        self.startInData = list()
-        self.requiredInData = dict()
-        self.nonrequiredInData = dict()
 
-    def require_input_from_actor(self, actor):
+        # List of input dict's provided by the graph startargs
+        self._start_inputs = list()
+
+        # Inputs dict provided by the last non-required actor
+        self._non_required_last_inputs = dict()
+
+        # Map required actor to inputs dict provided by that actor
+        self._required_inputs = dict()
+
+        # Map non-required but cached actor to inputs dict provided by that actor
+        self._cache_non_required_inputs = dict()
+
+    def register_input_actor(self, actor):
         if actor.required:
-            self.requiredInData[actor] = None
+            info = "(required): cache inputs"
+            self._required_inputs[actor] = None
+        elif actor.cache_non_required:
+            info = "(non-required): cache inputs"
+            self._cache_non_required_inputs[actor] = None
+        else:
+            info = "(non-required): use inputs only once (do not cache)"
+            # Inputs provided by this actor are not cache and will be used only once
+            # See: self._non_required_last_inputs
+        self.logger.info("%s %s", actor.name, info)
 
     def trigger(self, inData: dict, source=None):
         self.logger.info("triggered with inData =\n %s", pprint.pformat(inData))
         self.setStarted()
         self.setFinished()
+
         if source is None:
-            self.startInData.append(inData)
+            self._start_inputs.append(inData)
         else:
-            if source in self.requiredInData:
-                self.requiredInData[source] = inData
+            if source in self._required_inputs:
+                self._required_inputs[source] = inData
+            elif source in self._cache_non_required_inputs:
+                self._cache_non_required_inputs[source] = inData
             else:
-                self.nonrequiredInData = inData
-        missing = {k: v for k, v in self.requiredInData.items() if v is None}
+                self._non_required_last_inputs = inData
+
+        missing = {k: v for k, v in self._required_inputs.items() if v is None}
         if missing:
             self.logger.info(
                 "not triggering downstream actors because missing inputs from actors %s",
                 [actor.name for actor in missing],
             )
             return
+
         self.logger.info(
-            "triggering downstream actors (%d start inputs, %d required inputs, %d optional inputs)",
-            len(self.startInData),
-            len(self.requiredInData),
-            int(bool(self.nonrequiredInData)),
+            "triggering downstream actors with input merger if %d graph start, %d required actors, %d non-required cached actors and %d non-required actors",
+            len(self._start_inputs),
+            len(self._required_inputs),
+            len(self._cache_non_required_inputs),
+            int(bool(self._non_required_last_inputs)),
         )
-        newInData = dict()
-        for data in self.startInData:
-            newInData.update(data)
-        for data in self.requiredInData.values():
-            newInData.update(data)
-        newInData.update(self.nonrequiredInData)
+
+        merged_inputs = dict()
+        for data in self._start_inputs:
+            merged_inputs.update(data)
+
+        for data in self._required_inputs.values():
+            merged_inputs.update(data)
+
+        for data in self._cache_non_required_inputs.values():
+            if data is None:
+                # Non-required branch not triggered yet
+                continue
+            merged_inputs.update(data)
+
+        merged_inputs.update(self._non_required_last_inputs)
+
         for actor in self.listDownStreamActor:
-            actor.trigger(newInData)
+            actor.trigger(merged_inputs)
 
 
 class EwoksWorkflow(Workflow):
@@ -446,25 +482,35 @@ class EwoksWorkflow(Workflow):
         self, taskgraph: TaskGraph, source_id: NodeIdType, target_id: NodeIdType
     ) -> NameMapperActor:
         link_attrs = taskgraph.graph[source_id][target_id]
+
+        # Data mapping
         map_all_data = link_attrs.get("map_all_data", False)
         data_mapping = link_attrs.get("data_mapping", list())
         data_mapping = {
             item["target_input"]: item["source_output"] for item in data_mapping
         }
+
+        # Conditional link
         on_error = link_attrs.get("on_error", False)
+        cache_non_required = link_attrs.get("cache_non_required", False)
+
+        # Required link
         required = analysis.link_is_required(taskgraph.graph, source_id, target_id)
+
         source_label = ppfname(source_id)
         target_label = ppfname(target_id)
         if on_error:
             name = f"Name mapper <{source_label} -only on error- {target_label}>"
         else:
             name = f"Name mapper <{source_label} - {target_label}>"
+
         return NameMapperActor(
             name=name,
             namemap=data_mapping,
             map_all_data=map_all_data,
             trigger_on_error=on_error,
             required=required,
+            cache_non_required=cache_non_required,
             **self._actor_arguments,
         )
 
