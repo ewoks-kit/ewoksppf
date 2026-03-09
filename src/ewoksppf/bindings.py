@@ -172,7 +172,7 @@ class NameMapperActor(AbstractActor):
         name="Name mapper",
         trigger_on_error=False,
         required=False,
-        cache_non_required=False,
+        cache_if_not_required=False,
         **kw,
     ):
         super().__init__(name=name, **kw)
@@ -180,7 +180,7 @@ class NameMapperActor(AbstractActor):
         self.map_all_data = map_all_data
         self.trigger_on_error = trigger_on_error
         self.required = required
-        self.cache_non_required = cache_non_required
+        self.cache_if_not_required = cache_if_not_required
 
     def connect(self, actor):
         super().connect(actor)
@@ -237,15 +237,15 @@ class InputMergeActor(AbstractActor):
         self._required_inputs = dict()
 
         # Map non-required but cached actor to inputs dict provided by that actor
-        self._cache_non_required_inputs = dict()
+        self._cache_if_not_required_inputs = dict()
 
     def register_input_actor(self, actor):
         if actor.required:
             info = "(required): cache inputs"
             self._required_inputs[actor] = None
-        elif actor.cache_non_required:
+        elif actor.cache_if_not_required:
             info = "(non-required): cache inputs"
-            self._cache_non_required_inputs[actor] = None
+            self._cache_if_not_required_inputs[actor] = None
         else:
             info = "(non-required): use inputs only once (do not cache)"
             # Inputs provided by this actor are not cache and will be used only once
@@ -263,8 +263,8 @@ class InputMergeActor(AbstractActor):
         else:
             if source in self._required_inputs:
                 self._required_inputs[source] = inData
-            elif source in self._cache_non_required_inputs:
-                self._cache_non_required_inputs[source] = inData
+            elif source in self._cache_if_not_required_inputs:
+                self._cache_if_not_required_inputs[source] = inData
             else:
                 self._non_required_last_inputs = inData
 
@@ -280,7 +280,7 @@ class InputMergeActor(AbstractActor):
             "triggering downstream actors with input merger if %d graph start, %d required actors, %d non-required cached actors and %d non-required actors",
             len(self._start_inputs),
             len(self._required_inputs),
-            len(self._cache_non_required_inputs),
+            len(self._cache_if_not_required_inputs),
             int(bool(self._non_required_last_inputs)),
         )
 
@@ -291,7 +291,7 @@ class InputMergeActor(AbstractActor):
         for data in self._required_inputs.values():
             merged_inputs.update(data)
 
-        for data in self._cache_non_required_inputs.values():
+        for data in self._cache_if_not_required_inputs.values():
             if data is None:
                 # Non-required branch not triggered yet
                 continue
@@ -490,7 +490,7 @@ class EwoksWorkflow(Workflow):
 
         # Conditional link
         on_error = link_attrs.get("on_error", False)
-        cache_non_required = link_attrs.get("cache_non_required", False)
+        cache_if_not_required = link_attrs.get("cache_if_not_required", False)
 
         # Required link
         required = analysis.link_is_required(taskgraph.graph, source_id, target_id)
@@ -508,7 +508,7 @@ class EwoksWorkflow(Workflow):
             map_all_data=map_all_data,
             trigger_on_error=on_error,
             required=required,
-            cache_non_required=cache_non_required,
+            cache_if_not_required=cache_if_not_required,
             **self._actor_arguments,
         )
 
