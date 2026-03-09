@@ -128,41 +128,41 @@ def workflow():
             "source": "metric1",
             "target": "decider",
             "conditional": True,
-            "cache_non_required": True,
+            "cache_if_not_required": True,
             "data_mapping": [{"source_output": "metric", "target_input": "metric1"}],
         },
         {
             "source": "metric2",
             "target": "decider",
             "conditional": True,
-            "cache_non_required": True,
+            "cache_if_not_required": True,
             "data_mapping": [{"source_output": "metric", "target_input": "metric2"}],
         },
         {
             "source": "metric3",
             "target": "decider",
             "conditional": True,
-            "cache_non_required": True,
+            "cache_if_not_required": True,
             "data_mapping": [{"source_output": "metric", "target_input": "metric3"}],
         },
         {
             "source": "metric4",
             "target": "decider",
             "conditional": True,
-            "cache_non_required": True,
+            "cache_if_not_required": True,
             "data_mapping": [{"source_output": "metric", "target_input": "metric4"}],
         },
         {
             "source": "timeout",
             "target": "decider",
             "conditional": True,
-            "cache_non_required": True,
+            "cache_if_not_required": True,
             "data_mapping": [{"source_output": "timeout", "target_input": "timeout"}],
         },
         {
             "source": "decider",
             "target": "decider",
-            "cache_non_required": True,
+            "cache_if_not_required": True,
             "data_mapping": [
                 {"source_output": "set_disable", "target_input": "disable"}
             ],
@@ -219,7 +219,7 @@ def create_inputs_timeout_last(metric_threshold: float):
 
 
 def test_ppf_workflow25_metric1(ppf_log_config):
-    """test 'cache_non_required' links"""
+    """test 'cache_if_not_required' links"""
     # Metrics that pass: metric1, metric2, metric3 and metric4
     inputs = create_inputs(5)
     result = execute_graph(workflow(), inputs=inputs)
@@ -227,7 +227,7 @@ def test_ppf_workflow25_metric1(ppf_log_config):
 
 
 def test_ppf_workflow25_metric2(ppf_log_config):
-    """test 'cache_non_required' links"""
+    """test 'cache_if_not_required' links"""
     # Metrics that pass: metric2, metric3 and metric4
     inputs = create_inputs(15)
     result = execute_graph(workflow(), inputs=inputs)
@@ -235,7 +235,7 @@ def test_ppf_workflow25_metric2(ppf_log_config):
 
 
 def test_ppf_workflow25_metric3(ppf_log_config):
-    """test 'cache_non_required' links"""
+    """test 'cache_if_not_required' links"""
     # Metrics that pass: metric3 and metric4
     inputs = create_inputs(25)
     result = execute_graph(workflow(), inputs=inputs)
@@ -243,7 +243,7 @@ def test_ppf_workflow25_metric3(ppf_log_config):
 
 
 def test_ppf_workflow25_timeout1(ppf_log_config):
-    """test 'cache_non_required' links"""
+    """test 'cache_if_not_required' links"""
     # Metrics that pass: metric4
     inputs = create_inputs(35)
     result = execute_graph(workflow(), inputs=inputs)
@@ -251,7 +251,7 @@ def test_ppf_workflow25_timeout1(ppf_log_config):
 
 
 def test_ppf_workflow25_timeout2(ppf_log_config):
-    """test 'cache_non_required' links"""
+    """test 'cache_if_not_required' links"""
     # Metrics that pass: none
     inputs = create_inputs(45)
     result = execute_graph(workflow(), inputs=inputs)
@@ -259,7 +259,7 @@ def test_ppf_workflow25_timeout2(ppf_log_config):
 
 
 def test_ppf_workflow25_none(ppf_log_config):
-    """test 'cache_non_required' links"""
+    """test 'cache_if_not_required' links"""
     # Metrics that pass: none
     inputs = create_inputs_timeout_last(45)
     result = execute_graph(workflow(), inputs=inputs)
