@@ -9,8 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Support non-required link caching.
-- Support conditional links that do not have conditions and are not error handlers.
+- Support links that are explicitely optional (`required=False`).
+- Support input caching from optional links (`cache_if_optional=True`).
+
+### Changed
+
+- Buffer inputs from optional links that arrive before the first execution.
 
 ## [2.0.2] - 2026-02-15
 

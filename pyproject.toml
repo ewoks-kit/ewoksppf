@@ -16,8 +16,8 @@ classifiers = [
 ]
 requires-python = ">=3.8"
 dependencies = [
-    "ewokscore >=4.0.1",
-    "pypushflow >=2.0.0rc1"
+    "ewokscore >=5.0.0rc1",
+    "pypushflow >=2.0.0rc1",
 ]
 
 [project.urls]
