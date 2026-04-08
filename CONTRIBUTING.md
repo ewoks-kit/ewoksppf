@@ -22,7 +22,7 @@ There are three types of log messages
 
 If you do not need to see the data passed between tasks, you can filter the logs on the Ewoks graph ``id``.
 
-For example when
+For example when you have a workflow defined like:
 
 ```python
 {"graph": {"id": "workflow"}, ...}
