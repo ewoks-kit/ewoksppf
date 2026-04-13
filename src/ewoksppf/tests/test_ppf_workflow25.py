@@ -191,7 +191,9 @@ def workflow():
 
 
 def create_inputs(call_record_file: Path, metric_threshold: float):
-    tm = 0.1
+    tm = 0.5  # Too short and the test fails. If that happens it is not a bug.
+    # The Ewoks workflow SPECS have nothing to guarantee that downstream
+    # execution follows the trigger order in time.
     return [
         {"id": "required", "name": "compute_time", "value": 0.1 * tm},
         {"id": "metric1", "name": "compute_time", "value": 1 * tm},
@@ -210,7 +212,9 @@ def create_inputs(call_record_file: Path, metric_threshold: float):
 
 
 def create_inputs_timeout_last(call_record_file: Path, metric_threshold: float):
-    tm = 0.1
+    tm = 0.5  # Too short and the test fails. If that happens it is not a bug.
+    # The Ewoks workflow SPECS have nothing to guarantee that downstream
+    # execution follows the trigger order in time.
     return [
         {"id": "required", "name": "compute_time", "value": 0.1 * tm},
         {"id": "metric1", "name": "compute_time", "value": 1 * tm},
