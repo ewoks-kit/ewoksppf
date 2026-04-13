@@ -1,5 +1,4 @@
 import os
-import pprint
 import warnings
 from contextlib import contextmanager
 from typing import Generator
@@ -81,13 +80,13 @@ class EwoksPythonActor(PythonActor):
         kw["name"] = ppfname(node_id)
         super().__init__(**kw)
 
-    def trigger(self, inData: dict):
+    def _execute(self, inData: dict, _scope_id: Optional[str] = None) -> None:
         # Update the INFOKEY with node information
         infokey = ppfrunscript.INFOKEY
         inData[infokey] = dict(inData[infokey])
         inData[infokey]["node_id"] = self.node_id
         inData[infokey]["node_attrs"] = self.node_attrs
-        return super().trigger(inData)
+        super()._execute(inData, _scope_id=_scope_id)
 
     def compileDownstreamData(self, result: dict) -> dict:
         # Merging inputs and outputs to trigger the next task
@@ -152,8 +151,7 @@ class ConditionalActor(AbstractActor):
                     return False
         return True
 
-    def trigger(self, inData):
-        self.logger.info("triggered with inData =\n %s", pprint.pformat(inData))
+    def _execute(self, inData: dict, _scope_id: Optional[str] = None) -> None:
         self.setStarted()
         trigger = self._conditions_fulfilled(inData)
         self.setFinished()
@@ -187,8 +185,7 @@ class NameMapperActor(AbstractActor):
         if isinstance(actor, InputMergeActor):
             actor.require_input_from_actor(self)
 
-    def trigger(self, inData: dict):
-        self.logger.info("triggered with inData =\n %s", pprint.pformat(inData))
+    def _execute(self, inData: dict, _scope_id: Optional[str] = None) -> None:
         is_error = "WorkflowExceptionInstance" in inData and inData.get(
             "_NewWorkflowException"
         )
@@ -235,8 +232,9 @@ class InputMergeActor(AbstractActor):
         if actor.required:
             self.requiredInData[actor] = None
 
-    def trigger(self, inData: dict, source=None):
-        self.logger.info("triggered with inData =\n %s", pprint.pformat(inData))
+    def _execute(
+        self, inData: dict, _scope_id: Optional[str] = None, source=None
+    ) -> None:
         self.setStarted()
         self.setFinished()
         if source is None:
