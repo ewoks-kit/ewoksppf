@@ -28,7 +28,7 @@ class Gather(
 ):
     def run(self):
         cached = self.get_input_values()
-        print("\nDecider executed with inputs:", cached)
+        print(f"\nDecider executed with inputs: {cached}")
         self.outputs.cached = cached
 
 
