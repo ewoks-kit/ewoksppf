@@ -155,16 +155,13 @@ ARG_SUCCESS = {"inputs": {"a": 20}, "return_value": 1}
 ARG_FAILURE = {"inputs": {"a": 0}, "return_value": 2}
 
 
-@pytest.mark.parametrize(
-    "args",
-    [ARG_SUCCESS, ARG_FAILURE],
-)
-@pytest.mark.parametrize("on_error", [True, False])
-@pytest.mark.parametrize("persist", [True, False])
-def test_workflow21(args, on_error, persist, ppf_log_config, tmpdir):
+@pytest.mark.parametrize("args", [ARG_SUCCESS, ARG_FAILURE], ids=["success", "failure"])
+@pytest.mark.parametrize("on_error", [True, False], ids=["on_error", "-"])
+@pytest.mark.parametrize("persist", [True, False], ids=["persist", "-"])
+def test_workflow21(args, on_error, persist, ppf_log_config, tmp_path):
     """Test conditions in output nodes"""
     if persist:
-        varinfo = {"root_uri": str(tmpdir)}
+        varinfo = {"root_uri": str(tmp_path)}
     else:
         varinfo = None
     graph = workflow21(on_error=on_error)
