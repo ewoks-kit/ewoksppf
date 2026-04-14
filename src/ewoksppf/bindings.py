@@ -1,4 +1,5 @@
 import os
+import threading
 import warnings
 from contextlib import contextmanager
 from typing import Generator
@@ -240,6 +241,8 @@ class InputMergeActor(AbstractActor):
         # after all required triggers arrived
         self._retained_optional_trigger = None
 
+        self._lock = threading.Lock()
+
     def register_input_actor(self, actor):
         if actor.required:
             info = "(required): cache inputs"
@@ -255,14 +258,19 @@ class InputMergeActor(AbstractActor):
     def _execute(
         self, inData: dict, _scope_id: Optional[str] = None, source=None
     ) -> None:
-        self.setStarted()
-        self.setFinished()
+        with self._lock:
+            self.setStarted()
+            try:
+                self._cache_inputs(source, inData)
+            finally:
+                self.setFinished()
 
-        self._cache_inputs(source, inData)
+            if not self._has_all_required_triggers():
+                return
 
-        if not self._has_all_required_triggers():
-            return
+            self._propagate_cached_inputs()
 
+    def _propagate_cached_inputs(self) -> None:
         if self._no_buffering:
             # Execute with the retained inputs from the last trigger
             # of an optional link without caching. Might be `None`
