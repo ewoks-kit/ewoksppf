@@ -27,7 +27,9 @@ class Gather(
     output_names=["cached"],
 ):
     def run(self):
+        global _GATHER_CACHE
         cached = self.get_input_values()
+        _GATHER_CACHE = cached
         print(f"\nDecider executed with inputs: {cached}")
         self.outputs.cached = cached
 
@@ -142,11 +144,29 @@ _ORDER = list(itertools.permutations(["required", "optional", "retained"]))
 @pytest.mark.parametrize("order", _ORDER, ids=["-".join(keys) for keys in _ORDER])
 def test_ppf_workflow25(ppf_log_config, order):
     """Test input caching for different types of links executed in different orders."""
+    global _GATHER_CACHE
+    _GATHER_CACHE = None
     compute_times = [0, 0.5, 1]
     inputs = get_inputs(**dict(zip(order, compute_times)))
 
-    result = execute_graph(workflow(), pool_type="thread", inputs=inputs)
-    cached = set(result["cached"])
+    # result = execute_graph(workflow(), inputs=inputs)
+    # cached = set(result["cached"])
+    #
+    # When
+    #
+    #  order = ('retained', 'required', 'optional')
+    #
+    # the last two calls to "Gather" could be for example
+    #
+    #  {'required1': True, 'required2': True, 'optional1': True, 'retained2': True}
+    #  {'required1': True, 'required2': True, 'optional1': True, 'optional2': True, 'retained2': True}
+    #
+    # Since these calls happen in parallel and there is nothing in the workflow
+    # that guarantees we get one or the other as the final workflow result we
+    # cannot use the result to test the caching.
+
+    _ = execute_graph(workflow(), pool_type="thread", inputs=inputs)
+    cached = set(_GATHER_CACHE)
     cached1 = {"required1", "required2", "optional1", "optional2", "retained1"}
     cached2 = {"required1", "required2", "optional1", "optional2", "retained2"}
     assert cached == cached1 or cached == cached2, cached
