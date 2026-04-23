@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Support links that are explicitely optional (`required=False`).
+- Support links that are explicitly optional (`required=False`).
 - Support input caching from optional links (`cache_if_optional=True`).
 
 ### Changed
