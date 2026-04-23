@@ -2,6 +2,7 @@ import os
 import threading
 import warnings
 from contextlib import contextmanager
+from typing import Dict
 from typing import Generator
 from typing import List
 from typing import Optional
@@ -226,24 +227,24 @@ class InputMergeActor(AbstractActor):
         super().__init__(parent=parent, name=name, **kw)
 
         # List of input dicts provided by the graph startargs (not part of the Ewoks SPEC)
-        self._cached_start_triggers = list()
+        self._cached_start_triggers: List[dict] = list()
 
         # Map actor to input dict provided by that actor
-        self._cached_required_triggers = dict()
-        self._cached_optional_triggers = dict()
+        self._cached_required_triggers: Dict[AbstractActor, dict] = dict()
+        self._cached_optional_triggers: Dict[AbstractActor, dict] = dict()
 
         # List of input dicts provided by optional links without caching
         # that arrived before all required triggers arrived
-        self._buffer_optional_triggers = list()
+        self._buffer_optional_triggers: List[dict] = list()
         self._buffering = True
 
         # Retain only one input dict provided by optional links without caching
         # after all required triggers arrived
-        self._retained_optional_trigger = None
+        self._retained_optional_trigger: Optional[dict] = None
 
         self._lock = threading.Lock()
 
-    def register_input_actor(self, actor):
+    def register_input_actor(self, actor: Optional[AbstractActor]):
         if actor.required:
             info = "(required): cache inputs"
             self._cached_required_triggers[actor] = None
@@ -256,7 +257,10 @@ class InputMergeActor(AbstractActor):
         self.logger.info("%s %s", actor.name, info)
 
     def _execute(
-        self, inData: dict, _scope_id: Optional[str] = None, source=None
+        self,
+        inData: dict,
+        _scope_id: Optional[str] = None,
+        source: Optional[AbstractActor] = None,
     ) -> None:
         with self._lock:
             self.setStarted()
@@ -307,7 +311,7 @@ class InputMergeActor(AbstractActor):
             # No longer needed so do not keep references.
             self._buffer_optional_triggers.clear()
 
-    def _cache_inputs(self, source, inData: dict) -> None:
+    def _cache_inputs(self, source: Optional[AbstractActor], inData: dict) -> None:
         if source is None:
             self._cached_start_triggers.append(inData)
             return
