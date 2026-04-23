@@ -1,6 +1,8 @@
 import os
+import threading
 import warnings
 from contextlib import contextmanager
+from typing import Dict
 from typing import Generator
 from typing import List
 from typing import Optional
@@ -172,6 +174,7 @@ class NameMapperActor(AbstractActor):
         name="Name mapper",
         trigger_on_error=False,
         required=False,
+        cache_if_optional=False,
         **kw,
     ):
         super().__init__(name=name, **kw)
@@ -179,11 +182,12 @@ class NameMapperActor(AbstractActor):
         self.map_all_data = map_all_data
         self.trigger_on_error = trigger_on_error
         self.required = required
+        self.cache_if_optional = cache_if_optional
 
     def connect(self, actor):
         super().connect(actor)
         if isinstance(actor, InputMergeActor):
-            actor.require_input_from_actor(self)
+            actor.register_input_actor(self)
 
     def _execute(self, inData: dict, _scope_id: Optional[str] = None) -> None:
         is_error = "WorkflowExceptionInstance" in inData and inData.get(
@@ -215,56 +219,163 @@ class NameMapperActor(AbstractActor):
 
 
 class InputMergeActor(AbstractActor):
-    """Requires triggers from some input actors before triggering
-    the downstream actors.
-
-    It remembers the last input from the required uptstream actors.
-    Only the last non-required input is remembered.
+    """Requires triggers from some input actors before triggering the downstream actors.
+    Optional triggers are cached or buffered (before first execution) and the last one is retained.
     """
 
     def __init__(self, parent=None, name="Input merger", **kw):
         super().__init__(parent=parent, name=name, **kw)
-        self.startInData = list()
-        self.requiredInData = dict()
-        self.nonrequiredInData = dict()
 
-    def require_input_from_actor(self, actor):
+        # List of input dicts provided by the graph startargs (not part of the Ewoks SPEC)
+        self._cached_start_triggers: List[dict] = list()
+
+        # Map actor to input dict provided by that actor
+        self._cached_required_triggers: Dict[AbstractActor, dict] = dict()
+        self._cached_optional_triggers: Dict[AbstractActor, dict] = dict()
+
+        # List of input dicts provided by optional links without caching
+        # that arrived before all required triggers arrived
+        self._buffer_optional_triggers: List[dict] = list()
+        self._buffering = True
+
+        # Retain only one input dict provided by optional links without caching
+        # after all required triggers arrived
+        self._retained_optional_trigger: Optional[dict] = None
+
+        self._lock = threading.Lock()
+
+    def register_input_actor(self, actor: Optional[AbstractActor]):
         if actor.required:
-            self.requiredInData[actor] = None
+            info = "(required): cache inputs"
+            self._cached_required_triggers[actor] = None
+        elif actor.cache_if_optional:
+            info = "(optional): cache inputs"
+            self._cached_optional_triggers[actor] = None
+        else:
+            info = "(optional): buffer inputs before first execution and then retain the last one"
+            # see self._buffer_optional_triggers
+        self.logger.info("%s %s", actor.name, info)
 
     def _execute(
-        self, inData: dict, _scope_id: Optional[str] = None, source=None
+        self,
+        inData: dict,
+        _scope_id: Optional[str] = None,
+        source: Optional[AbstractActor] = None,
     ) -> None:
-        self.setStarted()
-        self.setFinished()
-        if source is None:
-            self.startInData.append(inData)
+        with self._lock:
+            self.setStarted()
+            try:
+                self._cache_inputs(source, inData)
+            finally:
+                self.setFinished()
+
+            if not self._has_all_required_triggers():
+                return
+
+            self._propagate_cached_inputs()
+
+    def _propagate_cached_inputs(self) -> None:
+        if not self._buffering:
+            # Execute with the retained inputs from the last trigger
+            # of an optional link without caching. Might be `None`
+            # when there is none.
+            buffer = [self._retained_optional_trigger]
         else:
-            if source in self.requiredInData:
-                self.requiredInData[source] = inData
+            if self._buffer_optional_triggers:
+                # Execute for each retained inputs from optional links without caching.
+                buffer = list(self._buffer_optional_triggers)
             else:
-                self.nonrequiredInData = inData
-        missing = {k: v for k, v in self.requiredInData.items() if v is None}
-        if missing:
+                # Execute once without any retained inputs.
+                buffer = [None]
+
+        for i, retained_inputs in enumerate(buffer):
+            try:
+                self._trigger_downstream(retained_inputs)
+            except Exception:
+                if self._buffering:
+                    # Keep the inputs not successfully propagated.
+                    self._buffer_optional_triggers = buffer[i:]
+                raise
+
+        if self._buffering:
+            if buffer:
+                # Retain the last one for the next trigger.
+                # Might be `None` when there is none.
+                self._retained_optional_trigger = buffer[-1]
+            else:
+                self._retained_optional_trigger = None
+
+            # No more buffering, only retain one.
+            self._buffering = False
+
+            # No longer needed so do not keep references.
+            self._buffer_optional_triggers.clear()
+
+    def _cache_inputs(self, source: Optional[AbstractActor], inData: dict) -> None:
+        if source is None:
+            self._cached_start_triggers.append(inData)
+            return
+
+        if source in self._cached_required_triggers:
+            # Cache inputs from required link
+            self._cached_required_triggers[source] = inData
+        elif source in self._cached_optional_triggers:
+            # Cache inputs from optional link
+            self._cached_optional_triggers[source] = inData
+        elif self._buffering:
+            # Did not execute yet
+            self._buffer_optional_triggers.append(inData)
+        else:
+            # Executed at least once
+            self._retained_optional_trigger = inData
+
+    def _has_all_required_triggers(self) -> bool:
+        missing_required = {
+            k: v for k, v in self._cached_required_triggers.items() if v is None
+        }
+        if missing_required:
             self.logger.info(
                 "not triggering downstream actors because missing inputs from actors %s",
-                [actor.name for actor in missing],
+                [actor.name for actor in missing_required],
             )
-            return
-        self.logger.info(
-            "triggering downstream actors (%d start inputs, %d required inputs, %d optional inputs)",
-            len(self.startInData),
-            len(self.requiredInData),
-            int(bool(self.nonrequiredInData)),
-        )
-        newInData = dict()
-        for data in self.startInData:
-            newInData.update(data)
-        for data in self.requiredInData.values():
-            newInData.update(data)
-        newInData.update(self.nonrequiredInData)
+            return False
+        return True
+
+    def _trigger_downstream(self, retained_inputs: Optional[dict]):
+        merged_inputs = self._downstream_inputs(retained_inputs)
         for actor in self.listDownStreamActor:
-            actor.trigger(newInData)
+            actor.trigger(merged_inputs)
+
+    def _downstream_inputs(self, retained_inputs: Optional[dict]) -> dict:
+        self.logger.debug(
+            "Trigger downstream actor with merged inputs from\n "
+            "%d graph start triggers\n "
+            "%d cached required links\n "
+            "%d cached optional links\n "
+            "%d retained optional links",
+            len(self._cached_start_triggers),
+            len(self._cached_required_triggers),
+            len(self._cached_optional_triggers),
+            int(retained_inputs is not None),
+        )
+
+        merged_inputs = dict()
+        for data in self._cached_start_triggers:
+            merged_inputs.update(data)
+
+        for data in self._cached_required_triggers.values():
+            merged_inputs.update(data)
+
+        for data in self._cached_optional_triggers.values():
+            if data is None:
+                # Optional link not triggered yet
+                continue
+            merged_inputs.update(data)
+
+        if retained_inputs:
+            merged_inputs.update(retained_inputs)
+
+        return merged_inputs
 
 
 class EwoksWorkflow(Workflow):
@@ -444,25 +555,35 @@ class EwoksWorkflow(Workflow):
         self, taskgraph: TaskGraph, source_id: NodeIdType, target_id: NodeIdType
     ) -> NameMapperActor:
         link_attrs = taskgraph.graph[source_id][target_id]
+
+        # Data mapping
         map_all_data = link_attrs.get("map_all_data", False)
         data_mapping = link_attrs.get("data_mapping", list())
         data_mapping = {
             item["target_input"]: item["source_output"] for item in data_mapping
         }
+
+        # Conditional link
         on_error = link_attrs.get("on_error", False)
+        cache_if_optional = link_attrs.get("cache_if_optional", False)
+
+        # Required link
         required = analysis.link_is_required(taskgraph.graph, source_id, target_id)
+
         source_label = ppfname(source_id)
         target_label = ppfname(target_id)
         if on_error:
             name = f"Name mapper <{source_label} -only on error- {target_label}>"
         else:
             name = f"Name mapper <{source_label} - {target_label}>"
+
         return NameMapperActor(
             name=name,
             namemap=data_mapping,
             map_all_data=map_all_data,
             trigger_on_error=on_error,
             required=required,
+            cache_if_optional=cache_if_optional,
             **self._actor_arguments,
         )
 

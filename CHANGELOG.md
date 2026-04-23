@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Support links that are explicitly optional (`required=False`).
+- Support input caching from optional links (`cache_if_optional=True`).
+
+### Changed
+
+- Buffer inputs from optional links that arrive before the first execution.
+
+### Fixed
+
+- Protect input cache against parallel execution of the same `InputMergeActor` instance.
+
 ## [2.0.2] - 2026-02-15
 
 ### Fixed
