@@ -235,7 +235,7 @@ class InputMergeActor(AbstractActor):
         # List of input dicts provided by optional links without caching
         # that arrived before all required triggers arrived
         self._buffer_optional_triggers = list()
-        self._no_buffering = False
+        self._buffering = True
 
         # Retain only one input dict provided by optional links without caching
         # after all required triggers arrived
@@ -271,7 +271,7 @@ class InputMergeActor(AbstractActor):
             self._propagate_cached_inputs()
 
     def _propagate_cached_inputs(self) -> None:
-        if self._no_buffering:
+        if not self._buffering:
             # Execute with the retained inputs from the last trigger
             # of an optional link without caching. Might be `None`
             # when there is none.
@@ -288,12 +288,12 @@ class InputMergeActor(AbstractActor):
             try:
                 self._trigger_downstream(retained_inputs)
             except Exception:
-                if not self._no_buffering:
+                if self._buffering:
                     # Keep the inputs not successfully propagated.
                     self._buffer_optional_triggers = buffer[i:]
                 raise
 
-        if not self._no_buffering:
+        if self._buffering:
             if buffer:
                 # Retain the last one for the next trigger.
                 # Might be `None` when there is none.
@@ -302,7 +302,7 @@ class InputMergeActor(AbstractActor):
                 self._retained_optional_trigger = None
 
             # No more buffering, only retain one.
-            self._no_buffering = True
+            self._buffering = False
 
             # No longer needed so do not keep references.
             self._buffer_optional_triggers.clear()
@@ -318,12 +318,12 @@ class InputMergeActor(AbstractActor):
         elif source in self._cached_optional_triggers:
             # Cache inputs from optional link
             self._cached_optional_triggers[source] = inData
-        elif self._no_buffering:
-            # Executed at least once
-            self._retained_optional_trigger = inData
-        else:
+        elif self._buffering:
             # Did not execute yet
             self._buffer_optional_triggers.append(inData)
+        else:
+            # Executed at least once
+            self._retained_optional_trigger = inData
 
     def _has_all_required_triggers(self) -> bool:
         missing_required = {
