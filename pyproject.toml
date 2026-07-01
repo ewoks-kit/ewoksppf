@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ewoksppf"
-version = "3.0.0rc1"
+version = "3.0.0"
 authors = [{ name = "ESRF", email = "dau-pydev@esrf.fr" }]
 description = "Pypushflow binding for Ewoks"
 readme = { file = "README.md", content-type = "text/markdown" }
@@ -16,8 +16,8 @@ classifiers = [
 ]
 requires-python = ">=3.8"
 dependencies = [
-    "ewokscore >=5.0.0rc1",
-    "pypushflow >=2.0.0rc1",
+    "ewokscore >=5.0.0",
+    "pypushflow >=2.0.0",
 ]
 
 [project.urls]
