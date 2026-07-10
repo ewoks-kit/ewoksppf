@@ -242,7 +242,8 @@ class InputMergeActor(AbstractActor):
         # after all required triggers arrived
         self._retained_optional_trigger: Optional[dict] = None
 
-        self._lock = threading.Lock()
+        # Re-entrant in case downstream actor triggers this actor in the same call stack.
+        self._lock = threading.RLock()
 
     def register_input_actor(self, actor: Optional[AbstractActor]):
         if actor.required:
