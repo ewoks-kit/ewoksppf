@@ -154,9 +154,7 @@ class ConditionalActor(AbstractActor):
         return True
 
     def _execute(self, inData: dict, _scope_id: Optional[str] = None) -> None:
-        self.setStarted()
         trigger = self._conditions_fulfilled(inData)
-        self.setFinished()
         if trigger:
             for actor in self.listDownStreamActor:
                 actor.trigger(inData)
@@ -264,11 +262,7 @@ class InputMergeActor(AbstractActor):
         source: Optional[AbstractActor] = None,
     ) -> None:
         with self._lock:
-            self.setStarted()
-            try:
-                self._cache_inputs(source, inData)
-            finally:
-                self.setFinished()
+            self._cache_inputs(source, inData)
 
             if not self._has_all_required_triggers():
                 return
