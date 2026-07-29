@@ -4,14 +4,16 @@ It runs map-reduce style workflows. This script is an example of the Ewoks equiv
 """
 
 import os
-import random
 import time
+from random import SystemRandom
 
 import numpy
 from ewokscore.task import Task
 from silx.io import h5py_utils
 
 from ewoksppf import execute_graph
+
+_random = SystemRandom()
 
 
 class GenerateData(
@@ -20,7 +22,6 @@ class GenerateData(
     optional_input_names=["block_index"],
     output_names=["image_stack", "block_index", "finished"],
 ):
-
     def run(self):
         t0 = time.perf_counter()
         block_index = self.get_input_value("block_index", 0)
@@ -34,7 +35,7 @@ class GenerateData(
         self.outputs.block_index = block_index + 1
         self.outputs.finished = self.outputs.block_index >= self.inputs.nblocks
         t1 = time.perf_counter()
-        print(f"{block_size/(t1-t0)} images/sec")
+        print(f"{block_size / (t1 - t0)} images/sec")
 
 
 class IntegrateData(
@@ -43,7 +44,6 @@ class IntegrateData(
     optional_input_names=["axis", "delay"],
     output_names=["pattern_stack", "block_index"],
 ):
-
     def run(self):
         image_axis = self.get_input_value("axis", 0)
         self.outputs.pattern_stack = self.inputs.image_stack.sum(axis=image_axis + 1)
@@ -51,9 +51,9 @@ class IntegrateData(
 
         delay = self.get_input_value("delay", 0)
         if delay:
-            time.sleep(random.uniform(delay, delay * 1.5))
+            time.sleep(_random.uniform(delay, delay * 1.5))
         else:
-            time.sleep(random.uniform(0, 0.1))
+            time.sleep(_random.uniform(0, 0.1))
 
 
 class SaveData(
@@ -61,7 +61,6 @@ class SaveData(
     input_names=["data_stack", "block_index", "filename"],
     output_names=["hdf5_url"],
 ):
-
     def run(self):
         filename = os.path.abspath(self.inputs.filename)
         block_index = self.inputs.block_index

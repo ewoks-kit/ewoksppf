@@ -10,7 +10,6 @@ from . import bindings
 
 
 class PpfWorkflowEngine(WorkflowEngine):
-
     def execute_graph(
         self,
         graph: Any,
