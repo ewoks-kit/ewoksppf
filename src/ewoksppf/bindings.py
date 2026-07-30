@@ -2,11 +2,14 @@ import os
 import threading
 import warnings
 from contextlib import contextmanager
+from typing import Any
 from typing import Dict
 from typing import Generator
 from typing import List
+from typing import Mapping
 from typing import Optional
 from typing import Sequence
+from typing import Union
 
 from ewokscore import events
 from ewokscore import execute_graph_decorator
@@ -14,8 +17,10 @@ from ewokscore import load_graph
 from ewokscore import ppftasks
 from ewokscore.graph import TaskGraph
 from ewokscore.graph import analysis
+from ewokscore.graph import graph_io
 from ewokscore.inittask import task_executable
 from ewokscore.inittask import task_executable_info
+from ewokscore.missing_data import MISSING_DATA
 from ewokscore.node import NodeIdType
 from ewokscore.node import get_node_label
 from ewokscore.node import get_varinfo
@@ -30,8 +35,20 @@ from pypushflow.StartActor import StartActor
 from pypushflow.StopActor import StopActor
 from pypushflow.ThreadCounter import ThreadCounter
 from pypushflow.Workflow import Workflow
+from pypushflow.WorkflowResults import WORKFLOW_EXCEPTION_INSTANCE_KEY
+from pypushflow.WorkflowResults import OutputSelection
 
 from . import ppfrunscript
+
+WorkflowOutputsType = Union[Dict[str, Any], Dict[NodeIdType, Dict[str, Any]]]
+"""The requested outputs of all tasks merged in a single dictionary or the
+requested outputs of each task.
+"""
+
+_NEW_WORKFLOW_EXCEPTION_KEY = "_NewWorkflowException"
+"""Marks the error data of `WORKFLOW_EXCEPTION_INSTANCE_KEY` as not yet
+propagated to a task that handles it.
+"""
 
 
 def ppfname(node_id: NodeIdType) -> str:
@@ -156,6 +173,7 @@ class ConditionalActor(AbstractActor):
     def _execute(self, inData: dict, _scope_id: Optional[str] = None) -> None:
         trigger = self._conditions_fulfilled(inData)
         if trigger:
+            self._store_result(inData)
             for actor in self.listDownStreamActor:
                 actor.trigger(inData)
 
@@ -188,15 +206,15 @@ class NameMapperActor(AbstractActor):
             actor.register_input_actor(self)
 
     def _execute(self, inData: dict, _scope_id: Optional[str] = None) -> None:
-        is_error = "WorkflowExceptionInstance" in inData and inData.get(
-            "_NewWorkflowException"
+        is_error = WORKFLOW_EXCEPTION_INSTANCE_KEY in inData and inData.get(
+            _NEW_WORKFLOW_EXCEPTION_KEY
         )
         if is_error and not self.trigger_on_error:
             return
         try:
             if is_error:
                 inData = dict(inData)
-                inData["_NewWorkflowException"] = False
+                inData[_NEW_WORKFLOW_EXCEPTION_KEY] = False
             # Map output names of this task to input
             # names of the downstream task
             newInData = dict()
@@ -206,6 +224,7 @@ class NameMapperActor(AbstractActor):
                 newInData[input_name] = inData[output_name]
 
             newInData[ppfrunscript.INFOKEY] = dict(inData[ppfrunscript.INFOKEY])
+            self._store_result(newInData)
             for actor in self.listDownStreamActor:
                 if isinstance(actor, InputMergeActor):
                     actor.trigger(newInData, source=self)
@@ -338,6 +357,7 @@ class InputMergeActor(AbstractActor):
 
     def _trigger_downstream(self, retained_inputs: Optional[dict]):
         merged_inputs = self._downstream_inputs(retained_inputs)
+        self._store_result(merged_inputs)
         for actor in self.listDownStreamActor:
             actor.trigger(merged_inputs)
 
@@ -398,11 +418,11 @@ class EwoksWorkflow(Workflow):
 
         self._threadcounter = ThreadCounter(parent=self)
 
-        self._start_actor = StartActor(name="Start", **self._actor_arguments)
-        self._stop_actor = StopActor(name="Stop", **self._actor_arguments)
+        self.startActor = StartActor(name="Start", **self._actor_arguments)
+        self.stopActor = StopActor(name="Stop", **self._actor_arguments)
 
         self._error_actor = ErrorHandler(name="Stop on error", **self._actor_arguments)
-        self._connect_actors(self._error_actor, self._stop_actor)
+        self._connect_actors(self._error_actor, self.stopActor)
 
     @property
     def _actor_arguments(self):
@@ -620,7 +640,7 @@ class EwoksWorkflow(Workflow):
         taskactors = self._taskactors
         # target_id -> EwoksPythonActor or InputMergeActor
         targetactors = self._targetactors
-        start_actor = self._start_actor
+        start_actor = self.startActor
         has_start_node = False
         for target_id in analysis.start_nodes(taskgraph.graph):
             has_start_node = True
@@ -634,7 +654,7 @@ class EwoksWorkflow(Workflow):
     def _connect_stop_actor(self, taskgraph: TaskGraph):
         # task_name -> EwoksPythonActor
         taskactors = self._taskactors
-        stop_actor = self._stop_actor
+        stop_actor = self.stopActor
         has_end_node = False
         for source_id in analysis.end_nodes(taskgraph.graph):
             has_end_node = True
@@ -644,28 +664,21 @@ class EwoksWorkflow(Workflow):
             raise RuntimeError(f"{taskgraph} has no end node")
 
     @contextmanager
-    def _run_context(
+    def _ewoks_run_context(
         self,
         varinfo: Optional[dict] = None,
         execinfo: Optional[dict] = None,
         task_options: Optional[dict] = None,
-        max_workers: Optional[int] = None,
-        scaling_workers: bool = True,
-        pool_type: Optional[str] = None,
-        **pool_options,
     ) -> Generator[None, None, None]:
+        """Provide the tasks with the ewoks execution options and send the ewoks
+        workflow events.
+        """
         self.startargs[ppfrunscript.INFOKEY]["varinfo"] = varinfo
         self.startargs[ppfrunscript.INFOKEY]["task_options"] = task_options
         graph = self.__ewoksgraph.graph
         with events.workflow_context(execinfo, workflow=graph) as execinfo:
             self.startargs[ppfrunscript.INFOKEY]["execinfo"] = execinfo
-            with super()._run_context(
-                max_workers=max_workers,
-                scaling_workers=scaling_workers,
-                pool_type=pool_type,
-                **pool_options,
-            ):
-                yield
+            yield
 
     def run(
         self,
@@ -681,48 +694,92 @@ class EwoksWorkflow(Workflow):
         scaling_workers: bool = True,
         pool_type: Optional[str] = None,
         **pool_options,
-    ) -> dict:
-        if outputs is None:
-            outputs = [{"all": False}]
-            # TODO: pypushflow returns the values of the last task that was
-            # executed, not all end nodes as is expected here
-        if outputs and (outputs != [{"all": False}] or not merge_outputs):
-            raise ValueError(
-                "the Pypushflow engine can only return the merged results of end tasks"
-            )
-        self._stop_actor.reset()
-        with self._run_context(
-            varinfo=varinfo,
-            execinfo=execinfo,
-            task_options=task_options,
-            max_workers=max_workers,
-            scaling_workers=scaling_workers,
-            pool_type=pool_type,
-            **pool_options,
+    ) -> WorkflowOutputsType:
+        r"""Execute the workflow and return the requested task outputs.
+
+        :param startargs: Extra input data for the start actor, merged with the
+                          graph start arguments. Not part of the Ewoks SPEC.
+        :param raise_on_error: Raise the exception in which the workflow ended.
+                               When `False` no outputs are returned in that case.
+        :param outputs: The task outputs to be returned. All outputs of all end
+                        tasks by default. See `ewokscore.graph.graph_io.parse_outputs`.
+        :param merge_outputs: Merge the outputs of all tasks in a single
+                              dictionary. When `False` the outputs are grouped
+                              per node id.
+        :param timeout: Maximum time in seconds to wait for the workflow to
+                        finish. The outputs of unfinished tasks are missing.
+        :param varinfo: Data persistence configuration of the task outputs.
+        :param execinfo: Ewoks event handling configuration.
+        :param task_options: Extra options for all tasks.
+        :param max_workers: Maximum number of workers in the execution pool.
+        :param scaling_workers: Add workers to the execution pool when needed.
+        :param pool_type: The type of execution pool.
+        :param \**pool_options: Extra options for the execution pool.
+        :returns: The requested task outputs, merged in a single dictionary or
+                  grouped per node id depending on `merge_outputs`. Tasks that
+                  did not finish successfully are absent when grouped per node id.
+                  Empty when the workflow ended in an error state and
+                  `raise_on_error` is `False`.
+        """
+        merge_outputs = bool(merge_outputs)
+        with self._ewoks_run_context(
+            varinfo=varinfo, execinfo=execinfo, task_options=task_options
         ):
-            startindata = dict(self.startargs)
+            inData = dict(self.startargs)
             if startargs:
-                startindata.update(startargs)
+                inData.update(startargs)
 
-            self._start_actor.trigger(startindata)
-            self._stop_actor.join(timeout=timeout)
-            result = self._stop_actor.outData
-            if result is None:
-                return dict()
-            result = self.__parse_result(result)
-            ex = result.get("WorkflowExceptionInstance")
-            if ex is not None and raise_on_error:
-                raise ex
-            if outputs:
-                return result
-            return dict()
+            result = super().run(
+                inData,
+                timeout=timeout,
+                max_workers=max_workers,
+                scaling_workers=scaling_workers,
+                pool_type=pool_type,
+                actor_outputs=self._actor_outputs(outputs),
+                merge_outputs=merge_outputs,
+                missing_value=MISSING_DATA,
+                raise_on_error=raise_on_error,
+                **pool_options,
+            )
+            return self.__parse_result(result, merge_outputs)
 
-    def __parse_result(self, result) -> dict:
+    def _actor_outputs(
+        self, outputs: Optional[List[dict]]
+    ) -> Dict[EwoksPythonActor, List[OutputSelection]]:
+        """Tell pypushflow which actor results need to be stored and how."""
+        actor_outputs: Dict[EwoksPythonActor, List[OutputSelection]] = dict()
+        for output_item in graph_io.parse_outputs(self.__ewoksgraph.graph, outputs):
+            actor = self._taskactors.get(output_item["id"])
+            if actor is None:
+                # The output item refers to a node that is not in the graph
+                continue
+            selections = actor_outputs.setdefault(actor, list())
+            selections.append(
+                OutputSelection(
+                    name=output_item.get("name"), new_name=output_item.get("new_name")
+                )
+            )
+        return actor_outputs
+
+    def __parse_result(
+        self, result: Mapping, merge_outputs: bool
+    ) -> WorkflowOutputsType:
+        """Resolve the values of the pypushflow result and identify the actors
+        by their node id.
+        """
+        if merge_outputs:
+            return self.__parse_values(result)
+        node_ids = {actor: node_id for node_id, actor in self._taskactors.items()}
+        return {
+            node_ids[actor]: self.__parse_values(values)
+            for actor, values in result.items()
+        }
+
+    def __parse_values(self, values: Mapping) -> Dict[str, Any]:
         varinfo = varinfo_from_indata(self.startargs)
         return {
             name: value_from_transfer(value, varinfo=varinfo)
-            for name, value in result.items()
-            if name is not ppfrunscript.INFOKEY
+            for name, value in values.items()
         }
 
 
@@ -749,7 +806,7 @@ def execute_graph(
     pool_type: Optional[str] = None,
     pool_options: Optional[dict] = None,
     **deprecated_pool_options,
-) -> dict:
+) -> WorkflowOutputsType:
     if load_options is None:
         load_options = dict()
     ewoksgraph = load_graph(graph, inputs=inputs, **load_options)

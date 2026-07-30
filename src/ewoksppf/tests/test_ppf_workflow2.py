@@ -1,3 +1,4 @@
+import pytest
 from ewokscore.tests.utils.results import assert_execute_graph_default_result
 
 from ewoksppf import execute_graph
@@ -30,7 +31,12 @@ def workflow2():
 def test_workflow2(ppf_log_config, tmpdir):
     varinfo = {"root_uri": str(tmpdir)}
     graph, expected = workflow2()
-    result = execute_graph(graph, varinfo=varinfo, raise_on_error=False)
-    assert_execute_graph_default_result(graph, result, expected, varinfo=varinfo)
     err_msg = "Intentional error in pythonErrorHandlerTest!"
-    assert err_msg in str(result["WorkflowExceptionInstance"])
+
+    with pytest.raises(RuntimeError, match=err_msg):
+        execute_graph(graph, varinfo=varinfo)
+
+    # The workflow failed so there are no results
+    result = execute_graph(graph, varinfo=varinfo, raise_on_error=False)
+    assert result == dict()
+    assert_execute_graph_default_result(graph, result, expected, varinfo=varinfo)

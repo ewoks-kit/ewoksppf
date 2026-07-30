@@ -7,9 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Support the `outputs` and `merge_outputs` arguments of `execute_graph`.
+
+### Changed
+
+- `execute_graph` returns the requested task outputs instead of the inputs and
+  outputs of the task that finished last.
+- `execute_graph` with `raise_on_error=False` returns no outputs when the
+  workflow fails, like the other Ewoks engines.
+
 ### Fixed
 
 - `InputMergeActor`: possible deadlock for trigger loopback from a downstream node.
+- Task errors are no longer discarded when another execution of that task succeeded.
 
 ## [3.0.0] - 2026-07-01
 
