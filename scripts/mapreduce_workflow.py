@@ -166,5 +166,5 @@ if __name__ == "__main__":
         pool_type="process",  # thread, process, gevent
         scaling_workers=False,
         max_workers=16,
-        raise_error=True,
+        raise_on_error=True,
     )
