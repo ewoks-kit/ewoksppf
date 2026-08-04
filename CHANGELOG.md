@@ -7,14 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0rc1] - 2026-08-04
+
 ### Added
 
 - Support the `outputs` and `merge_outputs` arguments of `execute_graph`.
 
 ### Changed
 
-- `execute_graph` returns the requested task outputs instead of the inputs and
-  outputs of the task that finished last.
 - `execute_graph` with `raise_on_error=False` returns no outputs when the
   workflow fails, like the other Ewoks engines.
 
@@ -158,7 +158,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Convert Ewoks `Graph` to graph of actors for exection.
 
-[unreleased]: https://github.com/ewoks-kit/ewoksppf/compare/v3.0.0...HEAD
+[unreleased]: https://github.com/ewoks-kit/ewoksppf/compare/v3.1.0rc1...HEAD
+[3.1.0rc1]: https://github.com/ewoks-kit/ewoksppf/compare/v3.0.0...v3.1.0rc1
 [3.0.0]: https://github.com/ewoks-kit/ewoksppf/compare/v2.0.2...v3.0.0
 [2.0.2]: https://github.com/ewoks-kit/ewoksppf/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/ewoks-kit/ewoksppf/compare/v2.0.0...v2.0.1
