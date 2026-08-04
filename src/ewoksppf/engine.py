@@ -35,7 +35,7 @@ class PpfWorkflowEngine(WorkflowEngine):
         max_workers: Optional[int] = None,
         scaling_workers: bool = True,
         **deprecated_pool_options,
-    ) -> dict:
+    ) -> bindings.WorkflowOutputsType:
         return bindings.execute_graph(
             graph,
             inputs=inputs,

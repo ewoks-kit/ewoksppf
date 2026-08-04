@@ -1,4 +1,5 @@
 from ewoksutils.import_utils import qualname
+from pypushflow.WorkflowResults import WORKFLOW_EXCEPTION_INSTANCE_KEY
 
 from ewoksppf import execute_graph
 
@@ -163,7 +164,7 @@ def test_ppf_workflow24(ppf_log_config):
     result = execute_graph(workflow(), inputs=inputs, raise_on_error=False)
     succeeded = "task1", "task2", "task3"
     assert result["_ppfdict"]["succeeded"] == succeeded
-    assert "WorkflowExceptionInstance" not in result["_ppfdict"]
+    assert WORKFLOW_EXCEPTION_INSTANCE_KEY not in result["_ppfdict"]
 
     inputs = [
         {"name": "succeeded", "value": tuple()},
@@ -172,7 +173,7 @@ def test_ppf_workflow24(ppf_log_config):
     result = execute_graph(workflow(), inputs=inputs, raise_on_error=False)
     succeeded = "task1", "task2", "subtask1", "subtask2", "subtask3"
     assert result["_ppfdict"]["succeeded"] == succeeded
-    err_msg = str(result["_ppfdict"]["WorkflowExceptionInstance"])
+    err_msg = str(result["_ppfdict"][WORKFLOW_EXCEPTION_INSTANCE_KEY])
     assert "raise on name: task3" in err_msg
 
     inputs = [
@@ -189,7 +190,7 @@ def test_ppf_workflow24(ppf_log_config):
         "subsubtask3",
     )
     assert result["_ppfdict"]["succeeded"] == succeeded
-    err_msg = str(result["_ppfdict"]["WorkflowExceptionInstance"])
+    err_msg = str(result["_ppfdict"][WORKFLOW_EXCEPTION_INSTANCE_KEY])
     assert "raise on name: task3" in err_msg
 
     inputs = [
@@ -199,5 +200,5 @@ def test_ppf_workflow24(ppf_log_config):
     result = execute_graph(workflow(), inputs=inputs, raise_on_error=False)
     succeeded = "task1", "task2", "subtask1", "subtask2", "subsub_handler"
     assert result["_ppfdict"]["succeeded"] == succeeded
-    err_msg = str(result["_ppfdict"]["WorkflowExceptionInstance"])
+    err_msg = str(result["_ppfdict"][WORKFLOW_EXCEPTION_INSTANCE_KEY])
     assert "raise on name: task3" in err_msg
