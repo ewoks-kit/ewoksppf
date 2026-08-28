@@ -16,7 +16,6 @@ from ewokscore import execute_graph_decorator
 from ewokscore import load_graph
 from ewokscore import ppftasks
 from ewokscore.graph import TaskGraph
-from ewokscore.graph import analysis
 from ewokscore.graph import graph_io
 from ewokscore.inittask import task_executable
 from ewokscore.inittask import task_executable_info
@@ -467,9 +466,7 @@ class EwoksWorkflow(Workflow):
                 script=ppfrunscript.__name__ + ".dummy",
                 **self._actor_arguments,
             )
-            if not analysis.node_has_successors(
-                taskgraph.graph, node_id, link_has_on_error=True
-            ):
+            if not taskgraph.analysis.node_has_error_handlers(node_id):
                 self._connect_actors(actor, error_actor)
             taskactors[node_id] = actor
 
@@ -526,7 +523,7 @@ class EwoksWorkflow(Workflow):
         source_actor = taskactors[source_id]
         if conditions:
             conditions = {c["source_output"]: c["value"] for c in conditions}
-            all_conditions = analysis.node_condition_values(taskgraph.graph, source_id)
+            all_conditions = taskgraph.analysis.node_condition_values(source_id)
             conditions_else_value = taskgraph.graph.nodes[source_id].get(
                 "conditions_else_value", None
             )
@@ -583,7 +580,7 @@ class EwoksWorkflow(Workflow):
         cache_if_optional = link_attrs.get("cache_if_optional", False)
 
         # Required link
-        required = analysis.link_is_required(taskgraph.graph, source_id, target_id)
+        required = taskgraph.analysis.link_is_required(source_id, target_id)
 
         source_label = ppfname(source_id)
         target_label = ppfname(target_id)
@@ -612,7 +609,7 @@ class EwoksWorkflow(Workflow):
         # task_name -> EwoksPythonActor
         taskactors = self._taskactors
         for target_id in taskgraph.graph.nodes:
-            predecessors = list(analysis.node_predecessors(taskgraph.graph, target_id))
+            predecessors = list(taskgraph.analysis.node_predecessors(target_id))
             npredecessors = len(predecessors)
             if npredecessors == 0:
                 targetactor = None
@@ -642,7 +639,7 @@ class EwoksWorkflow(Workflow):
         targetactors = self._targetactors
         start_actor = self.startActor
         has_start_node = False
-        for target_id in analysis.start_nodes(taskgraph.graph):
+        for target_id in taskgraph.analysis.start_nodes():
             has_start_node = True
             target_actor = targetactors.get(target_id)
             if target_actor is None:
@@ -656,7 +653,7 @@ class EwoksWorkflow(Workflow):
         taskactors = self._taskactors
         stop_actor = self.stopActor
         has_end_node = False
-        for source_id in analysis.end_nodes(taskgraph.graph):
+        for source_id in taskgraph.analysis.end_nodes():
             has_end_node = True
             source_actor = taskactors[source_id]
             self._connect_actors(source_actor, stop_actor)
@@ -748,7 +745,11 @@ class EwoksWorkflow(Workflow):
     ) -> Dict[EwoksPythonActor, List[OutputSelection]]:
         """Tell pypushflow which actor results need to be stored and how."""
         actor_outputs: Dict[EwoksPythonActor, List[OutputSelection]] = dict()
-        for output_item in graph_io.parse_outputs(self.__ewoksgraph.graph, outputs):
+        for output_item in graph_io.parse_outputs(
+            self.__ewoksgraph.graph,
+            outputs,
+            graph_analysis=self.__ewoksgraph.analysis,
+        ):
             actor = self._taskactors.get(output_item["id"])
             if actor is None:
                 # The output item refers to a node that is not in the graph
