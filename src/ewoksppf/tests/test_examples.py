@@ -5,7 +5,18 @@ from ewokscore.tests.examples.graphs import graph_names
 from ewokscore.tests.utils.results import assert_execute_graph_default_result
 
 
-@pytest.mark.parametrize("graph_name", graph_names())
+def _graph_name_param(name):
+    if name == "triangle1":
+        return pytest.param(
+            name,
+            marks=pytest.mark.filterwarnings(
+                "ignore:Merged workflow results.*are overwritten by actor.*:UserWarning"
+            ),
+        )
+    return name
+
+
+@pytest.mark.parametrize("graph_name", [_graph_name_param(n) for n in graph_names()])
 @pytest.mark.parametrize("scheme", (None, "json"))
 def test_execute_graph(engine, graph_name, scheme, ppf_log_config, tmpdir):
     if graph_name == "self_trigger":

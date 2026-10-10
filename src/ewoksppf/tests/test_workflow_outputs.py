@@ -12,7 +12,12 @@ OUTPUT_CONFIGURATIONS = [
     None,
     [],
     [{"all": False}],
-    [{"all": True}],
+    pytest.param(
+        [{"all": True}],
+        marks=pytest.mark.filterwarnings(
+            "ignore:Merged workflow results.*are overwritten by actor.*:UserWarning"
+        ),
+    ),
     [{"id": "task5"}],
     [{"label": "task5"}],
     [{"id": "task1", "name": "inputs"}, {"id": "task4", "name": "result"}],
@@ -42,6 +47,9 @@ def test_default_outputs(ppf_log_config):
     assert execute_graph(_create_graph()) == dict()
 
 
+@pytest.mark.filterwarnings(
+    "ignore:Merged workflow results.*are overwritten by actor.*:UserWarning"
+)
 def test_all_outputs_merged(ppf_log_config):
     """'task6' is the last task with outputs so it takes precedence."""
     result = execute_graph(_create_graph(), outputs=[{"all": True}])
