@@ -48,11 +48,12 @@ def test_default_outputs(ppf_log_config):
 
 
 @pytest.mark.filterwarnings(
-    "ignore:Merged workflow results.*are overwritten by actor.*:UserWarning"
+    "ignore:This process .* is multi-threaded:DeprecationWarning"
 )
 def test_all_outputs_merged(ppf_log_config):
     """'task6' is the last task with outputs so it takes precedence."""
-    result = execute_graph(_create_graph(), outputs=[{"all": True}])
+    with pytest.warns(UserWarning, match="are overwritten by actor"):
+        result = execute_graph(_create_graph(), outputs=[{"all": True}])
     assert result == {"inputs": {"a": 10, "b": 6}, "result": 16, "label": "task6"}
 
 
