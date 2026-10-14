@@ -14,9 +14,14 @@ OUTPUT_CONFIGURATIONS = [
     [{"all": False}],
     pytest.param(
         [{"all": True}],
-        marks=pytest.mark.filterwarnings(
-            "ignore:Merged workflow results.*are overwritten by actor.*:UserWarning"
-        ),
+        marks=[
+            pytest.mark.filterwarnings(
+                "ignore:Merged workflow results.*are overwritten by actor.*:UserWarning"
+            ),
+            pytest.mark.filterwarnings(
+                "ignore:Merged workflow outputs.*are overwritten by node.*:UserWarning"
+            ),
+        ],
     ),
     [{"id": "task5"}],
     [{"label": "task5"}],
